@@ -93,7 +93,7 @@ namespace blink {
 
       index_type size1() const
       {
-        return m_raster->size2()+1;
+        return m_raster->size2() + 1;
 
       }
 
@@ -110,26 +110,94 @@ namespace blink {
       namespace gs = get_strategy;
       namespace el = element;
 
-      gs::both strategy_lookup_function(el::h_edge);
-      gs::first_only strategy_lookup_function(el::h_edge_first_only);
-      gs::second_only strategy_lookup_function(el::h_edge_second_only);
-      gs::both strategy_lookup_function(el::v_edge);
-      gs::first_only strategy_lookup_function(el::v_edge_first_only);
-      gs::second_only strategy_lookup_function(el::v_edge_second_only);
-
       template<class Element>
-      using strategy_lookup
-        = decltype(strategy_lookup_function(std::declval<Element>()));
+      struct strategy_lookup_helper
+      {
+        struct must_be_specified{};
+        using type = must_be_specified;
+      };
+   
+      template<> 
+      struct strategy_lookup_helper<el::h_edge>
+      {
+        using type = gs::both;
+      };
+      
+      template<> 
+      struct strategy_lookup_helper<el::v_edge>
+      {
+        using type = gs::both;
+      };
+      
+      template<> 
+      struct strategy_lookup_helper<el::h_edge_first_only>
+      {
+        using type = gs::first_only;
+      };
+      
+      template<> 
+      struct strategy_lookup_helper<el::v_edge_first_only>
+      {
+        using type = gs::first_only;
+      };
+      template<> 
+      struct strategy_lookup_helper<el::h_edge_second_only>
+      {
+        using type = gs::second_only;
+      };
+
+      template<> 
+      struct strategy_lookup_helper<el::v_edge_second_only>
+      {
+        using type = gs::second_only;
+      };
+
+      template<class Raster, class Access>
+      struct raster_lookup_helper
+      {
+        struct must_be_specified{};
+        using type = must_be_specified;
+      };
 
       template<class Raster>
-      const Raster raster_lookup_function(access::read_only);
+      struct raster_lookup_helper<Raster, access::read_only>
+      {
+        using type = typename const Raster;
+      };
 
       template<class Raster>
-      typename Raster raster_lookup_function(access::read_write);
+      struct raster_lookup_helper<Raster, access::read_write>
+      {
+        using type = typename Raster;
+      };
 
+
+           
+      //gs::both strategy_lookup_function(el::h_edge);
+      //gs::first_only strategy_lookup_function(el::h_edge_first_only);
+      //gs::second_only strategy_lookup_function(el::h_edge_second_only);
+      //gs::both strategy_lookup_function(el::v_edge);
+      //gs::first_only strategy_lookup_function(el::v_edge_first_only);
+      //gs::second_only strategy_lookup_function(el::v_edge_second_only);
+      //template<class Element>
+      //using strategy_lookup
+      //  = decltype(strategy_lookup_function(std::declval<Element>()));
+     
+      template<class Element>
+      using strategy_lookup =  typename strategy_lookup_helper<Element>::type;
+
+      //template<class Raster>
+      //const Raster raster_lookup_function(access::read_only);
+
+     // template<class Raster>
+      //typename Raster raster_lookup_function(access::read_write);
+
+     // template<class Access, class Raster>
+      //using raster_lookup
+     //   = decltype(raster_lookup_function<Raster>(std::declval<Access>()));
+      
       template<class Access, class Raster>
-      using raster_lookup
-        = decltype(raster_lookup_function<Raster>(std::declval<Access>()));
+      using raster_lookup = typename raster_lookup_helper<Raster, Access>::type;
 
       template<class Orientation, class Element, class Access, class Raster>
       struct edge_view_lookup

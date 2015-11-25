@@ -298,23 +298,25 @@ namespace blink {
       // necessary for iterator_facade
       void decrement()
       {
-        if (m_iterator_second) {
-          --m_iterator_second;
-        }
-        else if (m_iterator_first.get_coordinates().col == 0) {
-          // iterator_first will degress from last row to penultimate row.
-          // set m_iterator_second to last cell in last row
-          m_iterator_second = pixel_view::begin() + size1() * size2() - 1;
-        }
-
         if (m_iterator_first) {
-          if (m_iterator_first != pixel_view::begin()) {
-            --m_iterator_first;
+          if (m_iterator_first != m_pixel_view.begin()) {
+            --(*m_iterator_first);
           }
           else {
-            m_iterator_first == boost::none;
+            m_iterator_first = boost::none;
           }
         }
+        
+        if (m_iterator_second) {
+          --(*m_iterator_second);
+        }
+        else if (m_iterator_first->get_coordinates().row < size1() -1) {
+          // iterator_first will degress from last row to penultimate row.
+          // set m_iterator_second to last cell in last row
+          m_iterator_second = (*m_iterator_first) + size2();
+        }
+
+    
       }
     private:
       template <class, class> friend class h_edge_iterator;
@@ -452,7 +454,7 @@ namespace blink {
     void decrement()
     {
       if (!m_iterator_first) {
-        if (*m_iterator_second == m_pixel_view::begin()){
+        if (*m_iterator_second == m_pixel_view.begin()){
           m_iterator_first = boost::none;
           m_iterator_second = boost::none;
         }
@@ -745,6 +747,15 @@ namespace blink {
     // necessary for iterator_facade
     void increment()
     {
+      // Once iter1 is valid. it remains valid
+      if (m_iterator_first) {
+        ++(*m_iterator_first);
+      }
+      else if (m_iterator_second->get_coordinates().row == size2()-1)
+      {
+        m_iterator_first = m_pixel_view.begin();
+      }
+
       if (m_iterator_second) {
         ++(*m_iterator_second);
         if (m_iterator_second == m_pixel_view.end() ) { 
@@ -752,33 +763,26 @@ namespace blink {
         }
       }
 
-      // Once iter1 is valid. it remains valid
-      if (m_iterator_first) {
-        ++(*m_iterator_first);
-      }
-      else if (m_iterator_second && m_iterator_second->get_coordinates().col > 0)
-      {
-        m_iterator_first = m_pixel_view.begin();
-      }
     }
 
     void decrement()
     {
-      assert(false); // needs debugging
       // Once iter1 is invalid. it remains invalid
       if (m_iterator_first) {
-        --(*m_iterator_first);
-        if (m_iterator_second->get_coordinates().col == 0) {
+        if ((*m_iterator_first) != m_pixel_view.begin()) {
+          --(*m_iterator_first);
+        }
+        else {
           m_iterator_first = boost::none;
         }
       }
 
       // Once iter2 is valid. it remains valid
       if (m_iterator_second) {
-        --(*m_iterator_second)
+        --(*m_iterator_second);
       }
-      else if (m_iterator_first && m_iterator_first.get_coordinates().col > 0) {
-        m_iterator_second = m_iterator_first + size1();
+      else if (m_iterator_first->get_coordinates().col == size2()-1) {
+        m_iterator_second = (*m_iterator_first) + size2();
       }
     }
 

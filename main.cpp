@@ -14,86 +14,89 @@ void create_small()
     i = (index++);
   }
 }
+
+void create_very_small()
+{
+  auto output = blink::raster::create_gdal_raster<int>("very_small.tif", 1, 1);
+  int index = 0;
+  for (auto&& i : output)
+  {
+    i = (index++);
+  }
+}
+
+/*
+void create_zilch()
+{
+  auto output = blink::raster::create_gdal_raster<int>("zilch.tif", 0, 0);
+  int index = 0;
+  for (auto&& i : output)
+  {
+    i = (index++);
+  }
+}
+*/
+
+void print_value(const boost::none_t&)
+{
+  std::cout << 'x';
+}
+
+
+template<class Value>
+void print_value(const Value& v)
+{
+  std::cout << v;
+}
+
+template<class Value>
+void print_value(const boost::optional<Value>& v)
+{
+  if (v){  
+    print_value(*v);
+  }
+  else
+  {
+    print_value(boost::none);
+  }
+}
+template<class A, class B>
+void print_value(const std::pair<A, B>& v)
+{
+  print_value(v.first);
+  std::cout << ' ';
+  print_value(v.second);
+}
+
+
+template<class Iterator, class Value>
+void print_value(const blink::raster::dereference_proxy<Iterator, Value>& value)
+{
+  auto v = Value{ value };
+  print_value(v);
+}
+
 int main()
 {
+  //create_small();
+  //return 0;
+
   auto input = blink::raster::open_gdal_raster<int>("small.tif", GA_Update);
+   
+  auto orientation = blink::raster::orientation::col_major{};
+  auto access = blink::raster::access::read_write{};
+  auto element = blink::raster::element::v_edge{};
 
-  
-  int sum = 0;
-  for (auto&& i : input)
+  auto view = blink::raster::make_raster_view(&input, orientation, element, 
+    access);
+
+  for (auto&& i : view)
   {
-    std::cout << (int)i << std::endl;
-
-  }
- 
-  auto trans = blink::raster::raster_view
-    < blink::raster::orientation::col_major
-    , blink::raster::element::pixel
-    , blink::raster::access::read_write
-    , blink::raster::gdal_raster<int> >(&input);
-
-  int sum2 = 0;
-  for (auto&& i : trans)
-  {
-    std::cout << (int)i << std::endl;
-    sum2 += i;
-  }
-  
- /* using view_type = blink::raster::raster_view
-    < blink::raster::orientation::col_major
-    , blink::raster::element::h_edge
-    , blink::raster::access::read_write
-    , blink::raster::gdal_raster<int> >;
-  using view_type = blink::raster::raster_view_lookup
-    < blink::raster::orientation::col_major
-    , blink::raster::element::h_edge
-    , blink::raster::access::read_write
-    , blink::raster::gdal_raster<int> >::type;
-  */
- using view_type = blink::raster::detail::edge_view_lookup
-    < blink::raster::orientation::col_major
-    , blink::raster::element::h_edge
-    , blink::raster::access::read_write
-    , blink::raster::gdal_raster<int> >::type;
-
-
-  using view_type2 = blink::raster::h_edge_trans_view<
-    blink::raster::gdal_raster<int>,
-    blink::raster::get_strategy::both>;
-
-  static_assert (std::is_same<view_type, blink::raster::h_edge_trans_view<
-    blink::raster::gdal_raster<int>,
-    blink::raster::get_strategy::both> >::value, "check view_type");
- 
- 
-  using iterator_type = view_type2::iterator;
-  using value_type = iterator_type::value_type;
-
-  auto h_edge = view_type2(&input);
-
-  int sum4 = 0;
-  for (auto&& i : h_edge)
-  {
-    value_type v = i;
-
-    if (v.first){  // i.second doesn't work because i is a proxy
-      std::cout << *v.first;
-    }
-    else
-    {
-      std::cout << 'x';
-    }
-    std::cout << ' ';
-    if (v.second){  // i.second doesn't work because i is a proxy
-      std::cout << *v.second;
-    }
-    else
-    {
-      std::cout << 'x';
-    }
+    print_value(i);
     std::cout << std::endl;
-
   }
  
+  std::cout << std::endl;
+   
   return 0;
 }
