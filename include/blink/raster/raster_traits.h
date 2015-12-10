@@ -15,8 +15,8 @@
 // raster_operations define free functions to be overloaded for each raster type. 
 // that default to appropriate member functions. 
 
-#ifndef RASTER_TRAITS_H_AHZ
-#define RASTER_TRAITS_H_AHZ
+#ifndef BLINK_RASTER_RASTER_TRAITS_H_AHZ
+#define BLINK_RASTER_RASTER_TRAITS_H_AHZ
 
 namespace blink {
 

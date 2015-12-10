@@ -191,7 +191,7 @@ namespace blink {
       const boost::filesystem::path& path, const gdal_raster<U>& model, 
       GDALDataType datatype = native_gdal_data_type<T>::type)
     {
-      return detail::gdal_maker::create_gdal_raster_from_model<T>(path, model,
+      return detail::gdal_makers::create_gdal_raster_from_model<T>(path, model,
         datatype);
     }
 
