@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//XMLmind//DTD BoostBook//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+  <title><replaceable>gdal_raster</replaceable></title>
+
+  <section>
+    <title>Description</title>
+
+    <para>This class provides an interface to file based raster datasets as
+    supported by the GDAL library. The interface is less flexible than the
+    underlying GDALDataSet but also simpler. Although GDAL supports a wide
+    range of data types, the class has not been tested with any other than
+    GEOTIFF.</para>
+  </section>
+
+  <section>
+    <title>Example of use</title>
+
+    <para>The example below calculates the mean value of an input
+    raster</para>
+
+    <programlisting>gdal_raster&lt;int&gt; raster("input.tif", GAReadOnly);
+int sum = 0;
+for(auto i : raster){
+  sum += i;
+}
+int count = raster.size1() * raster.size2();
+double mean = static_cast&lt;double&gt;(sum) / count;</programlisting>
+  </section>
+
+  <section>
+    <title>Definition</title>
+
+    <para>&lt;moving_window/gdal_raster.h&gt;</para>
+  </section>
+
+  <section>
+    <title>Model of</title>
+
+    <para>Raster, Range</para>
+  </section>
+
+  <section>
+    <title>Type requirements</title>
+
+    <para><code>T</code> must be POD. It has not been tested for anything but
+    : int, unsigned char, float, double.</para>
+  </section>
+
+  <section>
+    <title>Members</title>
+
+    <para><table>
+        <title>Member functions of gdal_raster</title>
+
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry align="center">member function</entry>
+
+              <entry align="center">usage</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><para><code>gdal_raster()</code></para></entry>
+
+              <entry>default constructor, leaves the object in a useless but
+              valid state.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>gdal_raster(const
+              boost::filesystem::path&amp; file_path, GDALAccess access, int
+              band = 1)</code></para></entry>
+
+              <entry>constructs a gdal_raster for the given file. Access must
+              be either GARead or GAUpdate. By default the first band in the
+              dataset is used.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>gdal_raster(GDALDataset * dataset, const
+              boost::filesystem::path&amp; file_path, int band = 1)
+              </code></para></entry>
+
+              <entry>constructs a gdal_raster that wraps around an existing
+              GDALDataset. By default the first band in the dataset is
+              used.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>gdal_raster(gdal_raster&lt;T&gt;&amp;&amp;
+              other)</code></para></entry>
+
+              <entry>move constructor (there is no copy constructor)</entry>
+            </row>
+
+            <row>
+              <entry><para><code>gdal_raster&amp;
+              operator=(gdal_raster&lt;T&gt;&amp;&amp;
+              other)</code></para></entry>
+
+              <entry>move assignment (there is no copy assignment)</entry>
+            </row>
+
+            <row>
+              <entry><para><code>~gdal_raster()</code></para></entry>
+
+              <entry>destructor, upon construction the dataset is flushed and
+              closed. Depending on a flag, the dataset may also be
+              deleted</entry>
+            </row>
+
+            <row>
+              <entry><para><code>void set_delete_on_close(bool
+              v)</code></para></entry>
+
+              <entry>Sets the flag that determines whether the dataset will be
+              deleted on destruction. Initially this flag is always set to
+              false.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>bool get_delete_on_close()
+              const</code></para></entry>
+
+              <entry>Reads the flag that determines whether the dataset will
+              be deleted on destruction.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>template&lt;typename Iterator&gt; Iterator
+              begin() const</code></para><para><code>template&lt;typename
+              Iterator&gt; Iterator begin()
+              </code></para><para><code>template&lt;typename Iterator&gt;
+              Iterator end()
+              const</code></para><para><code>template&lt;typename Iterator&gt;
+              Iterator end()</code></para></entry>
+
+              <entry>these are implementation details to help create
+              non-default iterators, do not use.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>iterator begin()
+              const</code></para><para><code>iterator begin()
+              </code></para><para><code>iterator end()
+              const</code></para><para><code>iterator
+              end()</code></para></entry>
+
+              <entry>these return begin and end values for the
+              <code>gdal_iterator</code> that iterates row-by-row and within
+              rows column-by-column over all pixels.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>index_type size1()
+              const</code></para></entry>
+
+              <entry>get the number of rows.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>index_type size2()
+              const</code></para></entry>
+
+              <entry>get the number of columns.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>T get(const coordinate_type&amp; coord)
+              const</code></para></entry>
+
+              <entry>get the value of an individual pixel.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>void put(const coordinate_type&amp; coord,
+              const T&amp; value)</code></para></entry>
+
+              <entry>set the value of an individual pixel.</entry>
+            </row>
+
+            <row>
+              <entry><para><code>index_type block_size1()
+              const</code></para><para><code>index_type block_size2()
+              const</code></para><para><code>T get_pixel_in_block(index_type
+              block, index_type index_in_block) const
+              </code></para><para><code>void put_pixel_in_block(index_type
+              block, index_type index_in_block, const T&amp;
+              value)</code></para></entry>
+
+              <entry>these are implementation details that are used by
+              gdal_iterator, do not use.</entry>
+            </row>
+
+            <row>
+              <entry><code>const GDALDataset* get_gdal_dataset()
+              const</code></entry>
+
+              <entry>get access to the underlying GDALDataset</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table><table>
+        <title>Member types of gdal_raster</title>
+
+        <tgroup cols="2">
+          <thead>
+            <row>
+              <entry align="center">typedef</entry>
+
+              <entry align="center">equivalent</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry><para><code>iterator</code></para></entry>
+
+              <entry><code>gdal_iterator&lt;gdal_raster&lt;T&gt;
+              &gt;</code></entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table></para>
+  </section>
+</section>

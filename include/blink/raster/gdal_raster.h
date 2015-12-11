@@ -230,19 +230,19 @@ namespace blink {
         return m_gdal_dataset->GetRasterXSize();
       }
 
-      // Pixel access?
+      // Pixel access
       //
-      //T get(const coordinate_type& coord) const
-      //{
-      //  const void* buf = get_buf(get_major_index(coord));
-      //  return get_pixel(buf, get_minor_index(coord));
-      //}
-      //
-      //void put(const coordinate_type& coord, const T& value)
-      //{
-      // void* buf = get_buf_for_writing(get_major_index(coord));
-      //return put_pixel(value, buf, get_minor_index(coord));
-      //}
+      T get(const coordinate_type& coord) const
+      {
+        const void* buf = get_buf(get_major_index(coord));
+        return get_pixel(buf, get_minor_index(coord));
+      }
+      
+      void put(const coordinate_type& coord, const T& value)
+      {
+       void* buf = get_buf_for_writing(get_major_index(coord));
+       return put_pixel(value, buf, get_minor_index(coord));
+      }
 
 //   private: // should be private??
 //    template<class> friend class gdal_iterator;
@@ -270,10 +270,10 @@ namespace blink {
         void* buf = get_buf_for_writing(block);
         return put_pixel(value, buf, index_in_block);
       }
-      //const GDALDataset* get_gdal_dataset() const
-      //{
-      //  return m_gdal_dataset;
-      //}
+      const GDALDataset* get_gdal_dataset() const
+      {
+        return m_gdal_dataset;
+      }
 
     private:
       void initialize()

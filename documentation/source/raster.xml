@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE library PUBLIC "-//XMLmind//DTD BoostBook V1.1//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<library dirname="any" id="any"
+         last-revision="$Date: 2008-07-12 20:16:17 +0100 (Sat, 12 Jul 2008) $"
+         name="Any">
+  <libraryinfo>
+    <author>
+      <firstname><replaceable>Alex Hagen-Zanker</replaceable></firstname>
+    </author>
+
+    <librarypurpose>Working with rasters in C++</librarypurpose>
+
+    <librarycategory name="category:data-structures">C++11</librarycategory>
+  </libraryinfo>
+
+  <title><replaceable>Raster</replaceable></title>
+
+  <xi:include href="introduction.xml" 
+              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+ 
+  <xi:include href="motivating_example.xml" 
+              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <xi:include href="installation.xml" 
+              xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+  <section>
+    <title>General</title>
+
+   
+    <xi:include href="supported_datatypes_for_raster_creation.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  </section>
+
+  <section>
+    <title>Types</title>
+
+    <xi:include href="type_gdal_raster.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+  </section>
+
+  <section>
+    <title>Functions</title>
+
+    <xi:include href="function_open_gdal_raster.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+    <xi:include href="function_create_gdal_raster.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+    <xi:include href="function_create_gdal_raster_from_model.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+    <xi:include href="function_create_temp_gdal_raster.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+
+    <xi:include href="function_create_temp_gdal_raster_from_model.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  </section>
+ <section>
+    <title>Concepts</title>
+    <xi:include href="concept_raster.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  </section>
+
+ </library>

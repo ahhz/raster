@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//XMLmind//DTD BoostBook//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+  <title>create_temp_gdal_raster</title>
+
+  <section>
+    <title>Prototype</title>
+
+    <para><code>namespace moving_window {</code></para>
+
+    <para><code> template&lt;typename T&gt; gdal_raster&lt;T&gt;
+    create_temp_gdal_raster(int rows, int cols)</code></para>
+
+    <para><code> template&lt;typename T&gt; gdal_raster&lt;T&gt;
+    create_temp_gdal_raster(int rows, int cols, GDALDataType
+    datatype)</code></para>
+
+    <para><code>}</code></para>
+  </section>
+
+  <section>
+    <title>Description</title>
+
+    <para>This function creates a temporary TIFF raster file dataset and
+    returns a gdal_raster&lt;T&gt; associated with the opened raster dataset.
+    Upon deletion of the gdal_raster, the dataset will be deleted too. There
+    are two overloads of this function, either the user specifies the datatype
+    for the raster dataset, or a default is selected based on the template
+    argument T.</para>
+  </section>
+
+  <section>
+    <title>Definition</title>
+
+    <para>The function is defined in "moving_window/utility.h"</para>
+  </section>
+
+  <section>
+    <title>Type requirements</title>
+
+    <para><code>T</code> must be POD and fit within the space associated. If
+    the datatype is not specified native_data_type&lt;T&gt;::type is the
+    default.</para>
+  </section>
+
+  <section>
+    <title>Preconditions</title>
+
+    <para>None</para>
+  </section>
+
+  <section>
+    <title>Example of use</title>
+
+    <para>The following example creates an integer raster of 50 rows by 75
+    columns.</para>
+
+    <para><programlisting>auto ras = create_temp_gdal_raster&lt;int&gt;(50,75);</programlisting></para>
+  </section>
+
+  <section>
+    <title>See Also</title>
+
+    <para>create_gdal_raster_from_model, create_temp_gdal_raster,
+    create_temp_gdal_raster_from_model, open_gdal_raster, gdal_raster</para>
+  </section>
+</section>

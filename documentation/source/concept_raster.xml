@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//XMLmind//DTD BoostBook//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+  <title>Raster</title>
+
+  <section>
+    <title>Summary</title>
+
+    <para>The Moving Window library works with data that conforms to the
+    Raster Concept. Geographical raster layers carry information of the
+    spatial distribution of some variable. The data is stored in a matrix that
+    corresponds to a regular grid and where the each cell, or pixel,
+    corresponds to a square square geograpical area. To convert from matrix
+    indices to geographical coordinates it is necessary to know the
+    orientation of the grid, its corner coordinates and the size of each cell.
+    The moving window library is not concerned with these, because it assumes
+    that all raster layers that are used are identical in orientation, extent
+    and cell size. </para>
+
+    <para>Thus a Raster is not more than a matrix. The operation on Raster
+    that are supported are to query the dimension of the matrix and to access
+    values. Specifically the moving window library needs to iterate over
+    pixels and edges (pairs of adjacent pixels). For this the Raster most have
+    associated views and iterators. </para>
+  </section>
+
+  <section>
+    <title>Associated Types</title>
+
+    <para>The following types are used as tags to specify different forms of
+    iteration over rasters:</para>
+
+    <para>moving_window::raster_iterator_tag::orientation::row_major;
+    moving_window::raster_iterator_tag::orientation::col_major;
+    moving_window::raster_iterator_tag::element::pixel;
+    moving_window::raster_iterator_tag::element::h_edge;
+    moving_window::raster_iterator_tag::element::h_edge_first_only;
+    moving_window::raster_iterator_tag::element::h_edge_second_only;
+    moving_window::raster_iterator_tag::element::v_edge;
+    moving_window::raster_iterator_tag::element::v_edge_first_only;
+    moving_window::raster_iterator_tag::element::v_edge_second_only;
+    moving_window::raster_iterator_tag::access::read_only;
+    moving_window::raster_iterator_tag::access::read_write; </para>
+  </section>
+
+  <section>
+    <title>Valid Expressions</title>
+
+    <table>
+      <title/>
+
+      <tgroup cols="3">
+        <tbody>
+          <row>
+            <entry>Expression</entry>
+
+            <entry>Effect</entry>
+
+            <entry>Default (moving_windows/raster_traits.h)</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_traits::value_type&lt;R&gt;::type</entry>
+
+            <entry>the value type of raster elements</entry>
+
+            <entry>R::value_type</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_traits::coordinate_type&lt;R&gt;::type</entry>
+
+            <entry>the type used to give raster coordinate pairs, must conform
+            to the Coordinate concept (not documented)</entry>
+
+            <entry>R::coordinate_type</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_traits::index_type&lt;R&gt;::type</entry>
+
+            <entry>the type used give individual raster coordinates, must be
+            some integer type</entry>
+
+            <entry>R::index_type</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_traits::iterator&lt;ElementTag,
+            OrientationTag, AccessTag, R&gt;::type</entry>
+
+            <entry>erator type for the raster for the raster. The tags must be
+            chosen from the following list given above.</entry>
+
+            <entry>There is no default type for the pixel iterators, but the
+            edge iterators are by default derived from the pixel iterators (in
+            moving_window/edge_iterator.h).</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_operations::begin&lt;ElementTag,
+            OrientationTag, AccessTag, R&gt;(r)</entry>
+
+            <entry>return the iterator characterized by the Tags at the begin
+            of he raster.</entry>
+
+            <entry>r.begin&lt;iterator&lt;ElementTag, OrientationTag,
+            AccessTag, R&gt;::type&gt;();</entry>
+          </row>
+
+          <row>
+            <entry>moving_windows::raster_operations::end&lt;ElementTag,
+            OrientationTag, AccessTag, R&gt;(r)</entry>
+
+            <entry>return the iterator characterized by the Tags at the end of
+            he raster.</entry>
+
+            <entry>r.end&lt;iterator&lt;ElementTag, OrientationTag, AccessTag,
+            R&gt;::type&gt;();</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+    <para/>
+  </section>
+</section>

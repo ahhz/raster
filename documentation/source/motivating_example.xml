@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE library PUBLIC "-//XMLmind//DTD BoostBook V1.1//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+  <title>Motivating Example</title>
+
+  <para>The following is an example of the library, used to open a raster file and print all of its vertical edges.
+  </para>
+
+  <programlisting>
+  int main()
+{
+  //create_small();
+  //return 0;
+
+  auto input = blink::raster::open_gdal_raster&lt;int&gt("small.tif", GA_Update);
+   
+  auto orientation = blink::raster::orientation::col_major{}; // iterate column by column 
+  auto access = blink::raster::access::read_write{};
+  auto element = blink::raster::element::v_edge{}; // iterator over vertical edges
+
+  auto view = blink::raster::make_raster_view(&ampinput, orientation, element, 
+    access);
+
+  for (auto&amp&amp i : view)
+  {
+    print_value(i);
+    std::cout &lt&lt std::endl;
+  }
+ 
+  std::cout &lt&lt std::endl;
+   
+  return 0;
+}
+</programlisting>
+
+  <para>The following are the details that are left out:
+  </para>
+
+    <programlisting>
+int main()
+{
+  //create_small();
+  //return 0;
+
+  auto input = blink::raster::open_gdal_raster&lt;int&gt("small.tif", GA_Update);
+   
+  auto orientation = blink::raster::orientation::col_major{}; // iterate column by column 
+  auto access = blink::raster::access::read_write{};
+  auto element = blink::raster::element::v_edge{}; // iterator over vertical edges
+
+  auto view = blink::raster::make_raster_view(&ampinput, orientation, element, 
+    access);
+
+  for (auto&amp&amp i : view)
+  {
+    print_value(i);
+    std::cout &lt&lt std::endl;
+  }
+ 
+  std::cout &lt&lt std::endl;
+   
+  return 0;
+}
+</programlisting>
+#include &ltblink/raster/edge_iterator.h&gt
+#include &ltblink/raster/edge_view.h&gt
+#include &ltblink/raster/gdal_raster_view.h&gt
+#include &ltblink/raster/raster_iterator.h&gt
+#include &ltblink/raster/raster_traits.h&gt
+#include &ltblink/raster/utility.h&gt
+
+void create_small()
+{
+  auto output = blink::raster::create_gdal_raster&ltint&gt("small.tif", 3, 4);
+  int index = 0;
+  for (auto&amp&amp i : output)
+  {
+    i = (index++);
+  }
+}
+
+void print_value(const boost::none_t&amp)
+{
+  std::cout &lt&lt 'x';
+}
+
+
+template&ltclass Value&gt
+void print_value(const Value&amp v)
+{
+  std::cout &lt&lt v;
+}
+
+template&ltclass Value&gt
+void print_value(const boost::optional&ltValue&gt&amp v)
+{
+  if (v){  
+    print_value(*v);
+  }
+  else
+  {
+    print_value(boost::none);
+  }
+}
+template&ltclass A, class B&gt
+void print_value(const std::pair&ltA, B&gt&amp v)
+{
+  print_value(v.first);
+  std::cout &lt&lt ' ';
+  print_value(v.second);
+}
+
+
+template&ltclass Iterator, class Value>
+void print_value(const blink::raster::dereference_proxy&ltIterator, Value&gt&amp value)
+{
+  auto v = Value{ value };
+  print_value(v);
+}
+
+int main()
+{
+  //create_small();
+  //return 0;
+
+  auto input = blink::raster::open_gdal_raster&lt;int&gt("small.tif", GA_Update);
+   
+  auto orientation = blink::raster::orientation::col_major{}; // iterate column by column 
+  auto access = blink::raster::access::read_write{};
+  auto element = blink::raster::element::v_edge{}; // iterator over vertical edges
+
+  auto view = blink::raster::make_raster_view(&ampinput, orientation, element, 
+    access);
+
+  for (auto&amp&amp i : view)
+  {
+    print_value(i);
+    std::cout &lt&lt std::endl;
+  }
+ 
+  std::cout &lt&lt std::endl;
+   
+  return 0;
+}
+</section>

@@ -18,6 +18,7 @@
 #include <blink/raster/gdal_raster.h>
 #include <blink/raster/gdal_raster_iterator.h>
 #include <blink/raster/raster_iterator.h>
+#include <blink/raster/raster_view.h>
 
 
 namespace blink {

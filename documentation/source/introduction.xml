@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<section>
+  <title>Introduction</title>
+
+  <para>Analysis on Rasters is common in image processing and geographical analysis. This library provides tools to access geographical data sources as ranges. It provide wrappers and convenience functions to make use of any raster formats supported by GDAL. The different views of the raster allow iteration of pixels or edges (pairs of adjacent pixels) and in row-major or col-major direction. The library is work in progress, even though it is stabilising now I am using it for multiple project. Please contact the author(a.hagen-zanker@surrey.ac.uk) if you are interested in using this for your work or research.</para>
+
+  <para><emphasis>Note:</emphasis> This is not a Boost library or intended to
+  become one, I am just trying to use the tools recommended on the <ulink
+  url="http://http://rrsd.com/blincubator.com/">Boost Library
+  Incubator</ulink>.</para>
+</section>

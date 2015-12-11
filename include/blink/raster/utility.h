@@ -198,13 +198,13 @@ namespace blink {
     template<typename T>
     gdal_raster<T> create_temp_gdal_raster(int rows, int cols, GDALDataType datatype = native_gdal_data_type<T>::type)
     {
-      return detail::gdal_maker::create_temp_gdal_raster<T>(rows, cols, datatype);
+      return detail::gdal_makers::create_temp_gdal_raster<T>(rows, cols, datatype);
     }
 
     template<typename T, typename U>
     gdal_raster<T> create_temp_gdal_raster_from_model(const gdal_raster<U>& model, GDALDataType datatype = native_gdal_data_type<T>::type)
     {
-      return detail::gdal_maker::create_temp_gdal_raster_from_model<T>(model,
+      return detail::gdal_makers::create_temp_gdal_raster_from_model<T>(model,
         datatype);
     }
   }
