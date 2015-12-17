@@ -20,9 +20,10 @@
     <para>The example below calculates the mean value of an input
     raster</para>
 
-    <programlisting>gdal_raster&lt;int&gt; raster("input.tif", GAReadOnly);
+    <programlisting>
+gdal_raster&lt;int&gt; raster("input.tif", GAReadOnly);
 int sum = 0;
-for(auto i : raster){
+for(auto&amp;&amp; i : raster){
   sum += i;
 }
 int count = raster.size1() * raster.size2();
@@ -132,41 +133,33 @@ double mean = static_cast&lt;double&gt;(sum) / count;</programlisting>
             </row>
 
             <row>
-              <entry><para><code>template&lt;typename Iterator&gt; Iterator
-              begin() const</code></para><para><code>template&lt;typename
-              Iterator&gt; Iterator begin()
-              </code></para><para><code>template&lt;typename Iterator&gt;
-              Iterator end()
-              const</code></para><para><code>template&lt;typename Iterator&gt;
-              Iterator end()</code></para></entry>
-
-              <entry>these are implementation details to help create
-              non-default iterators, do not use.</entry>
+              <entry><para><code>const_iterator begin() const</code></para>
+			  <para><code>const_iterator cbegin() const</code></para></entry>
+              <entry>get the const_iterator corresponding to the first pixel.</entry>
+            </row>
+            <row>
+              <entry><para><code>const_iterator end() const</code></para>
+			  <para><code>const_iterator cend() const</code></para></entry>
+              <entry>get the const_iterator one past the last pixel.</entry>
             </row>
 
             <row>
-              <entry><para><code>iterator begin()
-              const</code></para><para><code>iterator begin()
-              </code></para><para><code>iterator end()
-              const</code></para><para><code>iterator
-              end()</code></para></entry>
-
-              <entry>these return begin and end values for the
-              <code>gdal_iterator</code> that iterates row-by-row and within
-              rows column-by-column over all pixels.</entry>
+              <entry><para><code>iterator begin()</code></para></entry>
+              <entry>get the iterator corresponding to the first pixel.</entry>
             </row>
-
+            <row>
+              <entry><para><code>iterator end()</code></para></entry>
+              <entry>get the iterator one past the last pixel.</entry>
+            </row>
             <row>
               <entry><para><code>index_type size1()
               const</code></para></entry>
-
               <entry>get the number of rows.</entry>
             </row>
 
             <row>
               <entry><para><code>index_type size2()
               const</code></para></entry>
-
               <entry>get the number of columns.</entry>
             </row>
 
@@ -224,6 +217,27 @@ double mean = static_cast&lt;double&gt;(sum) / count;</programlisting>
               <entry><code>gdal_iterator&lt;gdal_raster&lt;T&gt;
               &gt;</code></entry>
             </row>
+			<row>
+              <entry><para><code>const_iterator</code></para></entry>
+
+              <entry><code>gdal_iterator&lt;const gdal_raster&lt;T&gt;
+              &gt;</code></entry>
+            </row>
+			<row>
+              <entry><para><code>value_type</code></para></entry>
+
+              <entry><code>T</code></entry>
+            </row>
+			<row>
+              <entry><para><code>coordinate_type</code></para></entry>
+
+              <entry><code>coordinate_2d</code></entry>
+            </row>
+			<row>
+              <entry><para><code>index_type</code></para></entry>
+
+              <entry><code>std::ptr_diff</code></entry>
+            </row>	
           </tbody>
         </tgroup>
       </table></para>

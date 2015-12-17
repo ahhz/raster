@@ -37,6 +37,9 @@
 
     <xi:include href="type_gdal_raster.xml"
                 xmlns:xi="http://www.w3.org/2001/XInclude"/>
+   
+   <xi:include href="type_raster_view.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
 
   </section>
 
@@ -62,6 +65,10 @@
     <title>Concepts</title>
     <xi:include href="concept_raster.xml"
                 xmlns:xi="http://www.w3.org/2001/XInclude"/>
-  </section>
+    <xi:include href="concept_range.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+    <xi:include href="concept_iterator.xml"
+                xmlns:xi="http://www.w3.org/2001/XInclude"/>
+</section>
 
  </library>

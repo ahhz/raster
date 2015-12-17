@@ -1,0 +1,453 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Types</title>
+<link rel="stylesheet" href="../boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="prev" href="s04.html" title="General">
+<link rel="next" href="s06.html" title="Functions">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="spirit-nav">
+<a accesskey="p" href="s04.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n" href="s06.html"><img src="../images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm1564905744"></a>Types</h2></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="s05.html#idm1564905104"><em class="replaceable"><code>gdal_raster</code></em></a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564850448"><em class="replaceable"><code>raster_view</code></em></a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm1564905104"></a><em class="replaceable"><code>gdal_raster</code></em>
+</h3></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="s05.html#idm1564904336">Description</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564903184">Example of use</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564901520">Definition</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564900368">Model of</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564899216">Type requirements</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564897680">Members</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564904336"></a>Description</h4></div></div></div>
+<p>This class provides an interface to file based raster datasets as
+    supported by the GDAL library. The interface is less flexible than the
+    underlying GDALDataSet but also simpler. Although GDAL supports a wide
+    range of data types, the class has not been tested with any other than
+    GEOTIFF.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564903184"></a>Example of use</h4></div></div></div>
+<p>The example below calculates the mean value of an input
+    raster</p>
+<pre class="programlisting">
+gdal_raster&lt;int&gt; raster("input.tif", GAReadOnly);
+int sum = 0;
+for(auto&amp;&amp; i : raster){
+  sum += i;
+}
+int count = raster.size1() * raster.size2();
+double mean = static_cast&lt;double&gt;(sum) / count;</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564901520"></a>Definition</h4></div></div></div>
+<p>&lt;moving_window/gdal_raster.h&gt;</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564900368"></a>Model of</h4></div></div></div>
+<p>Raster, Range</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564899216"></a>Type requirements</h4></div></div></div>
+<p><code class="computeroutput">T</code> must be POD. It has not been tested for anything but
+    : int, unsigned char, float, double.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564897680"></a>Members</h4></div></div></div>
+<div class="table">
+<a name="idm1564896912"></a><p class="title"><b>Table&#160;1.2.&#160;Member functions of gdal_raster</b></p>
+<div class="table-contents"><table class="table" summary="Member functions of gdal_raster">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="center">member function</th>
+<th align="center">usage</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><code class="computeroutput">gdal_raster()</code></p></td>
+<td>default constructor, leaves the object in a useless but
+              valid state.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">gdal_raster(const
+              boost::filesystem::path&amp; file_path, GDALAccess access, int
+              band = 1)</code></p></td>
+<td>constructs a gdal_raster for the given file. Access must
+              be either GARead or GAUpdate. By default the first band in the
+              dataset is used.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">gdal_raster(GDALDataset * dataset, const
+              boost::filesystem::path&amp; file_path, int band = 1)
+              </code></p></td>
+<td>constructs a gdal_raster that wraps around an existing
+              GDALDataset. By default the first band in the dataset is
+              used.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">gdal_raster(gdal_raster&lt;T&gt;&amp;&amp;
+              other)</code></p></td>
+<td>move constructor (there is no copy constructor)</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">gdal_raster&amp;
+              operator=(gdal_raster&lt;T&gt;&amp;&amp;
+              other)</code></p></td>
+<td>move assignment (there is no copy assignment)</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">~gdal_raster()</code></p></td>
+<td>destructor, upon construction the dataset is flushed and
+              closed. Depending on a flag, the dataset may also be
+              deleted</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">void set_delete_on_close(bool
+              v)</code></p></td>
+<td>Sets the flag that determines whether the dataset will be
+              deleted on destruction. Initially this flag is always set to
+              false.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">bool get_delete_on_close()
+              const</code></p></td>
+<td>Reads the flag that determines whether the dataset will
+              be deleted on destruction.</td>
+</tr>
+<tr>
+<td>
+<p><code class="computeroutput">const_iterator begin() const</code></p>
+			  <p><code class="computeroutput">const_iterator cbegin() const</code></p>
+</td>
+<td>get the const_iterator corresponding to the first pixel.</td>
+</tr>
+<tr>
+<td>
+<p><code class="computeroutput">const_iterator end() const</code></p>
+			  <p><code class="computeroutput">const_iterator cend() const</code></p>
+</td>
+<td>get the const_iterator one past the last pixel.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">iterator begin()</code></p></td>
+<td>get the iterator corresponding to the first pixel.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">iterator end()</code></p></td>
+<td>get the iterator one past the last pixel.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index_type size1()
+              const</code></p></td>
+<td>get the number of rows.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index_type size2()
+              const</code></p></td>
+<td>get the number of columns.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">T get(const coordinate_type&amp; coord)
+              const</code></p></td>
+<td>get the value of an individual pixel.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">void put(const coordinate_type&amp; coord,
+              const T&amp; value)</code></p></td>
+<td>set the value of an individual pixel.</td>
+</tr>
+<tr>
+<td>
+<p><code class="computeroutput">index_type block_size1()
+              const</code></p>
+<p><code class="computeroutput">index_type block_size2()
+              const</code></p>
+<p><code class="computeroutput">T get_pixel_in_block(index_type
+              block, index_type index_in_block) const
+              </code></p>
+<p><code class="computeroutput">void put_pixel_in_block(index_type
+              block, index_type index_in_block, const T&amp;
+              value)</code></p>
+</td>
+<td>these are implementation details that are used by
+              gdal_iterator, do not use.</td>
+</tr>
+<tr>
+<td><code class="computeroutput">const GDALDataset* get_gdal_dataset()
+              const</code></td>
+<td>get access to the underlying GDALDataset</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break"></p>
+<div class="table">
+<a name="idm1564863120"></a><p class="title"><b>Table&#160;1.3.&#160;Member types of gdal_raster</b></p>
+<div class="table-contents"><table class="table" summary="Member types of gdal_raster">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="center">typedef</th>
+<th align="center">equivalent</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><code class="computeroutput">iterator</code></p></td>
+<td><code class="computeroutput">gdal_iterator&lt;gdal_raster&lt;T&gt;
+              &gt;</code></td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">const_iterator</code></p></td>
+<td><code class="computeroutput">gdal_iterator&lt;const gdal_raster&lt;T&gt;
+              &gt;</code></td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">value_type</code></p></td>
+<td><code class="computeroutput">T</code></td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">coordinate_type</code></p></td>
+<td><code class="computeroutput">coordinate_2d</code></td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index_type</code></p></td>
+<td><code class="computeroutput">std::ptr_diff</code></td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break"></p>
+</div>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="idm1564850448"></a><em class="replaceable"><code>raster_view</code></em>
+</h3></div></div></div>
+<div class="toc"><dl class="toc">
+<dt><span class="section"><a href="s05.html#idm1564849680">Description</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564848656">Example of use</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564846992">Definition</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564845968">Model of</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564844944">Type requirements</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564825488">Members</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1564797200">Things that will change</a></span></dt>
+</dl></div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564849680"></a>Description</h4></div></div></div>
+<p>The raster_view typedef is the mechanism of selecting a specific view of a raster. The underlying raster_view_lookup struct is used as a customization point to define a raster views.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564848656"></a>Example of use</h4></div></div></div>
+<p>The example opens a gdal_raster and subsequently creates a view that iterates over its pixels in column-by-column</p>
+<pre class="programlisting">
+auto raster = blink::raster::open_gdal_raster&lt;int&gt;("input.tif", GAReadOnly);
+using orientation = raster::orientation::col_major;
+using element = raster::element::pixel;
+using access = raster::access::read_only;
+auto view = blink::raster_view&lt;orientation, element, access, gdal_raster&lt;int&gt; &gt;{&amp;raster};
+
+int sum = 0;
+for(auto&amp;&amp; i : view){
+  sum += i;
+}
+int count = view.size1() * view.size2();
+double mean = static_cast&lt;double&gt;(sum) / count;
+		</pre>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564846992"></a>Definition</h4></div></div></div>
+<p>&lt;moving_window/raster_view.h&gt;</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564845968"></a>Model of</h4></div></div></div>
+<p>Range: a view is a range, in the sense that it has the be</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564844944"></a>Type requirements</h4></div></div></div>
+<p><code class="computeroutput">Orientation</code> must be on of the following:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::row_major</code>
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::col_major</code>
+				</p></li>
+</ul></div>
+<p><code class="computeroutput">Element</code> must be on of the following:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::pixel</code>
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::h_edge</code> (horizontal edge)
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::v_edge</code>  (vertical edge)
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::h1_edge</code> (deprecated: top pixel along a horizontal edge)
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::v1_edge</code>  (deprecated: left pixel along a vertical edge)
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::h2_edge</code> (deprecated: bottom pixel along a horizontal edge)
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::orientation::v2_edge</code>  (deprecated: right pixel along a vertical edge)
+				</p></li>
+</ul></div>
+<p><code class="computeroutput">Access</code> must be on of the following:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+					<code class="computeroutput">blink::access::read_only</code>
+				</p></li>
+<li class="listitem"><p>
+					<code class="computeroutput">blink::access::read_write</code> 
+				</p></li>
+</ul></div>
+<p><code class="computeroutput">Raster</code> the requested view for the Raster type must be specified in blink::raster::raster_view_lookup&lt;Orientation, Element, Access&gt;::type.</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564825488"></a>Members</h4></div></div></div>
+<p>
+			</p>
+<div class="table">
+<a name="idm1564824720"></a><p class="title"><b>Table&#160;1.4.&#160;Member types of raster_view</b></p>
+<div class="table-contents"><table class="table" summary="Member types of raster_view">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="center">type</th>
+<th align="center">usage</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><code class="computeroutput">iterator</code></p></td>
+<td>the iterator type for the view</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">const_iterator</code></p></td>
+<td>the const_iterator type for the view</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">coordinate_type</code></p></td>
+<td>the coordinate_type of the underlying raster</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index_type</code></p></td>
+<td>the index_type of the underlying raster</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">value_type</code></p></td>
+<td>the value_type of the associated iterator</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break">
+		</p>
+<p>
+			</p>
+<div class="table">
+<a name="idm1564813200"></a><p class="title"><b>Table&#160;1.5.&#160;Member functions of raster_view</b></p>
+<div class="table-contents"><table class="table" summary="Member functions of raster_view">
+<colgroup>
+<col>
+<col>
+</colgroup>
+<thead><tr>
+<th align="center">member function</th>
+<th align="center">usage</th>
+</tr></thead>
+<tbody>
+<tr>
+<td><p><code class="computeroutput">raster_view()</code></p></td>
+<td>default constructor, constructs a valid but useless view. Cannot call member functions of this view</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">raster_view(Raster* r</code></p></td>
+<td>constructs the view of raster r.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">iterator begin() const </code></p></td>
+<td>returns the iterator that starts the range of this view.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">iterator end() const</code></p></td>
+<td>returns the iterator that ends the range of this view.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">const_iterator cbegin() const</code></p></td>
+<td>returns the const_iterator that starts the range of this view.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">iterator cend()</code></p></td>
+<td>returns the const_iterator that ends the range of this view.</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index size1() const</code></p></td>
+<td>returns the number or elements in the the major iteration direction(note: this is not necessarily identical to the the number of rows in the raster)</td>
+</tr>
+<tr>
+<td><p><code class="computeroutput">index size2() const</code></p></td>
+<td>returns the number or elements in the the major iteration direction(note: this is not necessarily identical to the the number of columns in the raster)</td>
+</tr>
+</tbody>
+</table></div>
+</div>
+<p><br class="table-break">
+		</p>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h4 class="title">
+<a name="idm1564797200"></a>Things that will change</h4></div></div></div>
+<p>The Access template parameter is candidate to be deprecated, as there is already the option to make the Raster template parameter a const raster type</p>
+<p>The h1_edge, h2_edge, v1_edge and v2_edge element types seem a bit pointless and are deprecated</p>
+<p>Should still add free convenience functions make_pixel_view(), make_edge_view(), make_pixel_view_transposed(), make_edge_view_transposed();</p>
+</div>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="s04.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n" href="s06.html"><img src="../images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>

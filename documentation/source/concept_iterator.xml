@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//XMLmind//DTD BoostBook//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+  <title>Iterator</title>
+
+  <section>
+    <title>Summary</title>
+    <para>The key objective of this library is to make rasters available as ranges. However, the C++ concepts of ranges and iterators are still in flux and the current ones not very useful for iteration with proxy references (http://ericniebler.com/category/ranges/). Therefore the concepts are used in a rather lose sense. Hopefully in the future there will be useful concepts for ranges and iterators that we can adapt to.</para>
+    <para>In the meanwhile, keep in mind that the iterators and ranges used here are useful for iterating over raster datasets, but do not conform to STL concepts, and should not be used with STL algorithms, like std::sort.</para>
+  </section>
+</section>

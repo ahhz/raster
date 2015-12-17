@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE section PUBLIC "-//XMLmind//DTD BoostBook//EN"
+"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
+<section>
+	<title>Range</title>
+
+	<section>
+		<title>Summary</title>
+		<para>The key objective of this library is to make rasters available as ranges. However, the C++ concepts of ranges and iterators are still in flux and the current ones not very useful for iteration with proxy references (http://ericniebler.com/category/ranges/). Therefore the concepts are used in a rather lose sense. Hopefully in the future there will be useful concepts for ranges and iterators that we can adapt to.</para>
+		<para>In the meanwhile, keep in mind that the iterators and ranges used here are useful for iterating over raster datasets, but do not conform to STL concepts, and should not be used with STL algorithms, like std::sort.</para>
+	</section>
+
+	<section>
+
+		<section>
+			<title>Valid Expressions</title>
+
+			<table>
+				<title/>
+
+				<tgroup cols="2">
+					<tbody>
+						<row>
+							<entry>Expression</entry>
+
+							<entry>Effect</entry>
+						</row>
+
+						<row>
+							<entry><para>auto i = std::begin(r)</para><para>auto i = r.begin()</para></entry>
+							<entry>i is the iterator at the beginning of the range</entry>
+						</row>
+						<row>
+							<entry><para>auto i = std::end(r)</para><para>auto i = r.end()</para></entry>
+							<entry>i is the iterator at the end of the range</entry>
+						</row>
+						<row>
+							<entry><para>auto i = std::cbegin(r)</para><para>auto i = r.cbegin()</para></entry>
+							<entry>i is the const_iterator at the beginning of the range</entry>
+						</row>
+						<row>
+							<entry><para>auto i = std::cend(r)</para><para>auto i = r.cend()</para></entry>
+							<entry>i is the const_iterator at the end of the range</entry>
+						</row>
+
+						<row>
+							<entry>R::iterator</entry>
+							<entry>the iterator type for the range</entry>
+						</row>
+						<row>
+							<entry>R::const_iterator</entry>
+							<entry>the const_iterator type for the range</entry>
+						</row>
+
+						<row>
+							<entry>R::coordinate_type</entry>
+							<entry>the type used to give raster coordinate pairs</entry>
+						</row>
+						<row>
+							<entry>R::index_type</entry>
+							<entry>the type used to give a single coordinate</entry>
+						</row>
+					</tbody>
+				</tgroup>
+			</table>
+		</section>
+	</section>
+	</section>
+	

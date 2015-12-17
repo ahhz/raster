@@ -1,0 +1,64 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Chapter&#160;1.&#160;Raster</title>
+<link rel="stylesheet" href="boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="next" href="index/s02.html" title="Motivating Example">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="spirit-nav"><a accesskey="n" href="index/s02.html"><img src="images/next.png" alt="Next"></a></div>
+<div class="chapter">
+<div class="titlepage"><div>
+<div><h2 class="title">
+<a name="any"></a>Chapter&#160;1.&#160;<em class="replaceable"><code>Raster</code></em>
+</h2></div>
+<div><div class="author"><h3 class="author"><span class="firstname"><em class="replaceable"><code>Alex Hagen-Zanker</code></em></span></h3></div></div>
+</div></div>
+<div class="toc">
+<p><b>Table of Contents</b></p>
+<dl class="toc">
+<dt><span class="section"><a href="index.html#idm1564931216">Introduction</a></span></dt>
+<dt><span class="section"><a href="index/s02.html">Motivating Example</a></span></dt>
+<dt><span class="section"><a href="index/s03.html">Installation</a></span></dt>
+<dt><span class="section"><a href="index/s04.html">General</a></span></dt>
+<dd><dl><dt><span class="section"><a href="index/s04.html#idm1564923152">supported datatypes for raster creation</a></span></dt></dl></dd>
+<dt><span class="section"><a href="index/s05.html">Types</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="index/s05.html#idm1564905104"><em class="replaceable"><code>gdal_raster</code></em></a></span></dt>
+<dt><span class="section"><a href="index/s05.html#idm1564850448"><em class="replaceable"><code>raster_view</code></em></a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="index/s06.html">Functions</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="index/s06.html#idm1564794384">open_gdal_raster</a></span></dt>
+<dt><span class="section"><a href="index/s06.html#idm1564782480">create_gdal_raster</a></span></dt>
+<dt><span class="section"><a href="index/s06.html#idm1564769936">create_gdal_raster_from_model</a></span></dt>
+<dt><span class="section"><a href="index/s06.html#idm1564757392">create_temp_gdal_raster</a></span></dt>
+<dt><span class="section"><a href="index/s06.html#idm1564745360">create_temp_gdal_raster_from_model</a></span></dt>
+</dl></dd>
+<dt><span class="section"><a href="index/s07.html">Concepts</a></span></dt>
+<dd><dl>
+<dt><span class="section"><a href="index/s07.html#idm1564732048">Raster</a></span></dt>
+<dt><span class="section"><a href="index/s07.html#idm1562340672">Range</a></span></dt>
+<dt><span class="section"><a href="index/s07.html#idm1562323776">Iterator</a></span></dt>
+</dl></dd>
+</dl>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm1564931216"></a>Introduction</h2></div></div></div>
+<p>Analysis on Rasters is common in image processing and geographical analysis. This library provides tools to access geographical data sources as ranges. It provide wrappers and convenience functions to make use of any raster formats supported by GDAL. The different views of the raster allow iteration of pixels or edges (pairs of adjacent pixels) and in row-major or col-major direction. The library is work in progress, even though it is stabilising now I am using it for multiple projects. Please contact me (a.hagen-zanker@surrey.ac.uk) if you are interested in using this for your work or research.</p>
+<p><span class="emphasis"><em>Note:</em></span> This is not a Boost library or intended to
+  become one, I am just trying to use the tools recommended on the <a href="http://http://rrsd.com/blincubator.com/" target="_top">Boost Library
+  Incubator</a>.</p>
+</div>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"><p><small>Last revised: July 12, 2008 at 20:16:17 +0100</small></p></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav"><a accesskey="n" href="index/s02.html"><img src="images/next.png" alt="Next"></a></div>
+</body>
+</html>

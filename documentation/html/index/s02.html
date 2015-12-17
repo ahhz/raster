@@ -1,13 +1,24 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE library PUBLIC "-//XMLmind//DTD BoostBook V1.1//EN"
-"http://www.boost.org/tools/boostbook/dtd/boostbook.dtd">
-<section>
-  <title>Motivating Example</title>
-
-  <para>The following is an example of the library, used to open a raster file and print all of its vertical edges.
-  </para>
-
-  <programlisting>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+<title>Motivating Example</title>
+<link rel="stylesheet" href="../boostbook.css" type="text/css">
+<meta name="generator" content="DocBook XSL Stylesheets V1.78.1">
+<link rel="home" href="../index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="up" href="../index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="prev" href="../index.html" title="Chapter&#160;1.&#160;Raster">
+<link rel="next" href="s03.html" title="Installation">
+</head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n" href="s03.html"><img src="../images/next.png" alt="Next"></a>
+</div>
+<div class="section">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="idm1564928912"></a>Motivating Example</h2></div></div></div>
+<p>The following is an example of the library, used to open a raster file and print all of its vertical edges.
+  </p>
+<pre class="programlisting">
 int main()
 {
   auto input = blink::raster::open_gdal_raster&lt;int&gt;("small.tif", GA_Update);
@@ -29,13 +40,11 @@ int main()
    
   return 0;
 }
-</programlisting>
-
-  <para>The following includes all the details that are left out above:
-  </para>
-
-    <programlisting>
-#include &lt;blink/raster/edge_iterator.h&g;t
+</pre>
+<p>The following includes all the details that are left out above:
+  </p>
+<pre class="programlisting">
+#include &lt;blink/raster/edge_iterator.ht
 #include &lt;blink/raster/edge_view.h&gt;
 #include &lt;blink/raster/gdal_raster_view.h&gt;
 #include &lt;blink/raster/raster_iterator.h&gt;
@@ -84,7 +93,7 @@ void print_value(const std::pair&lt;A, B&gt;&amp; v)
 }
 
 
-template&lt;class Iterator, class Value>
+template&lt;class Iterator, class Value&gt;
 void print_value(const blink::raster::dereference_proxy&lt;Iterator, Value&gt;&amp; value)
 {
   auto v = Value{ value };
@@ -116,6 +125,15 @@ int main()
   return 0;
 }
 
-</programlisting>
-
-</section>
+</pre>
+</div>
+<table xmlns:rev="http://www.cs.rpi.edu/~gregod/boost/tools/doc/revision" width="100%"><tr>
+<td align="left"></td>
+<td align="right"><div class="copyright-footer"></div></td>
+</tr></table>
+<hr>
+<div class="spirit-nav">
+<a accesskey="p" href="../index.html"><img src="../images/prev.png" alt="Prev"></a><a accesskey="u" href="../index.html"><img src="../images/up.png" alt="Up"></a><a accesskey="h" href="../index.html"><img src="../images/home.png" alt="Home"></a><a accesskey="n" href="s03.html"><img src="../images/next.png" alt="Next"></a>
+</div>
+</body>
+</html>
