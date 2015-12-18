@@ -108,13 +108,11 @@ namespace blink {
         // using trans_facade = boost::iterator_facade<trans_iterator, value,
         //   access, trans_reference, difference>;
       };
-      template< typename EdgeIterator, typename Raster, class PixelView, 
-        typename GetStrategy = get_strategy::both>
+      template< typename EdgeIterator, typename Raster, typename GetStrategy>
       class edge_iterator_common : public edge_iterator_helper<EdgeIterator, Raster,
         GetStrategy>::facade
       {
-        using this_type = edge_iterator_common<EdgeIterator, Raster, 
-          PixelView, GetStrategy>;
+        using this_type = edge_iterator_common<EdgeIterator, Raster, GetStrategy>;
       public:
         using coordinate_type = typename Raster::coordinate_type;
         using index_type = typename coordinate_type::index_type;
@@ -170,13 +168,13 @@ namespace blink {
         value_type get_specialized(get_strategy::first_only) const
         {
           optional_pixel_value v1 = get_1();
-          optional_pixel_value v2;
+          optional_pixel_value v2 = boost::none;
           return std::make_pair(v1, v2);
         }
 
         value_type get_specialized(get_strategy::second_only) const
         {
-          optional_pixel_value v1;
+          optional_pixel_value v1 = boost::none;
           optional_pixel_value v2 = get_2();
           return std::make_pair(v1, v2);
         }
