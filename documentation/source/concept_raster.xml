@@ -14,22 +14,19 @@
     corresponds to a square square geograpical area. To convert from matrix
     indices to geographical coordinates it is necessary to know the
     orientation of the grid, its corner coordinates and the size of each cell.
-    The moving window library is not concerned with these, because it assumes
-    that all raster layers that are used are identical in orientation, extent
-    and cell size.</para>
+    The moving window library is not concerned with aspects of geographical
+    representation, but only considers the matrix of pixel values.</para>
 
     <para>Thus a Raster is not more than a matrix. The operation on Raster
     that are supported are to query the dimension of the matrix and to access
-    values. Specifically the moving window library needs to iterate over
-    pixels and edges (pairs of adjacent pixels). For this the Raster most have
-    associated views and iterators.</para>
+    values. </para>
   </section>
 
   <section>
     <title>Valid Expressions</title>
 
     <table>
-      <title/>
+      <title>Valid expression</title>
 
       <tgroup cols="3">
         <tbody>
@@ -50,7 +47,7 @@
           </row>
 
           <row>
-            <entry>blink::raster::raster_traits::value_typecoordinate_type&lt;R&gt;</entry>
+            <entry>blink::raster::raster_traits::coordinate_type&lt;R&gt;</entry>
 
             <entry>the type used to give raster coordinate pairs, must conform
             to the Coordinate concept (not documented)</entry>
@@ -59,10 +56,10 @@
           </row>
 
           <row>
-            <entry>blink::raster::raster_traits::value_type::index_type&lt;R&gt;</entry>
+            <entry>blink::raster::raster_traits::index_type&lt;R&gt;</entry>
 
             <entry>the type used give individual raster coordinates, must be
-            some integer type</entry>
+            an integer type</entry>
 
             <entry>R::index_type</entry>
           </row>
@@ -70,7 +67,7 @@
           <row>
             <entry>blink::raster::raster_traits::iterator&lt;R&gt;</entry>
 
-            <entry>erator type for the raster for the raster. </entry>
+            <entry>iterator type for the raster for the raster.</entry>
 
             <entry>R::iterator</entry>
           </row>
@@ -80,16 +77,22 @@
 
             <entry>return the iterator at the first element.</entry>
 
-            <entry>);</entry>
+            <entry/>
           </row>
 
           <row>
-            <entry>auto i = r.end();</entry>
+            <entry>auto rows = blink::raster::raster_operations::size1(r);</entry>
 
-            <entry>return the iterator past the last element.</entry>
+            <entry>returns the number of rows in the raster.</entry>
 
-            <entry>.r.end&lt;iterator&lt;ElementTag, OrientationTag,
-            AccessTag, R&gt;::type&gt;();</entry>
+            <entry/>
+          </row>
+          <row>
+            <entry>auto cols = blink::raster::raster_operations::size2(r);</entry>
+
+            <entry>returns the number of columns in the raster.</entry>
+
+            <entry/>
           </row>
         </tbody>
       </tgroup>

@@ -4,8 +4,29 @@
 <section>
   <title>Motivating Example</title>
 
-  <para>The following is an example of the library, used to open a raster file and print all of its vertical edges.
-  </para>
+  <para>The most basic application of this libary is to open a raster file and
+  iterate over the pixels in the raster.</para>
+
+  <programlisting>#include &lt;blink/raster/utility.h&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+  auto input = blink::raster::open_gdal_raster&lt;int&gt;("input.tif", GA_Update);
+  for (auto&amp;&amp; i : input)
+  {
+    std::cout &lt;&lt; i &lt;&lt; std::endl;
+  }
+  return 0;
+}
+</programlisting>
+
+  <para>By default the library iterates over rasters row-by-row and within
+  rows pixel-by-pixel. Alternatively, it is possible to iterate in
+  column-major order and to iterate over edges (pairs of adjacent pixels)
+  instead of pixels. The following is an example of the library, used to open
+  a raster file, create a col-major view of vertical edges and iterate over
+  all of these.</para>
 
   <programlisting>
 int main()
@@ -31,23 +52,24 @@ int main()
 }
 </programlisting>
 
-  <para>The following includes all the details that are left out above:
-  </para>
+  <para>The following includes all the details that are left out above:</para>
 
-    <programlisting>
-#include &lt;blink/raster/edge_iterator.h&g;t
+  <programlisting>
 #include &lt;blink/raster/edge_view.h&gt;
-#include &lt;blink/raster/gdal_raster_view.h&gt;
+#include &lt;blink/raster/raster_view.h&gt;
 #include &lt;blink/raster/raster_iterator.h&gt;
-#include &lt;blink/raster/raster_traits.h&gt;
 #include &lt;blink/raster/utility.h&gt;
+
+#include &lt;boost/none.hpp&gt;
+#include &lt;boost/optional/optional.hpp&gt;
+
+#include &lt;iostream&gt;
 
 void create_small()
 {
   auto output = blink::raster::create_gdal_raster&lt;int&gt;("small.tif", 3, 4);
   int index = 0;
-  for (auto&amp;&amp; i : output)
-  {
+  for (auto&amp;&amp; i : output) {
     i = (index++);
   }
 }
@@ -84,7 +106,7 @@ void print_value(const std::pair&lt;A, B&gt;&amp; v)
 }
 
 
-template&lt;class Iterator, class Value>
+template&lt;class Iterator, class Value&gt;
 void print_value(const blink::raster::dereference_proxy&lt;Iterator, Value&gt;&amp; value)
 {
   auto v = Value{ value };
@@ -117,5 +139,4 @@ int main()
 }
 
 </programlisting>
-
 </section>
