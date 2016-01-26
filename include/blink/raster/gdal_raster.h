@@ -112,8 +112,10 @@ namespace blink {
         return m_delete_on_close;
       }
     public:
-      // Move constructor
+      // Move constructor only
       //
+      gdal_raster(const gdal_raster<T>&) = delete;
+
       gdal_raster(gdal_raster<T>&& other)
       {
         m_band = other.m_band;
@@ -143,8 +145,10 @@ namespace blink {
         other.m_cache = NULL;
       }
 
-      // Move assignment 
+      // Move assignment only 
       //
+      gdal_raster& operator=(const gdal_raster<T>&) = delete;
+
       gdal_raster& operator=(gdal_raster<T>&& other)
       {
         close_dataset();
