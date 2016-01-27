@@ -39,18 +39,8 @@ namespace blink {
     {
       // typedef typename PutGetIterator::value_type value_type;
       // Cannot get the valuetype from the iterator, because it may not be complete
-
-      // assignment to make the iterator writable
-      void operator=(const ValueType& v) const
-      {
-        m_iter->put(v);
-      }
-
-      void operator=(const dereference_proxy& that) const
-      {
-        m_iter->put(that.m_iter->get());
-      }
-
+      dereference_proxy(const PutGetIterator* iter) :m_iter(iter)
+      {}
 
       // conversion to make the iterator readable
       operator ValueType() const
@@ -58,10 +48,115 @@ namespace blink {
         return m_iter->get();
       }
 
-   // private:
-      dereference_proxy(const PutGetIterator* iter) :m_iter(iter)
-      {}
+      // assignment to make the iterator writable
+      const dereference_proxy& operator=(const ValueType& v) const
+      {
+        m_iter->put(v);
+        return *this;
+      }
 
+      template<class T, class I>
+      const dereference_proxy& operator=(const dereference_proxy<I, T>& that) const
+      {
+        return operator=(static_cast<T>(that));
+      }
+
+       const dereference_proxy& operator++() const
+      {
+        m_iter->put(++m_iter->get());
+        return *this;
+      }
+      const dereference_proxy& operator--() const
+      {
+        m_iter->put(--m_iter->get());
+        return *this;
+      }
+      
+      ValueType operator++(int) const
+      {
+        ValueType temp = m_iter->get();
+        m_iter->put(++m_iter->get());
+        return temp;
+      }
+      ValueType operator--(int) const
+      {
+        ValueType temp = m_iter->get();
+        m_iter->put(--m_iter->get());
+        return temp;
+      }
+      
+      template<class T>
+      const dereference_proxy& operator+=(const T& v) const
+      {
+        m_iter->put(m_iter->get() + v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator-=(const T& v) const
+      {
+        m_iter->put(m_iter->get() - v);
+        return *this;
+      }
+      
+      template<class T>
+      const dereference_proxy& operator/=(const T& v) const
+      {
+        m_iter->put(m_iter->get() / v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator*=(const T& v) const
+      {
+        m_iter->put(m_iter->get() * v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator%=(const T& v) const
+      {
+        m_iter->put(m_iter->get() % v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator&=(const T& v) const
+      {
+        m_iter->put(m_iter->get() & v);
+        return *this;
+      }
+      
+      template<class T>
+      const dereference_proxy& operator|=(const T& v) const
+      {
+        m_iter->put(m_iter->get() | v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator^=(const T& v) const
+      {
+        m_iter->put(m_iter->get() ^ v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator<<=(const T& v) const
+      {
+        m_iter->put(m_iter->get() << v);
+        return *this;
+      }
+
+      template<class T>
+      const dereference_proxy& operator>>=(const T& v) const
+      {
+        m_iter->put(m_iter->get() >> v);
+        return *this;
+      }
+
+   // private:
+ 
       const PutGetIterator* m_iter;
     };
   }
