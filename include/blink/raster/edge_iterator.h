@@ -83,10 +83,10 @@ namespace blink {
       struct first_only{};
       struct second_only{};
     };
+
     template<class Raster, class GetStrategy> class edge_iterator_common; // forward
 
     namespace detail {
-
 
       template<class EdgeIterator, class Raster, class GetStrategy>
       struct edge_iterator_helper
