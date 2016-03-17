@@ -61,6 +61,11 @@ namespace blink {
         return operator=(static_cast<T>(that));
       }
 
+      const dereference_proxy& operator=(const dereference_proxy& that) const
+      {
+        return operator=(static_cast<ValueType>(that));
+      }
+
        const dereference_proxy& operator++() const
       {
         m_iter->put(++m_iter->get());
