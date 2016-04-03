@@ -38,9 +38,6 @@
 
 namespace blink {
   namespace raster {
-
-
-
     namespace LRU
     {
       class block
@@ -257,11 +254,10 @@ namespace blink {
 
         void flush()
         {
-          for (std::vector<optional_block_list_iterator>::iterator i
-            = m_index.begin(); i != m_index.end(); ++i) {
-            if (*i) {
-              m_block_cache->remove(*(*i));
-              *i = boost::none;
+          for (auto i : m_index) {
+            if (i) {
+              m_block_cache->remove(*(i));
+              i = boost::none;
             }
           }
         }

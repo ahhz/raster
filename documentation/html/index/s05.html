@@ -15,26 +15,26 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm1564905744"></a>Types</h2></div></div></div>
+<a name="idm1563814320"></a>Types</h2></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s05.html#idm1564905104"><em class="replaceable"><code>gdal_raster</code></em></a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564850448"><em class="replaceable"><code>raster_view</code></em></a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563813680"><em class="replaceable"><code>gdal_raster</code></em></a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563759024"><em class="replaceable"><code>raster_view</code></em></a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm1564905104"></a><em class="replaceable"><code>gdal_raster</code></em>
+<a name="idm1563813680"></a><em class="replaceable"><code>gdal_raster</code></em>
 </h3></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s05.html#idm1564904336">Description</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564903184">Example of use</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564901520">Definition</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564900368">Model of</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564899216">Type requirements</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564897680">Members</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563812912">Description</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563811760">Example of use</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563810096">Definition</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563808944">Model of</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563807792">Type requirements</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563806256">Members</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564904336"></a>Description</h4></div></div></div>
+<a name="idm1563812912"></a>Description</h4></div></div></div>
 <p>This class provides an interface to file based raster datasets as
     supported by the GDAL library. The interface is less flexible than the
     underlying GDALDataSet but also simpler. Although GDAL supports a wide
@@ -43,7 +43,7 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564903184"></a>Example of use</h4></div></div></div>
+<a name="idm1563811760"></a>Example of use</h4></div></div></div>
 <p>The example below calculates the mean value of an input
     raster</p>
 <pre class="programlisting">
@@ -57,25 +57,25 @@ double mean = static_cast&lt;double&gt;(sum) / count;</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564901520"></a>Definition</h4></div></div></div>
+<a name="idm1563810096"></a>Definition</h4></div></div></div>
 <p>&lt;moving_window/gdal_raster.h&gt;</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564900368"></a>Model of</h4></div></div></div>
-<p>Raster, Range</p>
+<a name="idm1563808944"></a>Model of</h4></div></div></div>
+<p>Raster</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564899216"></a>Type requirements</h4></div></div></div>
-<p><code class="computeroutput">T</code> must be POD. It has not been tested for anything but
-    : int, unsigned char, float, double.</p>
+<a name="idm1563807792"></a>Type requirements</h4></div></div></div>
+<p><code class="computeroutput">T</code> must be POD. It has not been tested for anything
+    other than :iunsigned char, int, float, double.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564897680"></a>Members</h4></div></div></div>
+<a name="idm1563806256"></a>Members</h4></div></div></div>
 <div class="table">
-<a name="idm1564896912"></a><p class="title"><b>Table&#160;1.2.&#160;Member functions of gdal_raster</b></p>
+<a name="idm1563805488"></a><p class="title"><b>Table&#160;1.2.&#160;Member functions of gdal_raster</b></p>
 <div class="table-contents"><table class="table" summary="Member functions of gdal_raster">
 <colgroup>
 <col>
@@ -140,20 +140,22 @@ double mean = static_cast&lt;double&gt;(sum) / count;</pre>
 <tr>
 <td>
 <p><code class="computeroutput">const_iterator begin() const</code></p>
-			  <p><code class="computeroutput">const_iterator cbegin() const</code></p>
+              <p><code class="computeroutput">const_iterator cbegin() const</code></p>
 </td>
-<td>get the const_iterator corresponding to the first pixel.</td>
+<td>get the const_iterator corresponding to the first
+              pixel.</td>
 </tr>
 <tr>
 <td>
 <p><code class="computeroutput">const_iterator end() const</code></p>
-			  <p><code class="computeroutput">const_iterator cend() const</code></p>
+              <p><code class="computeroutput">const_iterator cend() const</code></p>
 </td>
 <td>get the const_iterator one past the last pixel.</td>
 </tr>
 <tr>
 <td><p><code class="computeroutput">iterator begin()</code></p></td>
-<td>get the iterator corresponding to the first pixel.</td>
+<td>get the iterator corresponding to the first
+              pixel.</td>
 </tr>
 <tr>
 <td><p><code class="computeroutput">iterator end()</code></p></td>
@@ -205,7 +207,7 @@ double mean = static_cast&lt;double&gt;(sum) / count;</pre>
 </div>
 <p><br class="table-break"></p>
 <div class="table">
-<a name="idm1564863120"></a><p class="title"><b>Table&#160;1.3.&#160;Member types of gdal_raster</b></p>
+<a name="idm1563771696"></a><p class="title"><b>Table&#160;1.3.&#160;Member types of gdal_raster</b></p>
 <div class="table-contents"><table class="table" summary="Member types of gdal_raster">
 <colgroup>
 <col>
@@ -246,25 +248,25 @@ double mean = static_cast&lt;double&gt;(sum) / count;</pre>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm1564850448"></a><em class="replaceable"><code>raster_view</code></em>
+<a name="idm1563759024"></a><em class="replaceable"><code>raster_view</code></em>
 </h3></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s05.html#idm1564849680">Description</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564848656">Example of use</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564846992">Definition</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564845968">Model of</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564844944">Type requirements</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564825488">Members</a></span></dt>
-<dt><span class="section"><a href="s05.html#idm1564797200">Things that will change</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563758256">Description</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563757232">Example of use</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563755568">Definition</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563754544">Model of</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563753520">Type requirements</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563734064">Members</a></span></dt>
+<dt><span class="section"><a href="s05.html#idm1563705776">Things that will change</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564849680"></a>Description</h4></div></div></div>
+<a name="idm1563758256"></a>Description</h4></div></div></div>
 <p>The raster_view typedef is the mechanism of selecting a specific view of a raster. The underlying raster_view_lookup struct is used as a customization point to define a raster views.</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564848656"></a>Example of use</h4></div></div></div>
+<a name="idm1563757232"></a>Example of use</h4></div></div></div>
 <p>The example opens a gdal_raster and subsequently creates a view that iterates over its pixels in column-by-column</p>
 <pre class="programlisting">
 auto raster = blink::raster::open_gdal_raster&lt;int&gt;("input.tif", GAReadOnly);
@@ -283,17 +285,17 @@ double mean = static_cast&lt;double&gt;(sum) / count;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564846992"></a>Definition</h4></div></div></div>
+<a name="idm1563755568"></a>Definition</h4></div></div></div>
 <p>&lt;moving_window/raster_view.h&gt;</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564845968"></a>Model of</h4></div></div></div>
+<a name="idm1563754544"></a>Model of</h4></div></div></div>
 <p>Range: a view is a range, in the sense that it has the be</p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564844944"></a>Type requirements</h4></div></div></div>
+<a name="idm1563753520"></a>Type requirements</h4></div></div></div>
 <p><code class="computeroutput">Orientation</code> must be on of the following:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
@@ -340,11 +342,11 @@ double mean = static_cast&lt;double&gt;(sum) / count;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564825488"></a>Members</h4></div></div></div>
+<a name="idm1563734064"></a>Members</h4></div></div></div>
 <p>
 			</p>
 <div class="table">
-<a name="idm1564824720"></a><p class="title"><b>Table&#160;1.4.&#160;Member types of raster_view</b></p>
+<a name="idm1563733296"></a><p class="title"><b>Table&#160;1.4.&#160;Member types of raster_view</b></p>
 <div class="table-contents"><table class="table" summary="Member types of raster_view">
 <colgroup>
 <col>
@@ -383,7 +385,7 @@ double mean = static_cast&lt;double&gt;(sum) / count;
 <p>
 			</p>
 <div class="table">
-<a name="idm1564813200"></a><p class="title"><b>Table&#160;1.5.&#160;Member functions of raster_view</b></p>
+<a name="idm1563721776"></a><p class="title"><b>Table&#160;1.5.&#160;Member functions of raster_view</b></p>
 <div class="table-contents"><table class="table" summary="Member functions of raster_view">
 <colgroup>
 <col>
@@ -434,7 +436,7 @@ double mean = static_cast&lt;double&gt;(sum) / count;
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564797200"></a>Things that will change</h4></div></div></div>
+<a name="idm1563705776"></a>Things that will change</h4></div></div></div>
 <p>The Access template parameter is candidate to be deprecated, as there is already the option to make the Raster template parameter a const raster type</p>
 <p>The h1_edge, h2_edge, v1_edge and v2_edge element types seem a bit pointless and are deprecated</p>
 <p>Should still add free convenience functions make_pixel_view(), make_edge_view(), make_pixel_view_transposed(), make_edge_view_transposed();</p>

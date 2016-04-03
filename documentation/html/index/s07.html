@@ -14,22 +14,22 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm1564732688"></a>Concepts</h2></div></div></div>
+<a name="idm1563641264"></a>Concepts</h2></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s07.html#idm1564732048">Raster</a></span></dt>
-<dt><span class="section"><a href="s07.html#idm1562340672">Range</a></span></dt>
-<dt><span class="section"><a href="s07.html#idm1562323776">Iterator</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1563640624">Raster</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1559962880">Range</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1559945984">Iterator</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm1564732048"></a>Raster</h3></div></div></div>
+<a name="idm1563640624"></a>Raster</h3></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s07.html#idm1564731408">Summary</a></span></dt>
-<dt><span class="section"><a href="s07.html#idm1564729872">Valid Expressions</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1563639984">Summary</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1563638448">Valid Expressions</a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564731408"></a>Summary</h4></div></div></div>
+<a name="idm1563639984"></a>Summary</h4></div></div></div>
 <p>The Moving Window library works with data that conforms to the
     Raster Concept. Geographical raster layers carry information of the
     spatial distribution of some variable. The data is stored in a matrix that
@@ -37,21 +37,18 @@
     corresponds to a square square geograpical area. To convert from matrix
     indices to geographical coordinates it is necessary to know the
     orientation of the grid, its corner coordinates and the size of each cell.
-    The moving window library is not concerned with these, because it assumes
-    that all raster layers that are used are identical in orientation, extent
-    and cell size.</p>
+    The moving window library is not concerned with aspects of geographical
+    representation, but only considers the matrix of pixel values.</p>
 <p>Thus a Raster is not more than a matrix. The operation on Raster
     that are supported are to query the dimension of the matrix and to access
-    values. Specifically the moving window library needs to iterate over
-    pixels and edges (pairs of adjacent pixels). For this the Raster most have
-    associated views and iterators.</p>
+    values. </p>
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1564729872"></a>Valid Expressions</h4></div></div></div>
+<a name="idm1563638448"></a>Valid Expressions</h4></div></div></div>
 <div class="table">
-<a name="idm1564729232"></a><p class="title"><b>Table&#160;1.6.&#160;</b></p>
-<div class="table-contents"><table class="table" summary="">
+<a name="idm1563637808"></a><p class="title"><b>Table&#160;1.6.&#160;Valid expression</b></p>
+<div class="table-contents"><table class="table" summary="Valid expression">
 <colgroup>
 <col>
 <col>
@@ -69,32 +66,36 @@
 <td>R::value_type</td>
 </tr>
 <tr>
-<td>blink::raster::raster_traits::value_typecoordinate_type&lt;R&gt;</td>
+<td>blink::raster::raster_traits::coordinate_type&lt;R&gt;</td>
 <td>the type used to give raster coordinate pairs, must conform
             to the Coordinate concept (not documented)</td>
 <td>R::coordinate_type</td>
 </tr>
 <tr>
-<td>blink::raster::raster_traits::value_type::index_type&lt;R&gt;</td>
+<td>blink::raster::raster_traits::index_type&lt;R&gt;</td>
 <td>the type used give individual raster coordinates, must be
-            some integer type</td>
+            an integer type</td>
 <td>R::index_type</td>
 </tr>
 <tr>
 <td>blink::raster::raster_traits::iterator&lt;R&gt;</td>
-<td>erator type for the raster for the raster. </td>
+<td>iterator type for the raster for the raster.</td>
 <td>R::iterator</td>
 </tr>
 <tr>
 <td>auto i = r.begin();</td>
 <td>return the iterator at the first element.</td>
-<td>);</td>
+<td>&#160;</td>
 </tr>
 <tr>
-<td>auto i = r.end();</td>
-<td>return the iterator past the last element.</td>
-<td>.r.end&lt;iterator&lt;ElementTag, OrientationTag,
-            AccessTag, R&gt;::type&gt;();</td>
+<td>auto rows = blink::raster::raster_operations::size1(r);</td>
+<td>returns the number of rows in the raster.</td>
+<td>&#160;</td>
+</tr>
+<tr>
+<td>auto cols = blink::raster::raster_operations::size2(r);</td>
+<td>returns the number of columns in the raster.</td>
+<td>&#160;</td>
 </tr>
 </tbody>
 </table></div>
@@ -104,25 +105,25 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm1562340672"></a>Range</h3></div></div></div>
+<a name="idm1559962880"></a>Range</h3></div></div></div>
 <div class="toc"><dl class="toc">
-<dt><span class="section"><a href="s07.html#idm1562340032">Summary</a></span></dt>
-<dt><span class="section"><a href="s07.html#idm1562338496"></a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1559962240">Summary</a></span></dt>
+<dt><span class="section"><a href="s07.html#idm1559960704"></a></span></dt>
 </dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1562340032"></a>Summary</h4></div></div></div>
+<a name="idm1559962240"></a>Summary</h4></div></div></div>
 <p>The key objective of this library is to make rasters available as ranges. However, the C++ concepts of ranges and iterators are still in flux and the current ones not very useful for iteration with proxy references (http://ericniebler.com/category/ranges/). Therefore the concepts are used in a rather lose sense. Hopefully in the future there will be useful concepts for ranges and iterators that we can adapt to.</p>
 <p>In the meanwhile, keep in mind that the iterators and ranges used here are useful for iterating over raster datasets, but do not conform to STL concepts, and should not be used with STL algorithms, like std::sort.</p>
 </div>
 <div class="section">
 <div class="titlepage"></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="s07.html#idm1562338240">Valid Expressions</a></span></dt></dl></div>
+<div class="toc"><dl class="toc"><dt><span class="section"><a href="s07.html#idm1559960448">Valid Expressions</a></span></dt></dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h5 class="title">
-<a name="idm1562338240"></a>Valid Expressions</h5></div></div></div>
+<a name="idm1559960448"></a>Valid Expressions</h5></div></div></div>
 <div class="table">
-<a name="idm1562337600"></a><p class="title"><b>Table&#160;1.7.&#160;</b></p>
+<a name="idm1559959808"></a><p class="title"><b>Table&#160;1.7.&#160;</b></p>
 <div class="table-contents"><table class="table" summary="">
 <colgroup>
 <col>
@@ -186,11 +187,11 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="idm1562323776"></a>Iterator</h3></div></div></div>
-<div class="toc"><dl class="toc"><dt><span class="section"><a href="s07.html#idm1562323136">Summary</a></span></dt></dl></div>
+<a name="idm1559945984"></a>Iterator</h3></div></div></div>
+<div class="toc"><dl class="toc"><dt><span class="section"><a href="s07.html#idm1559945344">Summary</a></span></dt></dl></div>
 <div class="section">
 <div class="titlepage"><div><div><h4 class="title">
-<a name="idm1562323136"></a>Summary</h4></div></div></div>
+<a name="idm1559945344"></a>Summary</h4></div></div></div>
 <p>The key objective of this library is to make rasters available as ranges. However, the C++ concepts of ranges and iterators are still in flux and the current ones not very useful for iteration with proxy references (http://ericniebler.com/category/ranges/). Therefore the concepts are used in a rather lose sense. Hopefully in the future there will be useful concepts for ranges and iterators that we can adapt to.</p>
 <p>In the meanwhile, keep in mind that the iterators and ranges used here are useful for iterating over raster datasets, but do not conform to STL concepts, and should not be used with STL algorithms, like std::sort.</p>
 </div>

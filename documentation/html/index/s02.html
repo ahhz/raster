@@ -15,9 +15,28 @@
 </div>
 <div class="section">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="idm1564928912"></a>Motivating Example</h2></div></div></div>
-<p>The following is an example of the library, used to open a raster file and print all of its vertical edges.
-  </p>
+<a name="idm1563838384"></a>Motivating Example</h2></div></div></div>
+<p>The most basic application of this libary is to open a raster file and
+  iterate over the pixels in the raster.</p>
+<pre class="programlisting">#include &lt;blink/raster/utility.h&gt;
+#include &lt;iostream&gt;
+
+int main()
+{
+  auto input = blink::raster::open_gdal_raster&lt;int&gt;("input.tif", GA_Update);
+  for (auto&amp;&amp; i : input)
+  {
+    std::cout &lt;&lt; i &lt;&lt; std::endl;
+  }
+  return 0;
+}
+</pre>
+<p>By default the library iterates over rasters row-by-row and within
+  rows pixel-by-pixel. Alternatively, it is possible to iterate in
+  column-major order and to iterate over edges (pairs of adjacent pixels)
+  instead of pixels. The following is an example of the library, used to open
+  a raster file, create a col-major view of vertical edges and iterate over
+  all of these.</p>
 <pre class="programlisting">
 int main()
 {
@@ -41,22 +60,23 @@ int main()
   return 0;
 }
 </pre>
-<p>The following includes all the details that are left out above:
-  </p>
+<p>The following includes all the details that are left out above:</p>
 <pre class="programlisting">
-#include &lt;blink/raster/edge_iterator.ht
 #include &lt;blink/raster/edge_view.h&gt;
-#include &lt;blink/raster/gdal_raster_view.h&gt;
+#include &lt;blink/raster/raster_view.h&gt;
 #include &lt;blink/raster/raster_iterator.h&gt;
-#include &lt;blink/raster/raster_traits.h&gt;
 #include &lt;blink/raster/utility.h&gt;
+
+#include &lt;boost/none.hpp&gt;
+#include &lt;boost/optional/optional.hpp&gt;
+
+#include &lt;iostream&gt;
 
 void create_small()
 {
   auto output = blink::raster::create_gdal_raster&lt;int&gt;("small.tif", 3, 4);
   int index = 0;
-  for (auto&amp;&amp; i : output)
-  {
+  for (auto&amp;&amp; i : output) {
     i = (index++);
   }
 }

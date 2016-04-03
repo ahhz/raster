@@ -33,13 +33,11 @@ namespace blink {
       index_type size1() const
       {
         return m_raster->size1() + 1;
-
       }
 
       index_type size2() const
       {
         return m_raster->size2();
-
       }
     };
 
@@ -73,13 +71,11 @@ namespace blink {
       index_type size1() const
       {
         return m_raster->size2();
-
       }
 
       index_type size2() const
       {
         return m_raster->size1() + 1;
-
       }
     };
 
@@ -94,13 +90,11 @@ namespace blink {
       index_type size1() const
       {
         return m_raster->size2() + 1;
-
       }
 
       index_type size2() const
       {
         return m_raster->size1();
-
       }
     };
 
