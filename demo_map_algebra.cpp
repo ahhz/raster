@@ -8,8 +8,11 @@
 using blink::raster::open_gdal_raster; 
 using blink::raster::create_gdal_raster;
 using blink::iterator::range_algebra;
+using blink::iterator::range_algebra_val;
 using blink::raster::create_gdal_raster_from_model;
 using blink::iterator::make_range_algebra_transform;
+using blink::iterator::range_algebra_function;
+
 
 int my_function(int w, int x, int y, int z)
 {
@@ -21,6 +24,7 @@ int main()
 
   auto a = open_gdal_raster<int>("input_1.tif", GA_ReadOnly);
   auto b = open_gdal_raster<int>("input_2.tif", GA_ReadOnly);
+ // auto c = range_algebra_val(open_gdal_raster<int>("input_3.tif", GA_ReadOnly));
 
   // Example 1: Plain map algebra using operators
   auto output_1 = create_gdal_raster_from_model<double>("output_1.tif", a);
@@ -28,11 +32,11 @@ int main()
  
   // Example 2: Map algebra using cell-by-cell functions
   auto output_2 = create_gdal_raster_from_model<double>("output_2.tif", a);
-  output_2 = make_range_algebra_transform(my_function, 1, range_algebra(a), 3, range_algebra(b));
+  output_2 = range_algebra_function(my_function, 1, range_algebra(a),3, range_algebra(b));
 
   // Example 3: Combination
   auto output_3 = create_gdal_raster_from_model<double>("output_3.tif", a);
-  output_3 = range_algebra(a) + 3 * range_algebra(make_range_algebra_transform(my_function, 1, range_algebra(a), 3, range_algebra(b)));
+  output_3 = range_algebra(a) + 3 * range_algebra_function(my_function, 1, range_algebra(a), 3, range_algebra(b));
 
   // Example 4: Moving window
 
