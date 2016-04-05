@@ -127,9 +127,9 @@ namespace blink {
     public:
       // Move constructor only
       //
-      gdal_raster(const gdal_raster<T>&) = delete;
+      gdal_raster(const gdal_raster&) = delete;
 
-      gdal_raster(gdal_raster<T>&& other)
+      gdal_raster(gdal_raster&& other)
       {
         m_band = other.m_band;
         m_major_size2 = other.m_major_size2;
