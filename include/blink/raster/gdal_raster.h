@@ -101,20 +101,7 @@ namespace blink {
         m_access_type = dataset->GetAccess();
         initialize();
       }
-
-      template<class Range>
-      gdal_raster& operator=(Range& r)
-      {
-        auto i = r.begin();
-        auto j = begin();
-        auto j_end = end();
-        for (; j != j_end; ++i, ++j)
-        {
-          *j = *i;
-        }
-        return *this;
-      }
-
+      
       void set_delete_on_close(bool v)
       {
         m_delete_on_close = v;
@@ -160,9 +147,9 @@ namespace blink {
 
       // Move assignment only 
       //
-      gdal_raster& operator=(const gdal_raster<T>&) = delete;
+      gdal_raster& operator=(const gdal_raster&) = delete;
 
-      gdal_raster& operator=(gdal_raster<T>&& other)
+      gdal_raster& operator=(gdal_raster&& other)
       {
         close_dataset();
         m_band = other.m_band;
