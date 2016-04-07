@@ -68,25 +68,25 @@ namespace blink {
 
        const dereference_proxy& operator++() const
       {
-        m_iter->put(++m_iter->get());
+        m_iter->put(m_iter->get()+1);
         return *this;
       }
       const dereference_proxy& operator--() const
       {
-        m_iter->put(--m_iter->get());
+        m_iter->put(m_iter->get()-1);
         return *this;
       }
       
       ValueType operator++(int) const
       {
         ValueType temp = m_iter->get();
-        m_iter->put(++m_iter->get());
+        m_iter->put(m_iter->get()+1);
         return temp;
       }
       ValueType operator--(int) const
       {
         ValueType temp = m_iter->get();
-        m_iter->put(--m_iter->get());
+        m_iter->put(m_iter->get()-1);
         return temp;
       }
       
