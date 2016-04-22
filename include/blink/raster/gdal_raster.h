@@ -299,44 +299,44 @@ namespace blink {
         switch (m_gdal_rasterband->GetRasterDataType())
         {
         case GDT_Byte:
-          put_pixel = &this_type::put_pixel_specialized<unsigned char,
+          put_pixel = this_type::put_pixel_specialized<unsigned char,
             sizeof(unsigned char)>;
-          get_pixel = &this_type::get_pixel_specialized<unsigned char,
+          get_pixel = this_type::get_pixel_specialized<unsigned char,
             sizeof(unsigned char)>;
           break;
         case GDT_Int16:
-          put_pixel = &this_type::put_pixel_specialized<short, sizeof(short)>;
-          get_pixel = &this_type::get_pixel_specialized<short, sizeof(short)>;
+          put_pixel = this_type::put_pixel_specialized<short, sizeof(short)>;
+          get_pixel = this_type::get_pixel_specialized<short, sizeof(short)>;
           break;
         case GDT_UInt16:
-          put_pixel = &this_type::put_pixel_specialized<unsigned short,
+          put_pixel = this_type::put_pixel_specialized<unsigned short,
             sizeof(unsigned short)>;
-          get_pixel = &this_type::get_pixel_specialized<unsigned short,
+          get_pixel = this_type::get_pixel_specialized<unsigned short,
             sizeof(unsigned short)>;
           break;
         case GDT_Int32:
-          put_pixel = &this_type::put_pixel_specialized<int, sizeof(int)>;
-          get_pixel = &this_type::get_pixel_specialized<int, sizeof(int)>;
+          put_pixel = this_type::put_pixel_specialized<int, sizeof(int)>;
+          get_pixel = this_type::get_pixel_specialized<int, sizeof(int)>;
           break;
         case GDT_UInt32:
-          put_pixel = &this_type::put_pixel_specialized<unsigned int,
+          put_pixel = this_type::put_pixel_specialized<unsigned int,
             sizeof(unsigned int)>;
-          get_pixel = &this_type::get_pixel_specialized<unsigned int,
+          get_pixel = this_type::get_pixel_specialized<unsigned int,
             sizeof(unsigned int)>;
           break;
         case GDT_Float32:
-          put_pixel = &this_type::put_pixel_specialized<float, sizeof(float)>;
-          get_pixel = &this_type::get_pixel_specialized<float, sizeof(float)>;
+          put_pixel = this_type::put_pixel_specialized<float, sizeof(float)>;
+          get_pixel = this_type::get_pixel_specialized<float, sizeof(float)>;
           break;
         case GDT_Float64:
-          put_pixel = &this_type::put_pixel_specialized<double, sizeof(double)>;
-          get_pixel = &this_type::get_pixel_specialized<double, sizeof(double)>;
+          put_pixel = this_type::put_pixel_specialized<double, sizeof(double)>;
+          get_pixel = this_type::get_pixel_specialized<double, sizeof(double)>;
           break;
         default: break;
 
         }
         if (m_access_type == GA_ReadOnly) {
-          put_pixel = &this_type::put_nothing;
+          put_pixel = this_type::put_nothing;
         }
       }
 
