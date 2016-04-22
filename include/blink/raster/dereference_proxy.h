@@ -66,30 +66,30 @@ namespace blink {
         return operator=(static_cast<ValueType>(that));
       }
 
-       const dereference_proxy& operator++() const
+      const dereference_proxy& operator++() const
       {
-        m_iter->put(m_iter->get()+1);
+        m_iter->put(m_iter->get() + 1);
         return *this;
       }
       const dereference_proxy& operator--() const
       {
-        m_iter->put(m_iter->get()-1);
+        m_iter->put(m_iter->get() - 1);
         return *this;
       }
-      
+
       ValueType operator++(int) const
       {
         ValueType temp = m_iter->get();
-        m_iter->put(m_iter->get()+1);
+        m_iter->put(m_iter->get() + 1);
         return temp;
       }
       ValueType operator--(int) const
       {
         ValueType temp = m_iter->get();
-        m_iter->put(m_iter->get()-1);
+        m_iter->put(m_iter->get() - 1);
         return temp;
       }
-      
+
       template<class T>
       const dereference_proxy& operator+=(const T& v) const
       {
@@ -103,7 +103,7 @@ namespace blink {
         m_iter->put(m_iter->get() - v);
         return *this;
       }
-      
+
       template<class T>
       const dereference_proxy& operator/=(const T& v) const
       {
@@ -131,7 +131,7 @@ namespace blink {
         m_iter->put(m_iter->get() & v);
         return *this;
       }
-      
+
       template<class T>
       const dereference_proxy& operator|=(const T& v) const
       {
@@ -160,9 +160,144 @@ namespace blink {
         return *this;
       }
 
-   // private:
- 
+      // private:
+
       const PutGetIterator* m_iter;
+    };
+
+
+    // type erased variation. A lot slower!
+    template<typename T>
+    struct proxy_reference
+    {
+      // typedef typename PutGetIterator::value_type value_type;
+      // Cannot get the valuetype from the iterator, because it may not be complete
+      template<class Getter, class Putter>
+      proxy_reference(Getter&& getter, Putter&& putter)
+        : get(std::forward<Getter>(getter)), put(std::forward<Putter>(putter))
+      {}
+
+      // conversion to make the iterator readable
+      operator T() const
+      {
+        return get();
+      }
+
+      // assignment to make the iterator writable
+      const proxy_reference& operator=(const T& v) const
+      {
+        put(v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator=(const proxy_reference<U>& that) const
+      {
+        return operator=(static_cast<U>(that));
+      }
+
+      const proxy_reference& operator=(const proxy_reference& that) const
+      {
+        return operator=(static_cast<T>(that));
+      }
+
+      const proxy_reference& operator++() const
+      {
+        put(get() + 1);
+        return *this;
+      }
+      const proxy_reference& operator--() const
+      {
+        put(get() - 1);
+        return *this;
+      }
+
+      T operator++(int) const
+      {
+        T temp = get();
+        put(get() + 1);
+        return temp;
+      }
+      T operator--(int) const
+      {
+        T temp = get();
+        put(get() - 1);
+        return temp;
+      }
+
+      template<class U>
+      const proxy_reference& operator+=(const U& v) const
+      {
+        put(get() + v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator-=(const U& v) const
+      {
+        put(get() - v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator/=(const U& v) const
+      {
+        put(get() / v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator*=(const U& v) const
+      {
+        put(get() * v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator%=(const U& v) const
+      {
+        put(get() % v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator&=(const U& v) const
+      {
+        put(get() & v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator|=(const U& v) const
+      {
+        put(get() | v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator^=(const U& v) const
+      {
+        put(get() ^ v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator<<=(const U& v) const
+      {
+        put(get() << v);
+        return *this;
+      }
+
+      template<class U>
+      const proxy_reference& operator>>=(const U& v) const
+      {
+        put(get() >> v);
+        return *this;
+      }
+
+      // private:
+      std::function<T()> get;
+      std::function<void(const T&)> put;
     };
   }
 }
