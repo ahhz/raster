@@ -1,3 +1,5 @@
+#include <boost/optional/optional_io.hpp>
+#include <blink/iterator/zip_range.h>
 #include <blink/raster/edge_iterator.h>
 #include <blink/raster/edge_view.h>
 #include <blink/raster/gdal_raster_view.h>
@@ -37,59 +39,62 @@ void create_zilch()
 }
 */
 
-void print_value(const boost::none_t&)
-{
-  std::cout << 'x';
-}
-
-
 template<class Value>
 void print_value(const Value& v)
 {
   std::cout << v;
 }
 
-template<class Value>
-void print_value(const boost::optional<Value>& v)
-{
-  if (v){  
-    print_value(*v);
-  }
-  else
-  {
-    print_value(boost::none);
-  }
-}
 template<class A, class B>
 void print_value(const std::pair<A, B>& v)
 {
-  print_value(v.first);
-  std::cout << ' ';
-  print_value(v.second);
+  std::cout << v.first << ' ' << v.second;
 }
 
-
-template<class Iterator, class Value>
-void print_value(const blink::raster::dereference_proxy<Iterator, Value>& value)
+template<class I, class T>
+void print_value(const blink::raster::dereference_proxy<I, T>& v)
 {
-  auto v = Value{ value };
-  print_value(v);
+  print_value(static_cast<T>(v));
 }
+
+int test()
+{
+  auto a = blink::raster::open_gdal_raster<int>("small.tif", GA_Update);
+  auto b = blink::raster::create_temp_gdal_raster_from_model<int>(a);
+  auto out = blink::raster::create_gdal_raster_from_model<int>("small_out.tif", a);
+  auto zip = blink::iterator::make_zip_range(std::ref(a), std::ref(b),
+    std::ref(out));
+  for (auto&& i : zip)
+  {
+    std::get<1>(i) += std::get<0>(i);
+    std::get<2>(i) = std::get<0>(i) + std::get<1>(i);
+  }
+
+  auto ai = a.begin();
+  auto bi = b.begin();
+  auto outi = out.begin();
+  for (; ai != a.end(); ++ai, ++bi, ++outi)
+  {
+    *outi = *ai + *bi;
+  }
+
+  return 0;
+}
+
 
 int main()
 {
   //create_small();
   //return 0;
-
+  //return test();
   auto input = blink::raster::open_gdal_raster<int>("small.tif", GA_Update);
    
   auto orientation = blink::raster::orientation::col_major{};
   auto access = blink::raster::access::read_write{};
-  auto element = blink::raster::element::v_edge{};
+  auto element = blink::raster::element::pixel{};
 
   auto view = blink::raster::make_raster_view(&input, orientation, element, 
     access);
-
   for (auto&& i : view)
   {
     print_value(i);
