@@ -19,12 +19,12 @@ namespace blink {
   namespace raster {
     struct assigning_an_uninitialized_optional_to_an_initialized_iterator : public boost::exception, public std::exception
     {
-      const char *what() const { return 
+      const char *what() const _NOEXCEPT { return
         "assigning an uninitialized optional to an initialized_iterator"; }
     };
     struct assigning_an_initialized_optional_to_an_uninitialized_iterator : public boost::exception, public std::exception
     {
-      const char *what() const {
+      const char *what() const{
         return
           "assigning an initialized optional to an uninitialized_iterator";
       }

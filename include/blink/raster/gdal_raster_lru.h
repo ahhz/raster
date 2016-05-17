@@ -187,7 +187,7 @@ namespace blink {
 
       //! The global block_cache. This is a block cache with default size that can
       //! be used as a default when none is provided.
-      block_cache g_block_cache;
+      static block_cache g_block_cache;
 
       //! The block manager keeps track to see which blocks of a GDALRasterBand are 
       //! in the cache, 

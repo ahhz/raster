@@ -27,7 +27,7 @@ namespace blink {
       using iterator = Iterator<typename Raster, IteratorArguments...>;
       using const_iterator = Iterator<const typename Raster, IteratorArguments...>;
 
-      default_raster_view(Raster* r = std::nullptr_t) : m_raster(r)
+      default_raster_view(Raster* r = nullptr) : m_raster(r)
       {}
 
       iterator begin()

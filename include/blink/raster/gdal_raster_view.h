@@ -37,7 +37,7 @@ namespace blink {
       gdal_trans_iterator>
     {
     public:
-      gdal_trans_raster_view(Raster* r = std::nullptr_t) 
+      gdal_trans_raster_view(Raster* r = nullptr) 
         : default_raster_view<Raster, gdal_trans_iterator>(r)
       {}
 
