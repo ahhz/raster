@@ -1,0 +1,1 @@
+// This empty file is just here to let CMake create a header-only project
