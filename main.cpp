@@ -84,8 +84,8 @@ int test()
 
 int main()
 {
-  //create_small();
-  //return 0;
+  create_small();
+  return 0;
   //return test();
   auto input = blink::raster::open_gdal_raster<int>("small.tif", GA_Update);
    
