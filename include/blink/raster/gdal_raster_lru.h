@@ -23,13 +23,6 @@
 
 #include <blink/raster/exceptions.h>
 
-
-#include <cpl_conv.h>
-#pragma warning( push )
-#pragma warning( disable : 4251 )//std::vector needs to have dll-interface 
-#include <gdal_priv.h>
-#pragma warning( pop )
-
 #include <boost/optional.hpp>
 
 #include <cstddef>
@@ -39,6 +32,7 @@
 #include <vector>
 
 
+class GDALRasterBand;
 
 namespace blink {
   namespace raster {

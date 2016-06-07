@@ -1,61 +1,58 @@
-cmake_minimum_required (VERSION 3.0)
-
-
-
-#file(GLOB_RECURSE MY_HDRS "*.h")
-#add_library(raster "source/gdal_raster_lru.cpp" ${MY_HDRS})
-add_library(raster STATIC "source/gdal_raster_lru.cpp")
-
-# make sure that downstream projects inherit the include files of raster
-target_include_directories(raster PUBLIC "include/")
-
-#target_include_directories(raster INTERFACE 
-#  "include/" $<INSTALL_INTERFACE:include/raster>
-#)
-add_executable(raster_demo main.cpp)
-
-target_link_libraries(raster_demo PUBLIC iterator)
-target_link_libraries(raster_demo PUBLIC raster)
-#target_link_libraries(raster_demo PUBLIC ${raster_LIBRARIES})
 ###############################################################################
 #
-# Search for dependencies
+# Require 3.0 for INTERFACE projects
+
+cmake_minimum_required (VERSION 3.0)
+
+###############################################################################
 #
-# Based on https://github.com/libLAS/libLAS/blob/master/CMakeLists.txt
-# Because it requires both GDAL and BOOST
+# Resolve GDAL dependency
+#
 
-# Boost C++ Libraries support - required
+find_package(GDAL 1.10.0 REQUIRED)
+mark_as_advanced(CLEAR GDAL_INCLUDE_DIR) 
+mark_as_advanced(CLEAR GDAL_LIBRARY) 
 
-# Default to using static, multithreaded libraries for 
-# linking under MSVC.
+add_library(gdal_interface INTERFACE)
+target_include_directories(gdal_interface INTERFACE ${GDAL_INCLUDE_DIR})
+target_link_libraries(gdal_interface INTERFACE ${GDAL_LIBRARY} )
+
+###############################################################################
+#
+# Resolve BOOST dependency
+#
 
 set(Boost_USE_STATIC_LIBS   ON)
 set(Boost_USE_MULTITHREADED ON)
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(Boost 1.55.0 REQUIRED COMPONENTS system filesystem)
 mark_as_advanced(CLEAR Boost_INCLUDE_DIR) 
 mark_as_advanced(CLEAR Boost_LIBRARY_DIR) 
 
-target_link_libraries(raster_demo 
-  PUBLIC ${Boost_FILESYSTEM_LIBRARY}
-  PUBLIC ${Boost_SYSTEM_LIBRARY}
-)
+add_library(boost_interface INTERFACE)
+target_include_directories(boost_interface INTERFACE ${Boost_INCLUDE_DIRS})
+target_link_libraries(boost_interface INTERFACE ${Boost_FILESYSTEM_LIBRARY})
+target_link_libraries(boost_interface INTERFACE ${Boost_SYSTEM_LIBRARY})
 
-target_link_libraries(raster 
-  PUBLIC ${Boost_FILESYSTEM_LIBRARY}
-  PUBLIC ${Boost_SYSTEM_LIBRARY}
-)
 
-include_directories(${Boost_INCLUDE_DIRS})
-
-find_package(GDAL 1.10.0)
-include_directories(${GDAL_INCLUDE_DIR})
-mark_as_advanced(CLEAR GDAL_INCLUDE_DIR) 
-mark_as_advanced(CLEAR GDAL_LIBRARY) 
-target_link_libraries(raster_demo 
-   PUBLIC ${GDAL_LIBRARY}
-)
-target_link_libraries(raster
-   PUBLIC ${GDAL_LIBRARY}
-)
 ###############################################################################
+#
+# Create STATIC library
+#
+
+add_library(raster STATIC "source/gdal_raster_lru.cpp")
+target_include_directories(raster PUBLIC "include/")
+target_link_libraries(raster PUBLIC gdal_interface)
+target_link_libraries(raster PUBLIC boost_interface)
+target_link_libraries(raster PUBLIC iterator)
+
+###############################################################################
+#
+# Create executable using STATIC library
+#
+
+add_executable(raster_demo main.cpp)
+target_link_libraries(raster_demo PRIVATE raster)
+
+
+

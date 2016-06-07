@@ -1,5 +1,11 @@
 #include <blink/raster/gdal_raster_lru.h>
 
+#include <cpl_conv.h>
+#pragma warning( push )
+#pragma warning( disable : 4251 )//std::vector needs to have dll-interface 
+#include <gdal_priv.h>
+#pragma warning( pop )
+
 
 // This is the global block cache that is used as a default
 
