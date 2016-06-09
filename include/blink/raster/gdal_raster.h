@@ -59,7 +59,6 @@ namespace blink {
       //
       gdal_raster()
         : m_band(0)
-        , m_major_size2(0)
         , m_block_size1(1)
         , m_block_size2(1)
         , m_delete_on_close(false)
