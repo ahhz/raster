@@ -120,6 +120,27 @@ namespace blink {
       {
         r.put_pixel_in_block(block, pixel_in_block, value);
       }
+
+      template<typename Raster>
+      typename raster_traits::value_type<Raster> get_pixel_in_block(
+        const Raster& r,
+        typename raster_traits::index_type<Raster> major_row,
+        typename raster_traits::index_type<Raster> major_col,
+        typename raster_traits::index_type<Raster> pixel_in_block)
+      {
+        return r.get_pixel_in_block(major_row, major_col, pixel_in_block);
+      }
+
+      template<typename Raster>
+      void put_pixel_in_block(
+        Raster& r,
+        const typename raster_traits::value_type<Raster>& value,
+        typename raster_traits::index_type<Raster> major_row,
+        typename raster_traits::index_type<Raster> major_col,
+        typename raster_traits::index_type<Raster> pixel_in_block)
+      {
+        r.put_pixel_in_block(major_row, major_col, pixel_in_block, value);
+      }
     };
   }
 } 
