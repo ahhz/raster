@@ -39,8 +39,8 @@ target_link_libraries(boost_interface INTERFACE ${Boost_SYSTEM_LIBRARY})
 #
 # Create STATIC library
 #
-
-add_library(raster STATIC "source/gdal_raster_lru.cpp")
+file(GLOB_RECURSE MY_HDRS "*.h")
+add_library(raster STATIC "source/gdal_raster_lru.cpp" ${MY_HDRS})
 target_include_directories(raster PUBLIC "include/")
 target_link_libraries(raster PUBLIC gdal_interface)
 target_link_libraries(raster PUBLIC boost_interface)
