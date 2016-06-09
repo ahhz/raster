@@ -87,15 +87,15 @@ namespace blink {
         //! \param vector_element this is where the block_manager keeps the iterator 
         //! to the cache element
         void make(
-          size_t row,
-          size_t col,
+	      std::size_t row,
+		  std::size_t col,
           size_t size,
           optional_block_list_iterator& vector_element, // may be boost::none 
           GDALRasterBand* band);
 
         std::list<block> m_cache;
-        size_t m_size;
-        size_t m_capacity;
+		std::size_t m_size;
+		std::size_t m_capacity;
       };
 
       extern block_cache g_block_cache;
@@ -127,20 +127,20 @@ namespace blink {
 
         //! Get a writable block by its block index
         //!
-        void* get_for_writing(size_t index);
+        void* get_for_writing(std::size_t index);
         //! Get a read only block by its block index
         //!
-        const void* get(size_t index) const;
+        const void* get(std::size_t index) const;
       private:
-        block_list_iterator get_list_iterator(size_t index) const;
+        block_list_iterator get_list_iterator(std::size_t index) const;
 
 
         mutable std::vector<optional_block_list_iterator> m_index;
         block_cache* m_block_cache;
         GDALRasterBand* m_gdal_rasterband;
-        size_t m_block_size;
-        size_t m_major_size1;
-        size_t m_major_size2;
+		std::size_t m_block_size;
+		std::size_t m_major_size1;
+		std::size_t m_major_size2;
       };
 
       //! The global block_cache. This is a block cache with default size that can
