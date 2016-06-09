@@ -12,8 +12,8 @@
 // column-by-column) over the rasterdata. 
 //
 // This class hides much of the complexity of GDALDataSet and makes it 
-// efficiently accessible through iterators. It uses its own disk caching 
-// and not gdal's. 
+// efficiently accessible through iterators. It optionally uses its own disk
+// caching and not gdal's. 
 //
 
 #ifndef BLINK_RASTER_GDAL_RASTER_H_AHZ
@@ -22,26 +22,25 @@
 //#include <moving_window/coordinate_2d.h>
 //#include <moving_window/exceptions.h>
 #include <blink/raster/coordinate_2d.h>
-#include <blink/raster/default_raster_view.h>
-#include <blink/raster/gdal_raster_lru.h>
 #include <blink/raster/gdal_raster_iterator.h>
 #include <blink/raster/raster_iterator.h>
 #include <blink/raster/raster_traits.h>
 
-#include <cpl_string.h> // part of GDAL
-#include <gdal.h>       // part of GDAL
+#include <boost/filesystem.hpp>
 
 #pragma warning( push )
 #pragma warning( disable : 4251 )
+#include <cpl_string.h> // part of GDAL
+#include <gdal.h>       // part of GDAL
 #include <gdal_priv.h>  // part of GDAL
 #pragma warning( pop ) 
 
-#include <boost/filesystem.hpp> 
-#include <utility>
+//#include <utility>
+#include <cassert>
 
 namespace blink {
   namespace raster {
-    
+  
     template<typename T>
     class gdal_raster
     {
@@ -61,47 +60,48 @@ namespace blink {
       gdal_raster()
         : m_band(0)
         , m_major_size2(0)
-        , m_block_size1(1), m_block_size2(1)
-        , m_access_type(GA_ReadOnly)
-        , m_file_path("blank")
+        , m_block_size1(1)
+        , m_block_size2(1)
         , m_delete_on_close(false)
-        , m_gdal_dataset(NULL)
-        , m_gdal_rasterband(NULL)
-        , m_cache(NULL)
+        , m_gdal_dataset(nullptr)
+        , m_gdal_rasterband(nullptr)
       {}
 
     public:
-   //   friend class detail::gdal_makers;
-
-      // Constructor opens from file
+      // Consider making this private
+      // friend class detail::gdal_makers;
       //
-      gdal_raster(const boost::filesystem::path& file_path, GDALAccess access,
-        int band = 1)
-        : m_access_type(access), m_delete_on_close(false), m_file_path(file_path),
-        m_band(band)
+      // Construct from opened GDALDataset
+      //
+      gdal_raster(GDALDataset* dataset, int band = 1)
+        : m_delete_on_close(false)
+        , m_gdal_dataset(dataset)
       {
-        GDALAllRegister();
-        m_gdal_dataset = (GDALDataset *)GDALOpen(m_file_path.string().c_str()
-          , m_access_type);
+        m_gdal_rasterband = m_gdal_dataset->GetRasterBand(band);
+        int x_size, y_size;
 
-        if (m_gdal_dataset == NULL) {
-          std::cout << "Could not read: " << m_file_path.c_str() << std::endl;
-          BOOST_THROW_EXCEPTION(opening_raster_failed{});
+        m_gdal_rasterband->GetBlockSize(&x_size, &y_size);
+
+        m_block_size1 = static_cast<index_type>(y_size);
+        m_block_size2 = static_cast<index_type>(x_size);
+   
+        // Using pointers to member functions as a means of run-time polymorphism
+        switch (m_gdal_rasterband->GetRasterDataType())
+        {
+        case GDT_Byte:    set_accessors<unsigned char >(); break;
+        case GDT_Int16:   set_accessors<short         >(); break;
+        case GDT_UInt16:  set_accessors<unsigned short>(); break;
+        case GDT_Int32:   set_accessors<int           >(); break;
+        case GDT_UInt32:  set_accessors<unsigned int  >(); break;
+        case GDT_Float32: set_accessors<float         >(); break;
+        case GDT_Float64: set_accessors<double        >(); break;
+        default: break;
         }
-        initialize();
+        if (m_gdal_dataset->GetAccess() == GA_ReadOnly) {
+          put_pixel = this_type::put_nothing;
+        }
       }
- 
-      // Constructor opens from opened GDALDataset
-      //
-      gdal_raster(GDALDataset * dataset, const boost::filesystem::path& file_path,
-        int band = 1)
-        : m_delete_on_close(false), m_file_path(file_path), m_gdal_dataset(dataset),
-        m_band(band)
-      {
-        m_access_type = dataset->GetAccess();
-        initialize();
-      }
-      
+
       void set_delete_on_close(bool v)
       {
         m_delete_on_close = v;
@@ -111,6 +111,7 @@ namespace blink {
       {
         return m_delete_on_close;
       }
+
     public:
       // Move constructor only
       //
@@ -118,31 +119,20 @@ namespace blink {
 
       gdal_raster(gdal_raster&& other)
       {
-        m_band = other.m_band;
-        m_major_size2 = other.m_major_size2;
         m_block_size1 = other.m_block_size1;
         m_block_size2 = other.m_block_size2;
-        m_access_type = other.m_access_type;
         m_delete_on_close = other.m_delete_on_close;
-        m_file_path = other.m_file_path;
+     
         m_gdal_dataset = other.m_gdal_dataset;
         m_gdal_rasterband = other.m_gdal_rasterband;
-        m_cache = other.m_cache;
+        
         put_pixel = other.put_pixel;
         get_pixel = other.get_pixel;
 
-        // Release the data pointer from the source object so that
-        // the destructor does not free the memory multiple times.
-        other.m_band = 0;
-        other.m_major_size2 = 0;
-        other.m_block_size1 = 0;
-        other.m_block_size2 = 0;
-        //other.m_access_type = 0;
+        // Make sure other can be safely deleted
         other.m_delete_on_close = false;
-        other.m_file_path = "";
-        other.m_gdal_dataset = NULL;
-        other.m_gdal_rasterband = NULL;
-        other.m_cache = NULL;
+        other.m_gdal_dataset = nullptr;
+        other.m_gdal_rasterband = nullptr;
       }
 
       // Move assignment only 
@@ -152,31 +142,19 @@ namespace blink {
       gdal_raster& operator=(gdal_raster&& other)
       {
         close_dataset();
-        m_band = other.m_band;
-        m_major_size2 = other.m_major_size2;
+
         m_block_size1 = other.m_block_size1;
         m_block_size2 = other.m_block_size2;
-        m_access_type = other.m_access_type;
         m_delete_on_close = other.m_delete_on_close;
-        m_file_path = other.m_file_path;
         m_gdal_dataset = other.m_gdal_dataset;
         m_gdal_rasterband = other.m_gdal_rasterband;
-        m_cache = other.m_cache;
         put_pixel = other.put_pixel;
         get_pixel = other.get_pixel;
 
-        // Release the data pointer from the source object so that
-        // the destructor does not free the memory multiple times.
-        other.m_band = 0;
-        other.m_major_size2 = 0;
-        other.m_block_size1 = 0;
-        other.m_block_size2 = 0;
-        //other.m_access_type = 0;
+        // Make sure other can be safely deleted
         other.m_delete_on_close = false;
-        other.m_file_path = "";
-        other.m_gdal_dataset = NULL;
-        other.m_gdal_rasterband = NULL;
-        other.m_cache = NULL;
+        other.m_gdal_dataset = nullptr;
+        other.m_gdal_rasterband = nullptr;
         return *this;
       }
 
@@ -223,7 +201,6 @@ namespace blink {
         return end();
       }
 
-
       index_type size1() const
       {
         return m_gdal_dataset->GetRasterYSize();
@@ -238,20 +215,23 @@ namespace blink {
       //
       T get(const coordinate_type& coord) const
       {
-        const void* buf = get_buf(get_major_index(coord));
-        return get_pixel(buf, get_minor_index(coord));
-      }
+        return get_pixel_in_block(
+          coord.row / m_block_size1,
+          coord.col / m_block_size2,
+          (coord.row % m_block_size1) * m_block_size2 
+          + coord.col % m_block_size2);
+        }
       
       void put(const coordinate_type& coord, const T& value)
       {
-       void* buf = get_buf_for_writing(get_major_index(coord));
-       return put_pixel(value, buf, get_minor_index(coord));
+        get_pixel_in_block(
+          coord.row / m_block_size1,
+          coord.col / m_block_size2,
+          (coord.row % m_block_size1) * m_block_size2
+          + coord.col % m_block_size2,
+          value);
       }
 
-//   private: // should be private??
-//    template<class> friend class gdal_iterator;
-//    template<class> friend class trans_gdal_iterator;
-  
       index_type block_size1() const
       {
         return m_block_size1;
@@ -264,88 +244,50 @@ namespace blink {
 
       T get_pixel_in_block(index_type block, index_type index_in_block) const
       {
-        const void* buf = get_buf(block);
-        return get_pixel(buf, index_in_block);
+        return get_pixel_in_block(block / m_block_size1, block % m_block_size1,
+          index_in_block);
+      }
+
+      T get_pixel_in_block(index_type blockrow, index_type blockcol
+        , index_type index_in_block) const
+      {
+        auto block = m_gdal_rasterband->GetLockedBlockRef(
+          static_cast<int>(blockcol), static_cast<int>(blockrow));
+        const void* buf = block->GetDataRef();
+        T temp = get_pixel(buf, index_in_block);
+        block->Touch();
+        block->DropLock();
+        return temp;
       }
 
       void put_pixel_in_block(index_type block, index_type index_in_block,
         const T& value)
       {
-        void* buf = get_buf_for_writing(block);
-        return put_pixel(value, buf, index_in_block);
+        put_pixel_in_block(block / m_block_size1, block % m_block_size1,
+          index_in_block, value);
       }
+
+      void put_pixel_in_block(index_type blockrow, index_type blockcol, 
+        index_type index_in_block, const T& value)
+      {
+        auto block = m_gdal_rasterband->GetLockedBlockRef(
+          static_cast<int>(blockcol), static_cast<int>(blockrow));
+        void* const buf = block->GetDataRef();
+        put_pixel(value, buf, index_in_block);
+        block->MarkDirty();
+        block->Touch();
+        block->DropLock();
+      }
+
       const GDALDataset* get_gdal_dataset() const
       {
         return m_gdal_dataset;
       }
 
     private:
-      void initialize()
-      {
-        m_gdal_rasterband = m_gdal_dataset->GetRasterBand(static_cast<int>(m_band));
-
-        // User our own memory management
-        m_cache = new LRU::block_manager(m_gdal_rasterband);
-
-        int x_size, y_size;
-
-        m_gdal_rasterband->GetBlockSize(&x_size, &y_size);
-
-        m_block_size1 = static_cast<index_type>(y_size);
-        m_block_size2 = static_cast<index_type>(x_size);
-        m_major_size2 = static_cast<index_type>(1 + (size2() - 1) / m_block_size2);
-
-        // Using pointers to member functions as a means of run-time polymorphism
-        switch (m_gdal_rasterband->GetRasterDataType())
-        {
-        case GDT_Byte:
-          put_pixel = this_type::put_pixel_specialized<unsigned char,
-            sizeof(unsigned char)>;
-          get_pixel = this_type::get_pixel_specialized<unsigned char,
-            sizeof(unsigned char)>;
-          break;
-        case GDT_Int16:
-          put_pixel = this_type::put_pixel_specialized<short, sizeof(short)>;
-          get_pixel = this_type::get_pixel_specialized<short, sizeof(short)>;
-          break;
-        case GDT_UInt16:
-          put_pixel = this_type::put_pixel_specialized<unsigned short,
-            sizeof(unsigned short)>;
-          get_pixel = this_type::get_pixel_specialized<unsigned short,
-            sizeof(unsigned short)>;
-          break;
-        case GDT_Int32:
-          put_pixel = this_type::put_pixel_specialized<int, sizeof(int)>;
-          get_pixel = this_type::get_pixel_specialized<int, sizeof(int)>;
-          break;
-        case GDT_UInt32:
-          put_pixel = this_type::put_pixel_specialized<unsigned int,
-            sizeof(unsigned int)>;
-          get_pixel = this_type::get_pixel_specialized<unsigned int,
-            sizeof(unsigned int)>;
-          break;
-        case GDT_Float32:
-          put_pixel = this_type::put_pixel_specialized<float, sizeof(float)>;
-          get_pixel = this_type::get_pixel_specialized<float, sizeof(float)>;
-          break;
-        case GDT_Float64:
-          put_pixel = this_type::put_pixel_specialized<double, sizeof(double)>;
-          get_pixel = this_type::get_pixel_specialized<double, sizeof(double)>;
-          break;
-        default: break;
-
-        }
-        if (m_access_type == GA_ReadOnly) {
-          put_pixel = this_type::put_nothing;
-        }
-      }
-
-
       void close_dataset()
       {
-        delete m_cache; // flushes so must be done before calculating statistics
-        m_cache = nullptr;
-        if (m_gdal_dataset && m_access_type == GA_Update) {
+        if (m_gdal_dataset && m_gdal_dataset->GetAccess() == GA_Update) {
           double min, max, mean, stddev;
           m_gdal_rasterband->ComputeStatistics(FALSE, &min, &max, &mean, &stddev
             , NULL, NULL);
@@ -357,7 +299,7 @@ namespace blink {
           GDALClose(m_gdal_dataset);
           if (m_delete_on_close) {
             if (file_list != nullptr) {
-              for (int i = 0; file_list[i] != 0; ++i) {
+              for (int i = 0; file_list[i] != nullptr; ++i) {
                 boost::filesystem::path path(file_list[i]);
                 boost::filesystem::remove(path);
               }
@@ -366,36 +308,8 @@ namespace blink {
           CSLDestroy(file_list);
         }
       }
-      boost::filesystem::path get_path() const
-      {
-        return m_file_path;
-      }
-
-      index_type get_major_index(const coordinate_type& coord) const
-      {
-        const index_type major_row = coord.row / m_block_size1;
-        const index_type major_col = coord.col / m_block_size2;
-        return major_row * m_major_size2 + major_col;
-      }
-
-      index_type get_minor_index(const coordinate_type& coord) const
-      {
-        const index_type minor_row = coord.row % m_block_size1;
-        const index_type minor_col = coord.col % m_block_size2;
-        return minor_row * m_block_size2 + minor_col;
-      }
-
-      const void* get_buf(const index_type& major_index) const
-      {
-        return m_cache->get(major_index);
-      }
-
-      void* get_buf_for_writing(const index_type& major_index)
-      {
-        return m_cache->get_for_writing(major_index);
-      }
-
-      template<typename TData, index_type stride>
+   
+      template<typename TData, index_type stride = sizeof(TData)>
       static void put_pixel_specialized(const value_type& value, void* const buf
         , index_type n)
       {
@@ -404,7 +318,7 @@ namespace blink {
         (*point_at_data) = static_cast<TData>(value);
       }
 
-      template<typename TData, index_type stride>
+      template<typename TData, index_type stride = sizeof(TData)>
       static value_type get_pixel_specialized(const void* const buf, index_type n)
       {
         const char* const point_at_char = reinterpret_cast<const char* const>(buf)
@@ -421,26 +335,25 @@ namespace blink {
         assert(false); //trying to put values in a write only raster
       }
 
+      template<typename TData>
+      void set_accessors()
+      {
+        put_pixel = this_type::put_pixel_specialized<TData>;
+        get_pixel = this_type::get_pixel_specialized<TData>;
+      }
+
       // function pointers for "runtime polymorphism" based on file datatype. 
       void(*put_pixel)(const value_type&, void* const, index_type);
       value_type(*get_pixel)(const void* const, index_type);
 
-      int m_band;
-      index_type m_major_size2;
       index_type m_block_size1;
       index_type m_block_size2;
-      GDALAccess m_access_type;
       bool m_delete_on_close;
-      boost::filesystem::path m_file_path;
-
+     
       // mutable because not const - correctly implemented
       mutable GDALDataset* m_gdal_dataset;
       mutable GDALRasterBand* m_gdal_rasterband;
-
-      LRU::block_manager* m_cache;
     };
-
- 
   } //namespace 
 }
 #endif
