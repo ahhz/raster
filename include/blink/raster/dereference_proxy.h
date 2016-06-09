@@ -30,7 +30,7 @@
 
 #ifndef BLINK_RASTER_DEREFERENCE_PROXY_H_AHZ
 #define BLINK_RASTER_DEREFERENCE_PROXY_H_AHZ
-
+#include <functional>
 namespace blink {
   namespace raster {
     // an iterator with put(v) and get() member function

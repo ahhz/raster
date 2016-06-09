@@ -113,14 +113,14 @@ namespace blink {
       friend struct reference;
       value_type get() const
       {
-        return	raster_operations::get_pixel_in_block(*m_raster, m_major_index,
-          m_minor_index);
+        return	raster_operations::get_pixel_in_block(*m_raster, m_major_row, 
+          m_major_col, m_minor_index);
       }
 
       void put(const value_type& value) const
       {
-        raster_operations::put_pixel_in_block(*m_raster, value, m_major_index,
-          m_minor_index);
+        raster_operations::put_pixel_in_block(*m_raster, value, m_major_row,
+          m_major_col, m_minor_index);
       }
 
     public:
@@ -231,15 +231,15 @@ namespace blink {
         const index_type minor_row = m_coordinates.row % block_row_size;
         const index_type minor_col = m_coordinates.col % block_col_size;
 
-        const index_type major_row = m_coordinates.row / block_row_size;
-        const index_type major_col = m_coordinates.col / block_col_size;
+        m_major_row = m_coordinates.row / block_row_size;
+        m_major_col = m_coordinates.col / block_col_size;
 
         const index_type major_cols_in_row = 1 + (size2() - 1) / block_col_size;
 
         m_minor_index = minor_row * block_col_size + minor_col;
-        m_major_index = major_row * major_cols_in_row + major_col;
+       // m_major_index = major_row * major_cols_in_row + major_col;
 
-        m_stretch_begin_col = major_col * block_col_size;
+        m_stretch_begin_col = m_major_col * block_col_size;
         m_stretch_end_col = std::min(m_stretch_begin_col + block_col_size, size2());
       }
 
@@ -247,7 +247,9 @@ namespace blink {
       index_type m_stretch_begin_col;
       index_type m_stretch_end_col;
       index_type m_minor_index;
-      index_type m_major_index;
+      //index_type m_major_index;
+      index_type m_major_row;
+      index_type m_major_col;
       Raster* m_raster;
     };
 

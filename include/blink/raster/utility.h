@@ -8,9 +8,11 @@
 #define BLINK_RASTER_UTILITY_H_AHZ
 
 #include <blink/raster/gdal_raster.h>
+#include <blink/raster/exceptions.h>
 
 #include <gdal.h>
 #include <gdal_priv.h>
+
 #include <boost/filesystem.hpp>
 #include <iostream>
 
@@ -118,7 +120,16 @@ namespace blink {
         static gdal_raster<T> open_gdal_raster(const boost::filesystem::path& path
           , GDALAccess access, int band)
         {
-          return gdal_raster<T>(path, access, band);
+          GDALAllRegister();
+          auto dataset = (GDALDataset *)GDALOpen(path.string().c_str()
+            , access);
+
+          if (dataset == nullptr) {
+            std::cout << "Could not read: " << path.c_str() << std::endl;
+            BOOST_THROW_EXCEPTION(opening_raster_failed{});
+          }
+
+          return gdal_raster<T>(dataset, band);
         }
 
         template<typename T>
@@ -133,7 +144,7 @@ namespace blink {
             std::cout << "Could not create raster file: " << path << std::endl;
             BOOST_THROW_EXCEPTION(creating_a_raster_failed{});
           }
-          gdal_raster<T> raster(dataset, path, nBands);
+          gdal_raster<T> raster(dataset, nBands);
           return raster;
         }
 
@@ -148,7 +159,7 @@ namespace blink {
             std::cout << "Could not create raster file: " << path << std::endl;
             BOOST_THROW_EXCEPTION(creating_a_raster_failed{});
           }
-          gdal_raster<T> raster(dataset, path, nBands);
+          gdal_raster<T> raster(dataset, nBands);
           return raster;
         }
 
