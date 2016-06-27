@@ -61,6 +61,8 @@ namespace blink {
       static const GDALDataType type = GDT_Float64;
     };
 
+
+ 
    namespace detail {
 
       GDALDataset* create_standard_gdaldataset(
@@ -114,8 +116,112 @@ namespace blink {
         return unique_path(unique_temp_path_model);
       }
 
-      struct gdal_makers
+      struct dataset_deleter
       {
+        void operator()(GDALRasterBand* band) const
+        {
+          GDALDataset* dataset = band ? band->GetDataset() : nullptr;
+          if (dataset) {
+            char** file_list = dataset->GetFileList();
+            GDALClose(dataset);
+            if (file_list != nullptr) {
+              for (int i = 0; file_list[i] != nullptr; ++i) {
+                boost::filesystem::path path(file_list[i]);
+                boost::filesystem::remove(path);
+              }
+            }
+            CSLDestroy(file_list);
+          }
+          else {
+            std::cout << "Could not delete raster" << std::endl;
+            BOOST_THROW_EXCEPTION(deleting_raster_failed{});
+          }
+        }
+      };
+      struct dataset_closer
+      {
+        dataset_closer(GDALDataset* dataset) : m_dataset(dataset)
+        {}
+
+        void operator()(GDALRasterBand* band) const
+        {
+          GDALDataset* dataset = band ? band->GetDataset() : nullptr;
+          assert(dataset == m_dataset);
+          //assert(m_dataset->GetAccess() == band->GetAccess());
+          if (dataset) {
+            if (band->GetAccess() == GA_Update) {
+              double min, max, mean, stddev;
+              band->ComputeStatistics(FALSE, &min, &max, &mean, &stddev
+                , NULL, NULL);
+              band->SetStatistics(min, max, mean, stddev);
+            }
+            GDALClose(dataset);
+          } else {
+            std::cout << "Could not close raster" << std::endl;
+            BOOST_THROW_EXCEPTION(closing_raster_failed{});
+          }
+        }
+        GDALDataset* m_dataset;
+      };
+
+      class gdal_makers
+      {
+      public:
+        static std::shared_ptr<GDALRasterBand> open_band(
+          const boost::filesystem::path& path, GDALAccess access, int band = 1)
+        {
+          GDALAllRegister();
+          GDALDataset* dataset = (GDALDataset*)GDALOpen(path.string().c_str(), access);
+          bool test = dataset->GetAccess() == access;
+          assert(test);
+          if (dataset == nullptr) {
+            std::cout << "Could not read: " << path.c_str() << std::endl;
+            BOOST_THROW_EXCEPTION(opening_raster_failed{});
+          }
+          
+          GDALRasterBand* rasterband = dataset->GetRasterBand(band);
+
+          return std::shared_ptr<GDALRasterBand>(rasterband, dataset_closer(dataset));
+        }
+
+        static  std::shared_ptr<GDALRasterBand> create_band(
+          const boost::filesystem::path& path, int rows, int cols, 
+          GDALDataType datatype, bool is_temporary = false)
+        {
+          int nBands = 1;
+          GDALDataset* dataset = detail::create_standard_gdaldataset(path, rows
+            , cols, datatype, nBands);
+          if (dataset == nullptr)
+          {
+            std::cout << "Could not create raster file: " << path << std::endl;
+            BOOST_THROW_EXCEPTION(creating_a_raster_failed{});
+          }
+          GDALRasterBand* band = dataset->GetRasterBand(1);
+
+          return is_temporary 
+            ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
+            : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+        }
+
+        static std::shared_ptr<GDALRasterBand> create_band_from_model(
+          const boost::filesystem::path& path
+          , std::shared_ptr<GDALRasterBand> model,
+          GDALDataType datatype, bool is_temporary = false)
+        {
+          int nBands = 1;
+          GDALDataset* dataset = detail::create_standard_gdaldataset_from_model
+            (path, model->GetDataset(), datatype, nBands);
+          
+          if (dataset == nullptr) {
+            std::cout << "Could not create raster file: " << path << std::endl;
+            BOOST_THROW_EXCEPTION(creating_a_raster_failed{});
+          }
+          GDALRasterBand* band = dataset->GetRasterBand(1);
+          return is_temporary 
+            ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
+            : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+        }
+
         template<typename T>
         static gdal_raster<T> open_gdal_raster(const boost::filesystem::path& path
           , GDALAccess access, int band)
@@ -181,7 +287,7 @@ namespace blink {
           return raster;
         }
       };
-    }
+    };
   
     template<typename T>
     gdal_raster<T> open_gdal_raster(const boost::filesystem::path& path

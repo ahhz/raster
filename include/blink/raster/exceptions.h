@@ -54,6 +54,16 @@ namespace blink {
       const char *what() const { return "writing to raster failed"; }
     };
 
+    struct closing_raster_failed : public boost::exception, public std::exception
+    {
+      const char *what() const { return "closing raster failed"; }
+    };
+
+    struct deleting_raster_failed : public boost::exception, public std::exception
+    {
+      const char *what() const { return "deleting raster failed"; }
+    };
+
   }
 }
 #endif
