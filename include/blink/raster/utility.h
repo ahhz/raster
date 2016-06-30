@@ -173,6 +173,11 @@ namespace blink {
           GDALAllRegister();
           GDALDataset* dataset = (GDALDataset*)GDALOpen(path.string().c_str(), access);
           bool test = dataset->GetAccess() == access;
+          if (!test)
+          {
+            std::cout << "GDALAccess mismatch: " << path.c_str() << std::endl;
+            BOOST_THROW_EXCEPTION(opening_raster_failed{});
+          }
           assert(test);
           if (dataset == nullptr) {
             std::cout << "Could not read: " << path.c_str() << std::endl;
