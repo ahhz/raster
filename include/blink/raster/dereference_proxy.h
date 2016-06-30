@@ -170,8 +170,6 @@ namespace blink {
     template<typename T>
     struct proxy_reference
     {
-      // typedef typename PutGetIterator::value_type value_type;
-      // Cannot get the valuetype from the iterator, because it may not be complete
       template<class Getter, class Putter>
       proxy_reference(Getter&& getter, Putter&& putter)
         : get(std::forward<Getter>(getter)), put(std::forward<Putter>(putter))
