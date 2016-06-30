@@ -323,14 +323,14 @@ namespace blink {
       sub_gdalrasterband_input_iterator
         (const sub_gdalrasterband_input_iterator& other) = default;
       
-      sub_gdalrasterband_input_iterator
-        (sub_gdalrasterband_input_iterator&& other) = default;
+//      sub_gdalrasterband_input_iterator
+//      (sub_gdalrasterband_input_iterator&& other) = default;
   
       sub_gdalrasterband_input_iterator& operator=
         (const sub_gdalrasterband_input_iterator& other) = default;
 
-      sub_gdalrasterband_input_iterator& operator=
-        (sub_gdalrasterband_input_iterator&& other) = default;
+ //     sub_gdalrasterband_input_iterator& operator=
+ //       (sub_gdalrasterband_input_iterator&& other) = default;
 
       ~sub_gdalrasterband_input_iterator() = default;
 
@@ -450,7 +450,7 @@ namespace blink {
         m_block.reset(band, major_start_row, major_start_col);
 
         GDALDataType datatype = band->GetRasterDataType();
-        m_stride = GDALGetDataTypeSizeBytes(datatype);
+        m_stride = GDALGetDataTypeSize(datatype)/8;
 
         m_pos = m_block.get_iterator(minor_start_row,
           minor_start_col, m_stride);
@@ -487,21 +487,20 @@ namespace blink {
       : public std::iterator<std::input_iterator_tag, T
       , dereference_proxy<typed_gdalrasterband_iterator<T>, T> >
     {
-      using reference = dereference_proxy<typed_gdalrasterband_iterator<T>, T>;
-
     public:
+      using reference = dereference_proxy<typed_gdalrasterband_iterator<T>, T>;
 
       typed_gdalrasterband_iterator() : m_view(nullptr)
       {};
 
       typed_gdalrasterband_iterator(const typed_gdalrasterband_iterator& other)
         = default;
-      typed_gdalrasterband_iterator(typed_gdalrasterband_iterator&& other)
-        = default;
+//      typed_gdalrasterband_iterator(typed_gdalrasterband_iterator&& other)
+//        = default;
       typed_gdalrasterband_iterator& operator=(
         const typed_gdalrasterband_iterator& other) = default;
-      typed_gdalrasterband_iterator& operator=(
-        typed_gdalrasterband_iterator&& other) = default;
+//      typed_gdalrasterband_iterator& operator=(
+//       typed_gdalrasterband_iterator&& other) = default;
       ~typed_gdalrasterband_iterator() = default;
 
       typed_gdalrasterband_iterator& operator++()
@@ -553,13 +552,13 @@ namespace blink {
       void find_begin(gdalrasterband_input_view<T>* view)
       {
         m_view = view;
-        m_iter.find_begin(m_view->m_band);
+        m_iter.find_begin(m_view->m_band.get());
       }
 
       void find_end(gdalrasterband_input_view<T>* view)
       {
         m_view = view;
-        m_iter.find_end(m_view->m_band);
+        m_iter.find_end(m_view->m_band.get());
       }
 
     private:
@@ -579,7 +578,7 @@ namespace blink {
       gdalrasterband_input_view() :m_band(nullptr)
       {}
 
-      gdalrasterband_input_view(GDALRasterBand* band) :m_band(band)
+      gdalrasterband_input_view(std::shared_ptr<GDALRasterBand> band) :m_band(band)
       {
         switch (m_band->GetRasterDataType())
         {
@@ -671,7 +670,7 @@ namespace blink {
       }
 
       public:
-      GDALRasterBand* m_band;
+      std::shared_ptr<GDALRasterBand> m_band;
 
       // function pointers for "runtime polymorphism" based on file datatype. 
       void(*put)(const value_type&, void* const);
