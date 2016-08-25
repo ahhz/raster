@@ -58,8 +58,8 @@ namespace blink {
       // Default constructor
       //
       gdal_raster()
-        : m_band(0)
-        , m_block_size1(1)
+        :// m_band(0),
+         m_block_size1(1)
         , m_block_size2(1)
         , m_delete_on_close(false)
         , m_gdal_dataset(nullptr)
@@ -223,7 +223,7 @@ namespace blink {
       
       void put(const coordinate_type& coord, const T& value)
       {
-        get_pixel_in_block(
+        put_pixel_in_block(
           coord.row / m_block_size1,
           coord.col / m_block_size2,
           (coord.row % m_block_size1) * m_block_size2
