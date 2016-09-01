@@ -415,6 +415,15 @@ namespace blink {
         return i;
       }
 
+      int rows() const
+      {
+        return m_rows;
+      }
+      int cols() const
+      {
+        return m_cols;
+      }
+
     private:
 
       template<typename U>

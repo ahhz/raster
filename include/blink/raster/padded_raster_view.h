@@ -58,8 +58,7 @@ namespace blink {
 
       padded_raster_iterator& operator++()
       {
-        while (m_remaining == 0)
-        {
+        while (m_remaining == 0) {
           ++m_stretch;
           if (m_stretch == m_view->m_num_stretches) {
             return *this;
@@ -148,7 +147,8 @@ namespace blink {
     };
 
     // if you want this view to be read_only specify a const T
-    template<typename Raster>
+    template<typename Raster> // raster should either be a reference or move 
+    // assigned
     class padded_raster_view
     {
       using this_type = padded_raster_view<T>;
@@ -158,7 +158,10 @@ namespace blink {
       padded_raster_view() :m_raster(nullptr)
       {}
 
-      padded_raster_view(std::shared_ptr<Raster> raster) :m_raster(raster)
+
+      template<class InRaster>
+      padded_raster_view(InRaster&& raster, int row_before, int row_after, 
+        int col_before, int col_after)
       {
       }
 
@@ -207,38 +210,18 @@ namespace blink {
     private:
       Raster m_raster;
       
-      void set(int rows, int cols, int pad_row_before, int pad_row_after, int pad_col_before, int pad_col_after)
+      void set(int rows, int cols, int pad_row_before, int pad_row_after
+        , int pad_col_before, int pad_col_after)
       {
-        if (pad_row_before > 0 || pad_col_before > 0)
-        {
-          padding_is_odd = true;
-          m_odd = pad_col_before + pad_col_after;
-          m_even = cols;
-          m_first = (cols + pad_cols_before + pad_cols_after) * pad_rows_before + pad_cols_before;
-        }
-        else
-        {
-          m_first = cols;
-        }
-
-        if (pad_row_after > 0 || pad_col_after > 0)
-        {
-          m_last = (cols + pad_cols_before + pad_cols_after) * pad_row_after + pad_col_after;
-        }
-        else
-        {
-          m_first = cols;
-        }
-
+        m_num_stretches = rows * 2 + 1;
+        m_first =  (cols + pad_col_before + pad_col_after) * pad_row_before 
+          + pad_col_before;
+        m_last  = (cols + pad_col_before + pad_col_after) * pad_row_after +
+          pad_col_after;
+        m_even = pad_row_before + pad_row_after;
+        m_odd = cols;
+        m_padding_is_odd = false;
       }
-
-      int m_num_stretches;
-      int m_last;
-      int m_first;
-      int m_even;
-      int m_odd;
-      bool padding_is_odd;
-     
       
       int stretch_length(int stretch_index)
       {
@@ -249,10 +232,6 @@ namespace blink {
         else if (stretch_index == m_num_stretches - 1)
         {
           return m_last;
-        }
-        else if (stretch_index == m_num_stretches)
-        {
-          return 0;
         }
         else if (stretch_index % 2 == 0) {
           return m_even;
@@ -266,8 +245,18 @@ namespace blink {
       bool is_padding(int stretch_index)
       {
         const bool is_odd = (stretch_index % 2) == 1;
-        return (is_odd == padding_is_odd);
+        return (is_odd == m_padding_is_odd);
       }
+
+      Raster m_other_raster;
+
+
+      int m_num_stretches;
+      int m_last;
+      int m_first;
+      int m_even;
+      int m_odd;
+      bool m_padding_is_odd;
 
     };
   }
