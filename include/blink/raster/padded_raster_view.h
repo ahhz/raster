@@ -7,53 +7,42 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
-// This header file provides a view around a GDALDataSet that allows it 
-// to be used as a (mutable) input_range that iterates row-by-row 
-//
-// This class hides much of the complexity of GDALDataSet and makes it 
-// efficiently accessible through iterators. 
-//
-// This is work in progres to replace the gdal_raster_view and gdal_iterator. 
-// The problem with those is that they do not conform strictly to the input 
-// iterator and output iterator concepts
 
 #ifndef BLINK_RASTER_PADDED_RASTER_VIEW_H_AHZ
 #define BLINK_RASTER_PADDED_RASTER_VIEW_H_AHZ
 
 #include <blink/raster/dereference_proxy.h>
-
+#include <blink/iterator/detail.h>
 #include <boost/optional.hpp>
 
 //#include <utility>
 #include <cassert>
 #include <memory>
+#include <type_traits>
 
 namespace blink {
   namespace raster {
     //// Forward declaration for friendship;
-     template<typename R> class padded_raster_view;
+     template<class Raster> class padded_raster_view;
 
-
-    template<class T>
+    template<class Raster, class T = typename std::decay<Raster>::type::iterator::value_type >
     class padded_raster_iterator
       : public std::iterator<std::input_iterator_tag, boost::optional<T>
-      , dereference_proxy<padded_raster_iterator<T>,boost::optional<T>> >
+      , dereference_proxy<padded_raster_iterator<Raster,T>,boost::optional<T> > >
     {
     public:
-      using reference = dereference_proxy<padded_raster_iterator<T>
-        , boost::optional<T>;
+      using reference = dereference_proxy<padded_raster_iterator, boost::optional<T> >;
 
       padded_raster_iterator() : m_view(nullptr)
       {};
 
       padded_raster_iterator(const padded_raster_iterator& other)
         = default;
-      padded_raster_iterator(padded_raster_iterator&& other)
-        = default;
+      //padded_raster_iterator(padded_raster_iterator&& other) = default;
       padded_raster_iterator& operator=(
         const padded_raster_iterator& other) = default;
-      padded_raster_iterator& operator=(
-        padded_raster_iterator&& other) = default;
+      //padded_raster_iterator& operator=(
+      //  padded_raster_iterator&& other) = default;
       ~padded_raster_iterator() = default;
 
       padded_raster_iterator& operator++()
@@ -64,8 +53,17 @@ namespace blink {
             return *this;
           }
 
-          m_remaining = m_view->get_stretch_size(m_stretch);
+          m_remaining = m_view->stretch_length(m_stretch);
           m_is_padding = !m_is_padding;
+          if (m_remaining)
+          {
+            m_remaining--;
+            if (!m_is_padding && m_stretch != 1){
+              ++m_iter;
+            }
+
+            return *this;
+          }
         }
         --m_remaining;
         if (!m_is_padding){
@@ -92,7 +90,7 @@ namespace blink {
         else return boost::optional<T>(*m_iter);
       }
 
-      // TODO: Would it be better to make this a strict input iterator
+      // TODO: Would it be better to make this a non_mutable input iterator
       // and not allow putting values?
       void put(const boost::optional<T>& value) const
       {
@@ -119,16 +117,22 @@ namespace blink {
       template<typename U>
       friend class padded_raster_view;
 
-      void find_begin(padded_raster_view<T>* view)
+      void find_begin(padded_raster_view<Raster>* view) 
       {
         m_view = view;
-        m_iter.find_begin(m_view->m_band.get());
+        m_iter = m_view->m_raster.begin();
+        m_stretch = 0;
+        m_remaining = m_view->stretch_length(0) -1;
+        m_is_padding = true;
       }
 
-      void find_end(padded_raster_view<T>* view)
+      void find_end(padded_raster_view<Raster>* view)
       {
         m_view = view;
-        m_iter.find_end(m_view->m_band.get());
+        m_iter = m_view->m_raster.end();
+        m_stretch = m_view->m_num_stretches;
+        m_remaining = 0;
+        m_is_padding = false;
       }
 
       void update()
@@ -142,37 +146,39 @@ namespace blink {
       int m_stretch;
       int m_remaining;
       bool m_is_padding;
-      Iterator m_iter;
-      gdalrasterband_input_view<T>* m_view;
+      typename std::decay<Raster>::type::iterator m_iter;
+      padded_raster_view<Raster>* m_view;
     };
+   
 
-    // if you want this view to be read_only specify a const T
-    template<typename Raster> // raster should either be a reference or move 
-    // assigned
+    template<typename Raster> // raster may be a reference
     class padded_raster_view
     {
-      using this_type = padded_raster_view<T>;
-
-
     public:
+      using iterator = padded_raster_iterator < Raster > ;
+      using const_iterator = padded_raster_iterator < Raster >;
+
       padded_raster_view() :m_raster(nullptr)
       {}
 
 
       template<class InRaster>
-      padded_raster_view(InRaster&& raster, int row_before, int row_after, 
-        int col_before, int col_after)
+      padded_raster_view(InRaster&& raster, 
+        int row_before, int row_after, 
+        int col_before, int col_after) 
+        : m_raster(std::forward<InRaster>(raster))
       {
+        set(m_raster.rows(), m_raster.cols(), row_before, row_after, col_before, col_after);
       }
 
-      iterator begin()
+      iterator begin() 
       {
         iterator i;
         i.find_begin(this);
         return i;
       }
 
-      iterator end()
+      iterator end() 
       {
         iterator i;
         i.find_end(this);
@@ -208,8 +214,7 @@ namespace blink {
       }
 
     private:
-      Raster m_raster;
-      
+      friend class padded_raster_iterator < Raster > ;
       void set(int rows, int cols, int pad_row_before, int pad_row_after
         , int pad_col_before, int pad_col_after)
       {
@@ -218,7 +223,7 @@ namespace blink {
           + pad_col_before;
         m_last  = (cols + pad_col_before + pad_col_after) * pad_row_after +
           pad_col_after;
-        m_even = pad_row_before + pad_row_after;
+        m_even = pad_col_before + pad_col_after;
         m_odd = cols;
         m_padding_is_odd = false;
       }
@@ -248,9 +253,7 @@ namespace blink {
         return (is_odd == m_padding_is_odd);
       }
 
-      Raster m_other_raster;
-
-
+      Raster m_raster;
       int m_num_stretches;
       int m_last;
       int m_first;
@@ -259,7 +262,17 @@ namespace blink {
       bool m_padding_is_odd;
 
     };
+   
+    template<class Raster>
+    padded_raster_view<blink::iterator::detail::special_decay_t<Raster> > pad_raster(Raster&& raster
+      , int row_before, int row_after, int col_before, int col_after)
+    {
+      return padded_raster_view<blink::iterator::detail::special_decay_t<Raster> >(std::forward<Raster>(raster)
+        , row_before, row_after, col_before, col_after);
+    }
   }
 }
+
 #endif
+
 
