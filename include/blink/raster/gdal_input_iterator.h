@@ -166,14 +166,26 @@ namespace blink {
       gdalrasterband_iterator
       (const gdalrasterband_iterator& other) = default;
 
-      gdalrasterband_iterator
-      (gdalrasterband_iterator&& other) = default;
+      gdalrasterband_iterator(gdalrasterband_iterator&& other)
+        : m_view(other.m_view)
+        , m_block(std::move(other.m_block))
+        , m_end_of_stretch(std::move(other.m_end_of_stretch))
+        , m_pos(std::move(other.m_pos))
+      {
+      }
 
       gdalrasterband_iterator& operator=
         (const gdalrasterband_iterator& other) = default;
 
       gdalrasterband_iterator& operator=
-        (gdalrasterband_iterator&& other) = default;
+        (gdalrasterband_iterator&& other)
+      {
+        m_view = other.m_view;
+        m_block = std::move(other.m_block);
+        m_end_of_stretch = std::move(other.m_end_of_stretch);
+        m_pos = std::move(other.m_pos);
+        return *this;
+      }
 
       ~gdalrasterband_iterator() = default;
 
