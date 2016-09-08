@@ -122,9 +122,15 @@ namespace blink {
         m_view = view;
         m_iter = m_view->m_raster.begin();
         m_stretch = 0;
-        m_remaining = m_view->stretch_length(0) -1;
         m_is_padding = true;
-      }
+        m_remaining = m_view->stretch_length(0) - 1;
+        if (m_view->stretch_length(0) == 0)
+        {
+          m_stretch = 1;
+          m_is_padding = false;
+          m_remaining = m_view->stretch_length(1) - 1;
+        }
+       }
 
       void find_end(padded_raster_view<Raster>* view)
       {

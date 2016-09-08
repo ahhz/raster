@@ -31,8 +31,8 @@
 namespace blink {
   namespace raster {
     //// Forward declaration for friendship;
-    
-    
+
+
     //template<class T> class typed_gdalrasterband_iterator;
     //template<typename U> class gdalrasterband_input_view;
 
@@ -58,7 +58,7 @@ namespace blink {
       block(const block& other)
       {
         m_block = other.m_block;
-        if(m_block) m_block->AddLock();
+        if (m_block) m_block->AddLock();
       }
 
       block(block&& other)
@@ -85,7 +85,7 @@ namespace blink {
 
       void reset(GDALRasterBand* band, int major_row, int major_col)
       {
-        if(m_block) m_block->DropLock();
+        if (m_block) m_block->DropLock();
         m_block = band->GetLockedBlockRef(major_col, major_row);
         if (IsMutable) m_block->MarkDirty();
       }
@@ -93,7 +93,7 @@ namespace blink {
       void reset(int major_row, int major_col)
       {
         GDALRasterBand* band = m_block->GetBand();
-        if(m_block) m_block->DropLock();
+        if (m_block) m_block->DropLock();
         m_block = band->GetLockedBlockRef(major_col, major_row);
         if (IsMutable) m_block->MarkDirty();
       }
@@ -146,17 +146,17 @@ namespace blink {
     class gdalrasterband_range_view;
 
     template<bool IsMutable, class T>
-    class gdalrasterband_iterator 
+    class gdalrasterband_iterator
       : public std::iterator<std::input_iterator_tag, T
       , dereference_proxy<gdalrasterband_iterator<IsMutable, T>, T> >
     {
       using block_type = block<IsMutable>;
       using block_iterator_type = typename block_type::iterator;
       using this_type = gdalrasterband_iterator<IsMutable, T>;
-    
+
     public:
       using reference = dereference_proxy<this_type, T>;
-    
+
       gdalrasterband_iterator()
         : m_block()
         , m_end_of_stretch(m_block.get_null_iterator()) // not so elegant
@@ -203,6 +203,7 @@ namespace blink {
 
       gdalrasterband_iterator& operator++()
       {
+        assert(m_pos != m_block.get_null_iterator());
         m_pos += m_view->m_stride;
 
         if (m_pos == m_end_of_stretch) {
@@ -217,6 +218,7 @@ namespace blink {
 
           int index_in_block = static_cast<int>(std::distance(start, m_pos))
             / m_view->m_stride - 1;
+          assert(index_in_block >= 0);
 
           int minor_row = index_in_block / block_cols;
           int minor_col = index_in_block % block_cols;
@@ -281,12 +283,12 @@ namespace blink {
 
       T get() const
       {
-        return m_view->get(static_cast<void*>(m_pos) );
+        return m_view->get(static_cast<void*>(m_pos));
       }
 
       void put(const T& value) const
       {
-        m_view->put(value, static_cast<void*>(m_pos) );
+        m_view->put(value, static_cast<void*>(m_pos));
       }
 
     private:
@@ -297,7 +299,7 @@ namespace blink {
       void find_begin(gdalrasterband_range_view<T>* view)
       {
         m_view = view;
-       
+
         int block_rows = 0;
         int block_cols = 0;
         m_view->m_band->GetBlockSize(&block_cols, &block_rows);
@@ -348,7 +350,7 @@ namespace blink {
       {}
 
       gdalrasterband_range_view(
-        std::shared_ptr<GDALRasterBand> band, 
+        std::shared_ptr<GDALRasterBand> band,
         int start_row = 0, int start_col = 0, int rows = -1, int cols = -1)
         : m_band(band)
       {
@@ -358,7 +360,7 @@ namespace blink {
         m_cols = cols == -1 ? m_band->GetXSize() : cols;
         GDALDataType datatype = band->GetRasterDataType();
         m_stride = GDALGetDataTypeSize(datatype) / 8;
-     
+
 
         switch (datatype)
         {
@@ -380,7 +382,7 @@ namespace blink {
         put = this_type::put_special<U>;
         get = this_type::get_special<U>;
       }
-      
+
       using value_type = T;
       using iterator = gdalrasterband_iterator<!std::is_const<T>::value, T>;
       using const_iterator = gdalrasterband_iterator<false, T>;
@@ -470,6 +472,28 @@ namespace blink {
       int m_rows;
       int m_cols;
     };
+
+
+    // if you want this view to be read_only specify a const T
+    template<class T>
+    gdalrasterband_range_view<T> sub_raster(std::shared_ptr<GDALRasterBand> band,
+      int start_row, int start_col, int rows, int cols)
+    {
+      // todo: check whether sub_raster falls within raster
+      return gdalrasterband_range_view<T>(band, start_row, start_col, rows,
+        cols);
+    }
+
+    // if you want this view to be read_only specify a const T
+    template<class T>
+    gdalrasterband_range_view<T> sub_raster(const gdalrasterband_range_view<T>&
+      raster, int start_row, int start_col, int rows, int cols)
+    {
+      // todo: check whether sub_raster falls within raster
+      return gdalrasterband_range_view<T>(raster.m_band,
+        raster.m_start_row + start_row,
+        raster.m_start_col + start_col, rows, cols);
+    }
   }
 }
 #endif
