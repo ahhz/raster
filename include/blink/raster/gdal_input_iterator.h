@@ -16,12 +16,15 @@
 
 #ifndef BLINK_RASTER_GDAL_INPUT_ITERATOR_H_AHZ
 #define BLINK_RASTER_GDAL_INPUT_ITERATOR_H_AHZ
+
 #include <blink/raster/dereference_proxy.h>
+
 #pragma warning( push )
 #pragma warning( disable : 4251 )
-#include <cpl_string.h> // part of GDAL
-#include <gdal.h>       // part of GDAL
-#include <gdal_priv.h>  // part of GDAL
+
+#include <gdal.h>       // part of GDAL: GDALDataType enum
+#include <gdal_priv.h>  // part of GDAL: GDALRasterBand / GDALRasterBlock
+
 #pragma warning( pop ) 
 
 //#include <utility>

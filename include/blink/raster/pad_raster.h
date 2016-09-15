@@ -224,6 +224,11 @@ namespace blink {
       void set(int rows, int cols, int pad_row_before, int pad_row_after
         , int pad_col_before, int pad_col_after)
       {
+        m_rows_before = pad_row_before;
+        m_cols_before= pad_col_before;
+        m_rows_after = pad_row_after;
+        m_cols_after = pad_col_after;
+
         m_num_stretches = rows * 2 + 1;
         m_first =  (cols + pad_col_before + pad_col_after) * pad_row_before 
           + pad_col_before;
@@ -265,6 +270,11 @@ namespace blink {
       int m_first;
       int m_even;
       int m_odd;
+      int m_rows_before;
+      int m_cols_before;
+      int m_rows_after;
+      int m_cols_after;
+
       bool m_padding_is_odd;
 
     };
@@ -275,6 +285,48 @@ namespace blink {
     {
       return padded_raster_view<blink::iterator::detail::special_decay_t<Raster> >(std::forward<Raster>(raster)
         , row_before, row_after, col_before, col_after);
+    }
+
+    template<class Raster>
+    auto sub_raster(padded_raster_view<Raster>& 
+      padded_raster, int start_row, int start_col, int rows, int cols)
+      -> decltype(pad_raster(sub_raster(padded_raster.m_raster, 0, 0, 0, 0)
+        , 0, 0, 0, 0) )
+    {
+      int rows_before = std::max(0, padded_raster.m_rows_before - start_row);
+      int cols_before = std::max(0, padded_raster.m_cols_before - start_col);
+      int sub_start_row = std::max(0, start_row - padded_raster.m_rows_before);
+      int sub_start_col = std::max(0, start_col - padded_raster.m_cols_before);
+      int sub_nrows = std::min(padded_raster.m_raster.rows() - sub_start_row,
+        rows - sub_start_row);
+      int sub_ncols = std::min(padded_raster.m_raster.cols() - sub_start_col,
+        cols - sub_start_col);
+      int rows_after = rows - rows_before - sub_nrows;
+      int cols_after = cols - cols_before - sub_ncols;
+      return pad_raster(sub_raster(padded_raster.m_raster, sub_start_row
+        , sub_start_col, sub_nrows, sub_ncols), rows_before, rows_after, 
+        cols_before, cols_after);
+    }
+
+    template<class Raster>
+    auto sub_raster(padded_raster_view<Raster>&&
+      padded_raster, int start_row, int start_col, int rows, int cols)
+      -> decltype(pad_raster(sub_raster(std::move(padded_raster.m_raster)
+        , 0, 0, 0, 0), 0, 0, 0, 0))
+    {
+      int rows_before = std::max(0, padded_raster.m_rows_before - start_row);
+      int cols_before = std::max(0, padded_raster.m_cols_before - start_col);
+      int sub_start_row = std::max(0, start_row - padded_raster.m_rows_before);
+      int sub_start_col = std::max(0, start_col - padded_raster.m_cols_before);
+      int sub_nrows = std::min(padded_raster.m_raster.rows() - sub_start_row,
+        rows - sub_start_row);
+      int sub_ncols = std::min(padded_raster.m_raster.cols() - sub_start_col,
+        cols - sub_start_col);
+      int rows_after = rows - rows_before - sub_nrows;
+      int cols_after = cols - cols_before - sub_ncols;
+      return pad_raster(sub_raster(std::move(padded_raster.m_raster), sub_start_row
+        , sub_start_col, sub_nrows, sub_ncols), rows_before, rows_after
+        , cols_before, cols_after);
     }
   }
 }
