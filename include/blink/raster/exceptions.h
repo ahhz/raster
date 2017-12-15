@@ -1,69 +1,67 @@
 //
 //=======================================================================
-// Copyright 2015
+// Copyright 2015-2017
 // Author: Alex Hagen-Zanker
 // University of Surrey
 //
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
-// Defines exception to be thrown by the moving_window library.
-//
 
-#ifndef BLINK_RASTER_EXCEPTIONS_H_AHZ
-#define BLINK_RASTER_EXCEPTIONS_H_AHZ
+#pragma once
 
-#include <boost/exception/all.hpp>
+#include <exception>
 
 namespace blink {
   namespace raster {
-    struct assigning_an_uninitialized_optional_to_an_initialized_iterator : public boost::exception, public std::exception
+    struct assigning_an_uninitialized_optional_to_an_initialized_iterator :  public std::exception
     {
-      const char *what() const _NOEXCEPT { return
-        "assigning an uninitialized optional to an initialized_iterator"; }
+      const char *what() const noexcept {
+        return
+          "assigning an uninitialized optional to an initialized_iterator";
+      }
     };
-    struct assigning_an_initialized_optional_to_an_uninitialized_iterator : public boost::exception, public std::exception
+    struct assigning_an_initialized_optional_to_an_uninitialized_iterator : public std::exception
     {
-      const char *what() const{
+      const char *what() const noexcept {
         return
           "assigning an initialized optional to an uninitialized_iterator";
       }
     };
 
-    struct creating_a_raster_failed : public boost::exception, public std::exception
+    struct creating_a_raster_failed : public std::exception
     {
-      const char *what() const { return "creating a raster failed"; }
+      const char *what() const noexcept { return "creating a raster failed"; }
     };
 
-    struct insufficient_memory_for_raster_block : public boost::exception, public std::exception
+    struct insufficient_memory_for_raster_block : public std::exception
     {
-      const char *what() const { return "insufficient memory for reading a raster block"; }
+      const char *what() const noexcept { return "insufficient memory for reading a raster block"; }
     };
 
-    struct opening_raster_failed : public boost::exception, public std::exception
+    struct opening_raster_failed : public std::exception
     {
-      const char *what() const { return "opening raster failed"; }
+      const char *what() const noexcept { return "opening raster failed"; }
     };
-    struct reading_from_raster_failed : public boost::exception, public std::exception
+    struct reading_from_raster_failed : public std::exception
     {
-      const char *what() const { return "reading from raster failed"; }
-    };
-
-    struct writing_to_raster_failed : public boost::exception, public std::exception
-    {
-      const char *what() const { return "writing to raster failed"; }
+      const char *what() const noexcept { return "reading from raster failed"; }
     };
 
-    struct closing_raster_failed : public boost::exception, public std::exception
+    struct writing_to_raster_failed : public std::exception
     {
-      const char *what() const { return "closing raster failed"; }
+      const char *what() const noexcept { return "writing to raster failed"; }
     };
 
-    struct deleting_raster_failed : public boost::exception, public std::exception
+    struct closing_raster_failed : public std::exception
     {
-      const char *what() const { return "deleting raster failed"; }
+      const char *what() const noexcept { return "closing raster failed"; }
+    };
+
+    struct deleting_raster_failed : public std::exception
+    {
+      const char *what() const noexcept { return "deleting raster failed"; }
     };
 
   }
 }
-#endif

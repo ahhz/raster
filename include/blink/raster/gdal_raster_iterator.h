@@ -1,439 +1,302 @@
-//
 //=======================================================================
-// Copyright 2015
+// Copyright 2015-2017
 // Author: Alex Hagen-Zanker
 // University of Surrey
 //
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
-// This file presents iterators for gdal_raster, but has been generalized to 
-// work with any raster for which the raster_operation and raster_traits have 
-// been defined see also raster_traits.h
-//
-// The iterators (try to) use the concepts as proposed in the context of the 
-// BOOST library
-//
-// http://www.boost.org/doc/libs/1_52_0/libs/iterator/doc/new-iter-concepts.html
-//
-// keep in mind that these are not the concepts of the standard, because the 
-// dereference does not return a reference to the elements, but a proxy
-//
-// gdal_iterator<Raster> and gdal_trans_iterator are random access iterators for 
-// Raster 
-// gdal_iterator visits all cells row-by-row and each row col-by-col
-// gdal_trans_iterator visits all cells col-by-col and each col row-by-row
-// The iterators implement the RandomAccessIterator concept, except that 
-// dereferencing the iterator yields a dereference_proxy instead of a reference
-// to the element.
-// The proxy that can be used in much the same way: 
-// like this:         *iter = value; 
-// or like this:      value_type value = *iter;
-// but not like this: value_type& value  = *iter
-//
-// Raster must implement the BlockedRaster concept, of which gdal_raster<T> is 
-// the prime model.
-//
-// TODO: the way in which const_iterators are defined is maybe not up to snuff
 
-#ifndef BLINK_RASTER_GDAL_RASTER_ITERATOR_H_AHZ
-#define BLINK_RASTER_GDAL_RASTER_ITERATOR_H_AHZ
+#pragma once
 
-#include <blink/raster/dereference_proxy.h>
-#include <blink/raster/raster_traits.h>
-//#include <blink/raster/raster_iterator.h>
+#include <blink/raster/access_type.h>
+#include <blink/raster/gdal_block.h>
+#include <blink/raster/gdal_includes.h>
+#include <blink/raster/reference_proxy.h>
 
-#include <boost/iterator/iterator_categories.hpp>
-#include <boost/iterator/iterator_facade.hpp>
+#include <cassert>
+#include <iterator>
+#include <utility>
 
-#include <type_traits>
+namespace blink
+{
+  namespace raster
+  {
+    template<class T> class gdal_raster_view; // forward declaration
 
-namespace blink {
-
-  namespace raster {
-
-    template<class Raster> class gdal_iterator; // forward
-    template<class Raster> class gdal_trans_iterator; // forward
-
-    namespace detail {
-
-
-      template<class Raster>
-      struct gdal_iterator_helper
-      {
-        using value = raster_traits::value_type<typename Raster>;
-        using access = boost::random_access_traversal_tag;
-        using difference = std::ptrdiff_t;
-
-        using iterator = gdal_iterator<Raster>;
-        using reference = dereference_proxy<iterator, value>;
-        using facade = boost::iterator_facade<iterator, value, access,
-          reference, difference>;
-
-        using trans_iterator = gdal_trans_iterator<Raster>;
-        using trans_reference = dereference_proxy<trans_iterator, value>;
-        using trans_facade = boost::iterator_facade<trans_iterator, value,
-          access, trans_reference, difference>;
-      };
-    }
-
-
-    template<class Raster>
-    class gdal_iterator
-      : public detail::gdal_iterator_helper<typename Raster>::facade
+    template<class T, class AccessType>
+    class gdal_raster_iterator
     {
-    private:
-      using helper = detail::gdal_iterator_helper<typename Raster>;
-      using this_type = gdal_iterator<typename Raster>;
+      using block_type = block<AccessType>;
+      using block_iterator_type = typename block_type::iterator;
+      using view_type = gdal_raster_view<T>;
+ 
     public:
-      using raster_type = typename Raster;
-      using value_type = raster_traits::value_type<Raster>;
-      using coordinate_type = raster_traits::coordinate_type<Raster>;
-      using index_type = raster_traits::index_type<Raster>;
-      using reference = dereference_proxy<this_type, value_type>;
-      using difference = std::ptrdiff_t;
+      using is_mutable = std::bool_constant<AccessType::value == read_write>;
+ 
+      using reference = typename std::conditional<is_mutable::value,
+        reference_proxy<gdal_raster_iterator>, T>::type;
+      using value_type = T;
+      using difference_type = std::ptrdiff_t;
+      using pointer = void;
+      using iterator_category = std::input_iterator_tag;
 
-      gdal_iterator() : m_raster(NULL)
+      gdal_raster_iterator()
+        : m_block()
+        , m_end_of_stretch(m_block.get_null_iterator()) // not so elegant
+        , m_pos(m_block.get_null_iterator())            // not so elegant
+        , m_stride(0)
       {}
 
-   // private:
-   //   friend Raster;
-      gdal_iterator(Raster* r) : m_raster(r)
+      gdal_raster_iterator(const gdal_raster_iterator& other) = default;
+      gdal_raster_iterator(gdal_raster_iterator&& other) = default;
+      gdal_raster_iterator& operator=(const gdal_raster_iterator& other) 
+        = default;
+      gdal_raster_iterator& operator=(gdal_raster_iterator&& other) = default;
+      ~gdal_raster_iterator() = default;
+
+      friend inline bool operator==(const gdal_raster_iterator& a
+        , const gdal_raster_iterator& b)
       {
-        //find_begin();
+        return a.m_pos == b.m_pos;
       }
 
-    public:
-      const coordinate_type& get_coordinates() const
+      friend inline bool operator!=(const gdal_raster_iterator& a
+        , const gdal_raster_iterator& b)
       {
-        return m_coordinates;
+        return a.m_pos != b.m_pos;
+      }
+
+      inline gdal_raster_iterator& operator+=(std::ptrdiff_t distance)
+      {
+        goto_index(get_index() + distance);
+        return *this;
+      }
+
+      inline gdal_raster_iterator& operator-=(std::ptrdiff_t distance)
+      {
+        goto_index(get_index() - distance);
+        return *this;
+      }
+
+      inline gdal_raster_iterator& operator--()
+      {
+        auto d = std::distance(m_block->get_iterator(0, 0, m_stride), m_pos);
+        if ( d % m_block->block_cols() > 0) {
+          m_pos -= m_stride;
+          return *this;
+        }
+        else
+        {
+          return goto_index(get_index() - 1);
+        }
+      }
+
+      inline gdal_raster_iterator& operator--(int)
+      {
+        gdal_raster_iterator temp(*this);
+        --(*this);
+        return temp;
+      }
+
+      inline gdal_raster_iterator operator+(std::ptrdiff_t distance) const
+      {
+        gdal_raster_iterator temp(*this);
+        temp += distance;
+        return temp;
+      }
+
+      inline gdal_raster_iterator operator-(std::ptrdiff_t distance) const
+      {
+        gdal_raster_iterator temp(*this);
+        temp += distance;
+        return temp;
+      }
+
+      inline reference operator[](std::ptrdiff_t distance) const
+      {
+         return *(operator+(distance));
+      }
+
+      inline bool operator<(const gdal_raster_iterator& that) const
+      {
+        return get_index() < that.get_index();
+      }
+
+      inline bool operator>(const gdal_raster_iterator& that) const
+      {
+        return get_index() > that.get_index();
+      }
+
+      inline bool operator<=(const gdal_raster_iterator& that) const
+      {
+        return get_index() <= that.get_index();
+      }
+
+      inline bool operator>=(const gdal_raster_iterator& that) const
+      {
+        return get_index() >= that.get_index();
+      }
+
+      inline gdal_raster_iterator& operator++()
+      {
+        m_pos += m_stride;
+
+        if (m_pos == m_end_of_stretch) {
+          m_pos -= m_stride;
+          return goto_index(get_index() + 1);
+        }
+        return *this;
+      }
+
+      gdal_raster_iterator operator++(int)
+      {
+        gdal_raster_iterator temp(*this);
+        ++(*this);
+        return temp;
+      }
+
+      inline reference operator*() const
+      {
+        return get_reference(is_mutable{});
+      }
+
+    private: 
+      friend class reference_proxy<gdal_raster_iterator>;
+
+      inline T get() const
+      {
+        return m_view->get(static_cast<void*>(m_pos));
+      }
+
+      void put(const T& value) const
+      {
+        static_assert(AccessType::value == read_write
+          , "only allow writing in mutable iterators");
+        m_block.mark_dirty();
+        m_view->put(value, static_cast<void*>(m_pos));
+      }
+
+    private: 
+      friend class gdal_raster_view<T>;
+
+      void find_begin(const view_type* view)
+      {
+        m_view = view;
+        m_stride = m_view->m_stride;
+        goto_index(0);
+      }
+
+      void find_end(const view_type* view)
+      {
+        m_view = view;
+        m_stride = m_view->m_stride;
+        goto_index(m_view->rows() * m_view->cols());
       }
 
     private:
-      friend struct reference;
-      value_type get() const
+      inline reference get_reference(std::true_type) const // mutable
       {
-        return	raster_operations::get_pixel_in_block(*m_raster, m_major_row, 
-          m_major_col, m_minor_index);
+        return reference(*this);
       }
 
-      void put(const value_type& value) const
+      inline reference get_reference(std::false_type) const // not mutable
       {
-        raster_operations::put_pixel_in_block(*m_raster, value, m_major_row,
-          m_major_col, m_minor_index);
+        return m_view->get(static_cast<void*>(m_pos));
       }
-
-    public:
-      void find(const coordinate_type& coord)
+      
+      int get_index() const
       {
-        m_coordinates = coord;
-        change_block();
-      }
+        // it might seem more efficient to just add an index member to the 
+        // iterator, however the hot-path is operator++ and operator*(), 
+        // keep those as simple as possible 
 
-      void find_begin()
-      {
-        m_coordinates.row = 0;
-        m_coordinates.col = 0;
-        change_block();
-      }
+        int block_rows = m_block.block_rows();
+        int block_cols = m_block.block_cols();
 
-      void find_end()
-      {
-        m_coordinates.row = size1();
-        m_coordinates.col = 0;
-        change_block();
-      }
+        int major_row = m_block.major_row();
+        int major_col = m_block.major_col();
 
-    private:
-      friend class boost::iterator_core_access;
+        block_iterator_type start = m_block.get_iterator(0, 0, m_stride);
 
-      void decrement()
-      {
-        if (m_coordinates.col != m_stretch_begin_col) {
-          --m_coordinates.col;
-          --m_minor_index;
+        int index_in_block = static_cast<int>(std::distance(start, m_pos))
+          / m_stride; //  not -1 because m_pos has not been incremented 
+        assert(index_in_block >= 0);
+
+        int minor_row = index_in_block / block_cols;
+        int minor_col = index_in_block % block_cols;
+
+        int gdaldata_row = major_row * block_rows + minor_row;
+        int gdaldata_col = major_col * block_cols + minor_col;
+        int row = gdaldata_row - m_view->m_first_row;
+        int col = gdaldata_col - m_view->m_first_col;
+
+        int index;
+        // in last block? one past the last element?
+        if (row == m_view->rows() || col == m_view->cols()) {
+
+          index =  m_view->rows() * m_view->cols();
+        } else {
+          index =  row * m_view->cols() + col;
         }
-        else {
-          if (m_coordinates.col == 0) {
-            m_coordinates.col = size2() - 1;
-            --m_coordinates.row;
+        assert(index <= m_view->rows() * m_view->cols());
+        return index;
+      }
+
+      gdal_raster_iterator& goto_index(int index)
+      {
+        if (index == m_view->cols() * m_view->rows()) {
+          if (index == 0) { // empty raster, no place to go
+            m_pos = m_block.get_null_iterator();
+            return *this;
           }
-          else {
-            --m_coordinates.col;
-          }
-          change_block();
+          // Go to last block, one past the last element.
+          goto_index(index - 1);
+          ++m_pos;
+          return *this;
         }
+
+        int row = index / m_view->cols();
+        int col = index % m_view->cols();
+
+        int gdaldata_row = row + m_view->m_first_row;
+        int gdaldata_col = col + m_view->m_first_col;
+
+        int block_rows = 0;
+        int block_cols = 0;
+
+        m_view->m_band->GetBlockSize(&block_cols, &block_rows);
+
+        int block_row = gdaldata_row / block_rows;
+        int block_col = gdaldata_col / block_cols;
+
+        int row_in_block = gdaldata_row % block_rows;
+        int col_in_block = gdaldata_col % block_cols;
+
+        int index_in_block = row_in_block * block_cols + col_in_block;
+
+        m_block.reset(m_view->m_band.get(), block_row, block_col);
+
+        m_pos = m_block.get_iterator(row_in_block, col_in_block, m_stride);
+
+        int end_col = std::min<int>((block_col + 1) * block_cols
+          , m_view->m_first_col + m_view->m_cols);
+
+        int minor_end_col = 1 + (end_col - 1) % block_cols;
+
+        m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col, 
+          m_stride);
+
+        return *this;
       }
 
-      void increment()
-      {
-        if (++m_coordinates.col != m_stretch_end_col) {
-          ++m_minor_index;
-        }
-        else {
-          if (m_coordinates.col == size2()) {
-            m_coordinates.col = 0;
-            ++m_coordinates.row;
-          }
-          change_block();
-        }
-      }
+      const view_type* m_view;
 
-      void advance(difference n)
-      {
-        difference new_index = index() + n;
-        m_coordinates.row = new_index / size2();
-        m_coordinates.col = new_index % size2();
-        change_block();
-      }
+      unsigned char m_stride;  // Copied from m_view
 
-
-      template<class OtherIterator>
-      bool equal(const OtherIterator& other) const
-      {
-        return this->m_coordinates == other.m_coordinates;
-      }
-
-      reference dereference() const
-      {
-        return reference(this);
-      }
-
-      template<class OtherIterator>
-      difference distance_to(const OtherIterator& other) const
-      {
-        return other.index() - this->index();
-      }
-
-
-    private:
-      template <class> friend class gdal_iterator;
-      std::ptrdiff_t index() const
-      {
-        return m_coordinates.row * size2() + m_coordinates.col;
-      }
-
-      index_type size1() const
-      {
-        return raster_operations::size1(*m_raster);
-      }
-
-      index_type size2() const
-      {
-        return raster_operations::size2(*m_raster);
-      }
-
-      void change_block()
-      {
-        const index_type block_row_size = raster_operations::block_size1(*m_raster);
-        const index_type block_col_size = raster_operations::block_size2(*m_raster);
-
-        const index_type minor_row = m_coordinates.row % block_row_size;
-        const index_type minor_col = m_coordinates.col % block_col_size;
-
-        m_major_row = m_coordinates.row / block_row_size;
-        m_major_col = m_coordinates.col / block_col_size;
-
-        const index_type major_cols_in_row = 1 + (size2() - 1) / block_col_size;
-
-        m_minor_index = minor_row * block_col_size + minor_col;
-       // m_major_index = major_row * major_cols_in_row + major_col;
-
-        m_stretch_begin_col = m_major_col * block_col_size;
-        m_stretch_end_col = std::min(m_stretch_begin_col + block_col_size, size2());
-      }
-
-      coordinate_type m_coordinates;
-      index_type m_stretch_begin_col;
-      index_type m_stretch_end_col;
-      index_type m_minor_index;
-      //index_type m_major_index;
-      index_type m_major_row;
-      index_type m_major_col;
-      Raster* m_raster;
+      mutable block_type m_block;
+      block_iterator_type m_end_of_stretch;
+      block_iterator_type m_pos;
     };
-
-    template<typename Raster>
-    class gdal_trans_iterator
-      : public detail::gdal_iterator_helper<typename Raster>::trans_facade
-    {
-    private:
-      using helper = detail::gdal_iterator_helper<typename Raster>;
-      using this_type = gdal_trans_iterator<typename Raster>;
-
-    public:
-      using raster_type = typename Raster;
-      using value_type = raster_traits::value_type<Raster>;
-      using coordinate_type = raster_traits::coordinate_type<Raster>;
-      using index_type = raster_traits::index_type<Raster>;
-      using reference = dereference_proxy<this_type, value_type>;
-      using difference = std::ptrdiff_t;
-
-      gdal_trans_iterator() : m_raster(NULL)
-      {}
-
-
-  //  private:
-   //   friend Raster;
-
-      gdal_trans_iterator(Raster* r) : m_raster(r)
-      {
-        //  find_begin();
-      }
-
-    public:
-
-      void find(const coordinate_type& coord)
-      {
-        m_coordinates = coord;
-        change_block();
-      }
-
-      void find_begin()
-      {
-        m_coordinates.row = 0;
-        m_coordinates.col = 0;
-        change_block();
-      }
-
-      void find_end()
-      {
-        m_coordinates.row = 0;
-        m_coordinates.col = size2();
-        change_block();
-      }
-
-      const coordinate_type& get_coordinates() const
-      {
-        return m_coordinates;
-      }
-    private:
-
-      friend struct reference;
-      value_type get() const
-      {
-        return	raster_operations::get_pixel_in_block(*m_raster, m_major_index,
-          m_minor_index);
-      }
-
-      void put(const value_type& value) const
-      {
-        return raster_operations::put_pixel_in_block(*m_raster, value,
-          m_major_index, m_minor_index);
-      }
-
-    private:
-
-      friend class boost::iterator_core_access;
-      friend struct reference;
-
-
-      void decrement()
-      {
-        if (m_coordinates.row != m_stretch_begin_row) {
-          --m_coordinates.row;
-          m_minor_index -= raster_operations::block_size2(*m_raster);
-        }
-        else {
-          if (m_coordinates.row == 0) {
-            m_coordinates.row = size1() - 1;
-            --m_coordinates.col;
-          }
-          else {
-            --m_coordinates.col;
-          }
-          change_block();
-        }
-      }
-
-      void increment()
-      {
-        if (++m_coordinates.row != m_stretch_end_row) {
-          m_minor_index += raster_operations::block_size2(*m_raster);
-        }
-        else {
-          if (m_coordinates.row == size1()) {
-            m_coordinates.row = 0;
-            ++m_coordinates.col;
-          }
-          change_block();
-        }
-      }
-
-      void advance(std::ptrdiff_t n)
-      {
-        std::ptrdiff_t new_index = index() + n;
-        m_coordinates.row = new_index % size1();
-        m_coordinates.col = new_index / size1();
-        change_block();
-      }
-
-      template<class OtherIterator>
-      bool equal(const OtherIterator& other) const
-      {
-        return this->m_coordinates == other.m_coordinates;
-      }
-
-      reference dereference() const
-      {
-        return reference(this);
-      }
-
-      template<class OtherIterator>
-      difference distance_to(const OtherIterator& other) const
-      {
-        return other.index() - this->index();
-      }
-
-    private:
-
-      void change_block()
-      {
-        const index_type block_row_size = raster_operations::block_size1(*m_raster);
-        const index_type block_col_size = raster_operations::block_size2(*m_raster);
-
-        const index_type minor_row = m_coordinates.row % block_row_size;
-        const index_type minor_col = m_coordinates.col % block_col_size;
-
-        const index_type major_row = m_coordinates.row / block_row_size;
-        const index_type major_col = m_coordinates.col / block_col_size;
-
-        const index_type major_cols_in_row = 1 + (size2() - 1) / block_col_size;
-
-        m_minor_index = minor_row * block_col_size + minor_col;
-        m_major_index = major_row * major_cols_in_row + major_col;
-
-        m_stretch_begin_row = major_row * block_row_size;
-        m_stretch_end_row = std::min(m_stretch_begin_row + block_row_size, size1());
-      }
-
-      difference index() const
-      {
-        return m_coordinates.col * size1() + m_coordinates.row;
-      }
-
-      index_type size1() const
-      {
-        return raster_operations::size1(*m_raster);
-      }
-
-      index_type size2() const
-      {
-        return raster_operations::size2(*m_raster);
-      }
-
-      coordinate_type m_coordinates;
-
-      index_type m_stretch_begin_row;
-      index_type m_stretch_end_row;
-
-      index_type m_major_index;
-      index_type m_minor_index;
-
-      Raster* m_raster;
-    };
-
   }
 }
-#endif
-

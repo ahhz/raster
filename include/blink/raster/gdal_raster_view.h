@@ -1,4 +1,3 @@
-//
 //=======================================================================
 // Copyright 2015
 // Author: Alex Hagen-Zanker
@@ -7,109 +6,223 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
-// This header file provides the default raster view for iterators that are 
-// initialized by the raster and implement the find_begin and find_end functions
+// This header file provides a wrapper around a GDALRasterBand that allows it 
+// to be used by the gdal_raster_iterator (which iterates row-by-row or 
+// column-by-column) over the rasterdata. 
+//
 
+#pragma once
 
-#ifndef BLINK_RASTER_GDAL_RASTER_VIEW_H_AHZ
-#define BLINK_RASTER_GDAL_RASTER_VIEW_H_AHZ
-
-#include <blink/raster/default_raster_view.h>
-#include <blink/raster/gdal_raster.h>
+#include <blink/raster/access_type.h>
+#include <blink/raster/complex_numbers.h>
+#include <blink/raster/gdal_includes.h>
 #include <blink/raster/gdal_raster_iterator.h>
-#include <blink/raster/raster_iterator.h>
-#include <blink/raster/raster_view.h>
 
+#include <cassert>
+#include <cstdint>
+#include <memory>
+#include <type_traits>
 
-namespace blink {
-  namespace raster {
-    template<class Raster>
-    using gdal_raster_view = default_raster_view<Raster, gdal_iterator>;
-    //class gdal_raster_view : public default_raster_view<Raster, gdal_iterator>
-    //{
-    //public:
-    //  gdal_raster_view(Raster* r = std::nullptr_t) : default_raster_view(r)
-    //  {}
-    //};
-
-    template<class Raster>
-    class gdal_trans_raster_view : public default_raster_view<Raster,
-      gdal_trans_iterator>
+namespace blink
+{
+  namespace raster
+  {
+    template<class T>
+    class gdal_raster_view
     {
+    private:
+      using value_type = T;
+
     public:
-      gdal_trans_raster_view(Raster* r = nullptr) 
-        : default_raster_view<Raster, gdal_trans_iterator>(r)
-      {}
-
-      index_type size1() const
+      gdal_raster_view(std::shared_ptr<GDALRasterBand> band
+        , int first_row
+        , int first_col
+        , int num_rows
+        , int num_cols) 
+        : m_first_row(first_row), m_first_col(first_col), m_rows(num_rows)
+        , m_cols(num_cols), m_band(band)
       {
-        return m_raster->size2(); // transposed
+        assert(num_rows >= 0);
+        assert(num_cols >= 0);
+       
+        GDALDataType datatype = m_band->GetRasterDataType();
+        m_stride = GDALGetDataTypeSize(datatype) / 8;
+
+        // Using pointers to member functions as a means of run-time polymorphism
+        static_assert(sizeof(float) == 4);
+        static_assert(sizeof(double) == 8);
+        switch (m_band->GetRasterDataType())
+        {
+        case GDT_Byte:     set_accessors<uint8_t >();   break;
+        case GDT_Int16:    set_accessors<int16_t >();   break;
+        case GDT_UInt16:   set_accessors<uint16_t>();   break;
+        case GDT_Int32:    set_accessors<int32_t>();    break;
+        case GDT_UInt32:   set_accessors<uint32_t>();   break;
+        case GDT_Float32:  set_accessors<float>();      break;
+        case GDT_Float64:  set_accessors<double>();     break;
+        // Complex numbers not currently supported 
+		//
+		//case GDT_CInt16:   set_accessors<cint16_t>();   break;
+        //case GDT_CInt32:   set_accessors<cint32_t>();   break;
+        //case GDT_CFloat32: set_accessors<cfloat32_t>(); break;
+        //case GDT_CFloat64: set_accessors<cfloat64_t>(); break;
+        default: break;
+        }
+        if (m_band->GetAccess() == GA_ReadOnly) {
+          put = gdal_raster_view::put_nothing;
+        }
+      }
+      gdal_raster_view() = default;
+      gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
+        : gdal_raster_view(band, 0, 0, band->GetYSize(), band->GetXSize())
+      {};
+
+      gdal_raster_view(GDALRasterBand* band)
+        : gdal_raster_view(std::shared_ptr<GDALRasterBand>{
+        std::shared_ptr<GDALRasterBand>{}, band}) // aliasing constructor
+      {};
+
+      gdal_raster_view(GDALRasterBand* band, int first_row
+        , int first_col, int num_rows, int num_cols) 
+          : gdal_raster_view(std::shared_ptr<GDALRasterBand>{
+          std::shared_ptr<GDALRasterBand>{}, band}, first_row, first_col
+            , num_rows, num_cols) // aliasing constructor
+      {};
+
+      using iterator = gdal_raster_iterator<value_type
+        , access_type::read_write_t>;
+      using const_iterator = gdal_raster_iterator<value_type
+        , access_type::read_only_t>;
+
+      std::shared_ptr<GDALRasterBand> get_band() const 
+      {
+        return m_band;
+      }
+      //  friend create_standard_gdaldataset_from_model
+
+      CPLErr get_geo_transform(double* padfTransform) const
+      {
+        CPLErr err = m_band->GetDataset()->GetGeoTransform(padfTransform);
+
+        // Set this default affine transformation to be consistent with ARCGIS
+        // For a raster with missing transformation, arcgis centers the top 
+        // left pixel at (0,0). The cell-size is 1, the positive y-directions 
+        // direction is South to North.
+        // 
+        if (err == CE_Failure) {
+          padfTransform[0] = -0.5;
+          padfTransform[1] = 1;
+          padfTransform[2] = 0;
+          padfTransform[3] = 0.5;
+          padfTransform[4] = 0;
+          padfTransform[5] = -1;
+        }
+
+        // Modify the transform such that is only for the sub-raster and not for 
+        // the dataset.
+        padfTransform[0] = padfTransform[0]
+          + padfTransform[1] * m_first_col
+          + padfTransform[2] * m_first_row;
+
+        padfTransform[3] = padfTransform[3]
+          + padfTransform[4] * m_first_col
+          + padfTransform[5] * m_first_row;
+
+        return err;
       }
 
-      index_type size2() const
+      int rows() const 
       {
-        return m_raster->size1(); // transposed
+        return m_rows;
+      };
+      
+      int cols() const 
+      {
+        return m_cols;
+      };
+
+      int size() const 
+      {
+        return rows() * cols();
+      };
+    
+      gdal_raster_view sub_raster(int first_row, int first_col, int num_rows, int num_cols) const
+      {
+        return gdal_raster_view(m_band
+          , m_first_row + first_row
+          , m_first_col + first_col
+          , num_rows, num_cols);
       }
-    };
 
-    //template <typename OrientationTag, typename ElementTag, typename AccessTag, typename RasterType>
-   // struct raster_view_lookup;
+      iterator begin() 
+      {
+        iterator i;
+        i.find_begin(this);
+        return i;
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::row_major, element::pixel,
-      access::read_write, gdal_raster<T> >
-    {
-      using type = gdal_raster_view<gdal_raster<T> >;
-    };
+      iterator end() 
+      {
+        iterator i;
+        i.find_end(this);
+        return i;
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::col_major, element::pixel,
-      access::read_write, gdal_raster<T> >
-    {
-      using type =  gdal_trans_raster_view<gdal_raster<T> >;
-    };
+      const_iterator begin() const
+      {
+        const_iterator i;
+        i.find_begin(this);
+        return i;
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::row_major, element::pixel,
-      access::read_only, gdal_raster<T> >
-    {
-      using type = gdal_raster_view<const gdal_raster<T> >;
-    };
+      const_iterator end() const
+      {
+        const_iterator i;
+        i.find_end(this);
+        return i;
+      }
+    
+    private:
+      friend class iterator;
+      friend class const_iterator;
 
-    template <class T>
-    struct raster_view_lookup< orientation::col_major, element::pixel,
-      access::read_only, gdal_raster<T> >
-    {
-      typedef gdal_trans_raster_view<const gdal_raster<T> > type;
-    };
-  
-    template <class T>
-    struct raster_view_lookup< orientation::row_major, element::pixel,
-      access::read_write, const gdal_raster<T> >
-    {
-      using type = gdal_raster_view<const gdal_raster<T> >;
-    };
+      template<typename U>
+      static void put_special(const value_type& value, void* const target)
+      {
+        U* target_cast = static_cast<U*>(target);
+        *target_cast = static_cast<U>(value);
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::col_major, element::pixel,
-      access::read_write, const gdal_raster<T> >
-    {
-      using type = gdal_trans_raster_view<const gdal_raster<T> >;
-    };
+      static void put_nothing(const value_type& value, void* const target)
+      {
+          assert(false);
+          throw(writing_to_raster_failed{});
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::row_major, element::pixel,
-      access::read_only, const gdal_raster<T> >
-    {
-      using type = gdal_raster_view<const gdal_raster<T> >;
-    };
+      template<typename U>
+      static value_type get_special(const void* const source)
+      {
+        const U* source_cast = static_cast<const U*>(source);
+        return static_cast<value_type>(*source_cast);
+      }
 
-    template <class T>
-    struct raster_view_lookup< orientation::col_major, element::pixel,
-      access::read_only, const gdal_raster<T> >
-    {
-      typedef gdal_trans_raster_view<const gdal_raster<T> > type;
+      template<typename U> void set_accessors()
+      {
+        put = gdal_raster_view::put_special<U>;
+        get = gdal_raster_view::get_special<U>;
+      }
+
+      // function pointers for "runtime polymorphism" based on file datatype. 
+      void(*put)(const value_type&, void* const);
+      value_type(*get)(const void* const);
+
+      unsigned char m_stride; // todo: make static constant?
+
+      std::shared_ptr<GDALRasterBand> m_band;
+      int m_rows;
+      int m_cols;
+      int m_first_row;
+      int m_first_col;
     };
   }
 }
-#endif
