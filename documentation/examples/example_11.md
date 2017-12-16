@@ -1,4 +1,4 @@
-Examples [9](.\example_9.md) and [10](.\example_10.md) already included the use of the `sub_raster` member function. This is an fundamental function in the library, because it can be used with all supported rasters. Where possible functions on rasters are lazy and don't evaluate cell-values until they are needed. Functions such a offset, transform, and raster algebra operations do not actually iterate over values, but produce a expression template that is itself a raster of which a sub_raster can be taken. 
+Examples [9](./example_9.md) and [10](./example_10.md) already included the use of the `sub_raster` member function. This is an fundamental function in the library, because it can be used with all supported rasters. Where possible functions on rasters are lazy and don't evaluate cell-values until they are needed. Functions such a offset, transform, and raster algebra operations do not actually iterate over values, but produce a expression template that is itself a raster of which a sub_raster can be taken. 
 
 Thus, in the example below, the + operation is only applied on six cells.
  
