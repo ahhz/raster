@@ -13,7 +13,7 @@
 8. [Use the optional value type for nodata values](./examples/example_8.md)
 9. [Iterate over square windows centered on each cell](./examples/example_9.md)
 10. [Create a raster of random values based on a probability distribution](./examples/example_10.md)
-11. [Apply a function to a subsection of a raster]
+11. [Apply a function to a subsection of a raster](./examples/example_11.md)
 
 ## Concepts
 - [Raster](./concepts/raster.md)
@@ -87,6 +87,9 @@
 ### Raster algebra support
 - [raster_algebra_wrap](./functions/raster_algebra_wrap.md)
 - [raster_algebra_transform](./functions/raster_algebra_transform.md)
+
+### Displaying raster values
+- [plot_raster](./functions/plot_raster.md)
 
 
 

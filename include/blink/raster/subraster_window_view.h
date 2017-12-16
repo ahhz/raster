@@ -10,6 +10,7 @@
 #pragma once
 
 #include <blink/raster/index_sequence.h>
+#include <blink/raster/padded_raster_view.h>
 #include <blink/raster/traits.h>
 
 #include <iterator>

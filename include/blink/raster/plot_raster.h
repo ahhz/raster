@@ -14,6 +14,7 @@
 
 #include <blink/raster/any_blind_raster.h>
 #include <blink/raster/optional.h>
+#include <blink/raster/raster_algebra.h>
 
 #include <iostream>
 
@@ -116,6 +117,11 @@ namespace blink {
     void plot_raster(any_blind_raster raster)
     {
       blind_function(raster_plotter{}, raster);
+    }
+
+    void plot_raster(raster_algebra_wrapper<any_blind_raster> raster)
+    {
+      blind_function(raster_plotter{}, raster.unwrap());
     }
   }
 }

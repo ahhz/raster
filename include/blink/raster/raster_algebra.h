@@ -13,6 +13,7 @@
 #include <blink/raster/any_blind_raster.h>
 #include <blink/raster/any_raster.h>
 #include <blink/raster/assign.h>
+#include <blink/raster/io.h>
 #include <blink/raster/transform_raster_view.h>
 #include <blink/raster/uniform_raster_view.h>
 

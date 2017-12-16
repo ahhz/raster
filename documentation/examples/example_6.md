@@ -1,4 +1,5 @@
-The following example creates a raster dataset and calculates the mean value of a surrounding square window for each pixel. For larger maps, the computational cost is proportional to the size of the raster, but independent of the radius.
+The following example creates a raster dataset and calculates the mean value of a surrounding square window for each cell. For larger rasters, the computational cost is proportional to the size of the raster, but independent of the radius (distance from the center cell to the side of the window).
+
 ```cpp
 // example_6.cpp
 
@@ -7,6 +8,7 @@ The following example creates a raster dataset and calculates the mean value of 
 #include <blink/raster/plot_raster.h>
 
 #include <blink/raster/indicator/mean.h>
+
 namespace br = blink::raster;
 
 int main()
@@ -29,7 +31,7 @@ int main()
   return 0;
 }
 ```
-Output
+Output:
 ```
 Rows: 5, Cols: 6, Value type: int
 3       6       2       5       1       4
@@ -44,5 +46,4 @@ Rows: 5, Cols: 6, Value type: class std::optional<double>
 2.8     2.9     3       3.2     3.3     3.4
 2.58333 2.625   2.9     3.1     3.375   3.41667
 2.44444 2.58333 2.8     3       3.33333 3.66667
-
 ```

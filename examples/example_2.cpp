@@ -1,9 +1,11 @@
-#include <blink/raster/raster.h>
+// example_2.cpp
+#include <blink/raster/io.h>
 #include <iostream>
+
+namespace br = blink::raster;
 
 int main()
 {
-  namespace br = blink::raster;
   auto raster = br::open<int>("demo.tif"); // assuming file exists and is valid
   int sum = 0;
   for (auto&& value : raster) {

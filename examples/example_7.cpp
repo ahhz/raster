@@ -5,6 +5,7 @@
 #include <blink/raster/plot_raster.h>
 
 #include <blink/raster/indicator/mean.h>
+
 namespace br = blink::raster;
 
 int main()
@@ -16,7 +17,7 @@ int main()
     v = i;
   }
 
-  auto window = br::circle(1);
+  auto window = br::circle(2);
   auto indicator = br::mean_generator<int>{};
 
   auto out = br::moving_window_indicator(in, window, indicator);

@@ -1,5 +1,5 @@
-
 The following example opens a raster dataset and calculates the mean value of a surrounding circular window for each pixel. For larger maps, the computational cost is proportional to the size of the raster multiplied by the radius.
+
 ```cpp
 // example_7.cpp
 
@@ -8,6 +8,7 @@ The following example opens a raster dataset and calculates the mean value of a 
 #include <blink/raster/plot_raster.h>
 
 #include <blink/raster/indicator/mean.h>
+
 namespace br = blink::raster;
 
 int main()
@@ -32,17 +33,10 @@ int main()
 ```
 Output:
 ```
-Rows: 5, Cols: 6, Value type: int
-3       6       2       5       1       4
-0       3       6       2       5       1
-4       0       3       6       2       5
-1       4       0       3       6       2
-5       1       4       0       3       6
-
 Rows: 5, Cols: 6, Value type: class std::optional<double>
-3       3.33333 3.2     3.4     3.5     3.44444
-2.66667 3       3.1     3.3     3.3125  3.5
-2.8     2.9     3       3.2     3.3     3.4
-2.58333 2.625   2.9     3.1     3.375   3.41667
-2.44444 2.58333 2.8     3       3.33333 3.66667
+3       3.125   3.44444 4.11111 2.75    3.5
+2.875   3       3.16667 3.25    3.90909 2.75
+2.55556 2.83333 3       3.30769 3.25    4.11111
+1.875   2.54545 2.83333 2.91667 3.45455 3.5
+3.16667 1.875   2.55556 3.22222 3.25    3.66667
 ```

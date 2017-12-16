@@ -1,4 +1,4 @@
-// example_3.cpp
+// example_11.cpp
 
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
@@ -18,11 +18,21 @@ void create_rasters_for_demo()
 int main()
 {
   create_rasters_for_demo();
+
   auto a = br::open<int>("a.tif"); // assuming raster exists
   auto b = br::open<int>("b.tif"); // assuming raster exists and same dimensions as "a.tif"
   auto c = br::raster_algebra_wrap(a) + br::raster_algebra_wrap(b);
 
-  plot_raster(c);
+  
+  plot_raster(a);
+  plot_raster(b);
+
+  int start_row = 1;
+  int start_col = 2;
+  int rows = 2;
+  int cols = 3;
+
+  plot_raster(c.sub_raster(start_row, start_col, rows, cols) );
 
   return 0;
 }

@@ -1,6 +1,8 @@
 //example_8.cpp
-#include <blink/raster/raster.h>
+
+#include <blink/raster/io.h>
 #include <blink/raster/nodata_transform.h>
+#include <blink/raster/plot_raster.h>
 
 namespace br = blink::raster;
 

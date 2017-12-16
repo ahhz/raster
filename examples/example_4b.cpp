@@ -1,4 +1,4 @@
-//example_4.cpp
+//example_4b.cpp
 
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
@@ -9,7 +9,7 @@ namespace br = blink::raster;
 
 int main()
 {
-  auto in = br::open<int>("a.tif"); // as created in example_3.cpp
+  auto in = br::open_any("a.tif"); // as created in example_3.cpp
   auto out = br::raster_algebra_wrap(in) * 5;
  
   plot_raster(in);

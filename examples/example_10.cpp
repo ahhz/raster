@@ -1,4 +1,5 @@
 //example_10.cpp
+
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/random_raster_view.h>
 

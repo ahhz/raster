@@ -1,9 +1,29 @@
-The following example is a simple case of creating a raster of 10 rows by 5 columns and filling it with random values between 1 and 6. 
+# pad
+## Prototype
+```cpp
+template<Raster> void plot_raster(Raster raster);
+void plot_raster(any_blind_raster raster);
+```
+  
+## Description
+Takes a raster and sends the contents to std::cout. 
 
+## Definition
+[<blink/raster/plot_raster.h>](./../../include/blink/raster/plot_raster.h)
+
+## Requirements on types
+Raster must implement the RasterView concept
+
+## Preconditions
+When the raster has more than 1000 cells, the individual values are not plotted.
+
+## Complexity
+O(n), where n is the size of the raster.
+
+## Example of use
 ```cpp
 // example_1.cpp
 #include <blink/raster/raster.h>
-
 #include <random>
 
 int main()
@@ -21,6 +41,7 @@ int main()
   return 0;
 }
 ```
+
 Output (will vary due to random number generator):
 ```
 Rows: 10, Cols: 5, Value type: int
@@ -35,3 +56,8 @@ Rows: 10, Cols: 5, Value type: int
 1       1       6       1       6
 1       4       5       2       3
 ```
+## Notes
+This function is intended for use on very small rasters for debugging and exposition purposes. 
+
+## See also
+

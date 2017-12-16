@@ -1,12 +1,13 @@
+// example_1.cpp
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
 
 #include <random>
 
+namespace br = blink::raster;
+
 int main()
 {
-  namespace br = blink::raster;
-
   std::default_random_engine rng;
   std::uniform_int_distribution<int> dice(1, 6);
 
@@ -14,8 +15,6 @@ int main()
   for (auto&& v : raster) {
     v = dice(rng);
   }
-
   plot_raster(raster);
-
   return 0;
 }
