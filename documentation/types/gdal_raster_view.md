@@ -4,24 +4,24 @@
 A model of RasterView that gives access to the data of a `GDALRasterBand`. 
 
 ## Example of use
-See the documentation of (`open`)[.\..\functions\open.md] of which the return type is a `gdal_raster_view<T>`.
+See the documentation of (`open`)[./../functions/open.md] of which the return type is a `gdal_raster_view<T>`.
 
 ## Definition
-(<blink/raster/gdal_raster_view.h>)[.\..\..\include\blink\raster\gdal_raster_view.h]
+(<blink/raster/gdal_raster_view.h>)[./../../include/blink/raster/gdal_raster_view.h]
 
 ## Template parameters
 |Parameter|Description|Default|
 |----------|--------|---------|
-|T|The value type of the raster|...|
+|T|The value type of the raster| - |
 
 ## Model of
-gdal_raster_view<T> is a model of `RasterView`, `RecursivelySubbable`.
-gdal_raster_view<T>::indicator is a model of `RasterIterator`, `Mutable` and `RandomAccessible`.
+`gdal_raster_view<T>` is a model of `RasterView`, `RecursivelySubbable`.
+`gdal_raster_view<T>::indicator` is a model of `RasterIterator`, `Mutable` and `RandomAccessible`.
 
 ## Type requirements
 |Parameter|Requirements|
 |----------|--------|
-|T|This is not necessarily identical to the value type stored in the dataset. Upon reading a cell value from a dataset it is cast to T. Before writing a value T to the dataset it is cast to the value type of the dataset. Hence, T must be castable from and to the native value type of the GDALRasterBand|
+|`T`|This is not necessarily identical to the value type stored in the dataset. Upon reading a cell value from a dataset it is cast to `T`. Before writing a value `T` to the dataset it is cast to the value type of the dataset. Hence, `T` must be castable from and to the native value type of the `GDALRasterBand`|
 
 ## Public base classes
   
