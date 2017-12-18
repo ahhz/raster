@@ -44,7 +44,7 @@ any_raster<T> sub_raster(int start_row, int start_col, int rows, int cols) const
 ## New Members
 |Function|Effect|
 |----------|--------|
-|`cpp  template<class Raster>any_raster(Raster r)` |Constructs any_raster by wrapping around Raster r. Raster must be a model of RasterView. The following constructor let's any_raster be a type erased proxy of `Raster r`. Requires `traits<Raster>::value_type == T`.|
+|` template<class Raster>any_raster(Raster r)` |Constructs any_raster by wrapping around Raster r. Raster must be a model of RasterView. The following constructor let's any_raster be a type erased proxy of `Raster r`. Requires `traits<Raster>::value_type == T`.|
 
 ## Notes 
 This type erasure is offered for two potential reasons. 
