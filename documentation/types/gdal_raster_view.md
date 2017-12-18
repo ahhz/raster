@@ -45,10 +45,10 @@ gdal_raster_view sub_raster(int first_row
 ## New Members
 |Function|Effect|
 |----------|--------|
-|```cpp gdal_raster_view(std::shared_ptr<GDALRasterBand> band)```| Construct a gdal_raster_view for `band`, with shared ownership of`band`|
-|```cpp gdal_raster_view(GDALRasterBand* band) ```| Construct a gdal_raster_view for `band`. It is the responsibility of the caller to make sure that lifetime of `band` exceeds that of the `gdal_raster_view`. It is the responsibility of the caller to delete `band`|
-|```cpp std::shared_ptr<GDALRasterBand> get_band() const ```|Access the GDALRasterBand|
-|```cpp  CPLErr get_geo_transform(double* padfTransform) const ```|Get the geo_transform. This is similar to [GDALDataSet::GetGeotransform](http://www.gdal.org/classGDALDataset.html#a5101119705f5fa2bc1344ab26f66fd1d). The main difference is that for gdal_raster_view that refer a subset of the GDALRasterband the geotransform for the subset is returned. A minor difference is that for dataset with a missing geotransform the default of ArcGIS is used, rather than the default of GDAL. CPLErr is defined by GDAL. |
+|` gdal_raster_view(std::shared_ptr<GDALRasterBand> band)`| Construct a gdal_raster_view for `band`, with shared ownership of`band`|
+|` gdal_raster_view(GDALRasterBand* band) `| Construct a gdal_raster_view for `band`. It is the responsibility of the caller to make sure that lifetime of `band` exceeds that of the `gdal_raster_view`. It is the responsibility of the caller to delete `band`|
+|` std::shared_ptr<GDALRasterBand> get_band() const `|Access the GDALRasterBand|
+|`  CPLErr get_geo_transform(double* padfTransform) const `|Get the geo_transform. This is similar to [GDALDataSet::GetGeotransform](http://www.gdal.org/classGDALDataset.html#a5101119705f5fa2bc1344ab26f66fd1d). The main difference is that for gdal_raster_view that refer a subset of the GDALRasterband the geotransform for the subset is returned. A minor difference is that for dataset with a missing geotransform the default of ArcGIS is used, rather than the default of GDAL. CPLErr is defined by GDAL. |
 
 ## Notes 
 See also the documentation of [GDALRasterBand](http://www.gdal.org/classGDALRasterBand.html).
