@@ -1,5 +1,5 @@
-# gdal_raster_view<T>
-
+# gdal_raster_view
+gdal_raster_view<T>
 ## Description
 A model of RasterView that gives access to the data of a `GDALRasterBand`. 
 
