@@ -1,5 +1,5 @@
 ## Rationale
-The purpose of this library is to facilitate working with geographical raster data accessible using idiomatic C++, foremost the range based for-loop introduced in C++11. The advantage of that is that it becomes possible to use standard programming techniques and C++ libraries on raster data. The library is intended to especially useful for environmental modelling, including Cellular Automata modelling, spatial statistics and multi-scale analysis.
+The purpose of this library is to facilitate working with geographical raster data using idiomatic C++, foremost the range based for-loop introduced in C++11. The advantage of that is that it becomes possible to use standard programming techniques and C++ libraries on raster data. The library is intended to especially useful for environmental modelling, including Cellular Automata modelling, spatial statistics and multi-scale analysis.
 
 The central concept is RasterView; a RasterView object is a range with begin() and end() member functions that return iterators directing to the first pixel of the associated raster and one-past-the-last. The order of iteration is row-by-row and within each row, column-by-column. Furthermore the RasterView concept has size(), rows() and cols() member functions to query the dimensions of the raster. The views are cheap to copy, so they can be passed by value.
 
