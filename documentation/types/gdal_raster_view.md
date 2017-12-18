@@ -24,7 +24,8 @@ See, for instance, the documentation of [`open`](./../functions/open.md) of whic
 |`T`|This is not necessarily identical to the value type stored in the dataset. Upon reading a cell value from a dataset it is cast to `T`. Before writing a value `T` to the dataset it is cast to the value type of the dataset. Hence, `T` must be castable from and to the native value type of the `GDALRasterBand`|
 
 ## Public base classes
-  
+None
+
 ## Members
 `gdal_raster_view` has all default constructors, assignment operators and destructors using reference semantics (with reference semantics is meant that the copy of an object gives access to the same data as the original object; the actual data is not copied.)
 
@@ -42,27 +43,21 @@ gdal_raster_view sub_raster(int first_row
 ```
 
 ## New Members
-Create a gdal_raster_view for `band`, with shared ownership of`band`.
-```cpp
+|Function|Effect|
+|----------|--------|
+|```cpp
 gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
-```
-
-Create a gdal_raster_view for `band`. It is the responsibility of the caller to make sure that lifetime of `band` exceeds that of the `gdal_raster_view`. It is the responsibility of the caller to delete `band`.
-```cpp
+```|
+Construct a gdal_raster_view for `band`, with shared ownership of`band`|
+|```cpp
 gdal_raster_view(GDALRasterBand* band)
-```
-
-Access the GDALRasterBand with the following function
-```cpp
+```| Construct a gdal_raster_view for `band`. It is the responsibility of the caller to make sure that lifetime of `band` exceeds that of the `gdal_raster_view`. It is the responsibility of the caller to delete `band`|
+|```cpp
  std::shared_ptr<GDALRasterBand> get_band() const 
-```
-
-Get the geo_transform with the following function.
-```cpp
+```|Access the GDALRasterBand|
+|```cpp
  CPLErr get_geo_transform(double* padfTransform) const
-```
-
-This is similar to [GDALDataSet::GetGeotransform](http://www.gdal.org/classGDALDataset.html#a5101119705f5fa2bc1344ab26f66fd1d). The main difference is that for gdal_raster_view that refer a subset of the GDALRasterband the geotransform for the subset is returned. A minor difference is that for dataset with a missing geotransform the default of ArcGIS is used, rather than the default of GDAL. CPLErr is defined by GDAL. 
+```|Get the geo_transform. This is similar to [GDALDataSet::GetGeotransform](http://www.gdal.org/classGDALDataset.html#a5101119705f5fa2bc1344ab26f66fd1d). The main difference is that for gdal_raster_view that refer a subset of the GDALRasterband the geotransform for the subset is returned. A minor difference is that for dataset with a missing geotransform the default of ArcGIS is used, rather than the default of GDAL. CPLErr is defined by GDAL. |
 
 ## Notes 
 See also the documentation of [GDALRasterBand](http://www.gdal.org/classGDALRasterBand.html).
