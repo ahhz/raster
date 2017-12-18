@@ -64,7 +64,7 @@ Rows: 3, Cols: 4.
 0.0718328       0.0666728       0.0622276       0.0583553
 ```
 ## Notes
-When no affine transformation is specified in the model, a default affine transformation is assumed, such that the cell size is 1 and the upperleft pixel raster is centred {0,0} and the positive vertical direction is downwards. This is consistent with the default affine transformation of ArcGIS, and different from GDAL's.
+When no affine transformation is specified in the model, a default affine transformation is assumed, such that the cell size is 1, the upperleft cell is centred at {0,0} and the positive vertical direction is downwards. This is consistent with the default affine transformation of ArcGIS, and different from GDAL's.
 The sub_raster of a gdal_raster_view is also a gdal_raster_view and will provide the correct geotransform for its extent.
 
 ## See also

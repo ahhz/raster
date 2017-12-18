@@ -23,7 +23,7 @@ Create a raster of random distributed values using a specific random number gene
 `rows` and `cols` must be positive.
 
 ## Complexity
-The raster of random values makes use of a buffer of blockwise precomputed random values. In the construction a random seed is calculated for each block and hence the complexity is O(n) where n is the number of blocks (and hence logically it is also O(m) where m is the number of pixels). However there are many fewer blocks than pixels (by default by a factor of 512 x 512 = 262144), so in many situations this cost of construction can be neglected.
+The raster of random values makes use of a buffer of blockwise precomputed random values. In the construction a random seed is calculated for each block and hence the complexity is O(n) where n is the number of blocks (and hence logically it is also O(m) where m is the number of cells). However there are many fewer blocks than cells (by default by a factor of 512 x 512 = 262144), so in many situations this cost of construction can be neglected.
 
 ## Example of use
 

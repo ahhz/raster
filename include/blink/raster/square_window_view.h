@@ -8,7 +8,7 @@
 //=======================================================================       
 //
 // The square_indow_iterator provides a generalized interface for patch
-// or pixel-based indicators
+// or cell-based indicators
 //
 #pragma once
 

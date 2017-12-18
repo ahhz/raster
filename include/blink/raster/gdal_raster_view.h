@@ -106,7 +106,7 @@ namespace blink
 
         // Set this default affine transformation to be consistent with ARCGIS
         // For a raster with missing transformation, arcgis centers the top 
-        // left pixel at (0,0). The cell-size is 1, the positive y-directions 
+        // left cell at (0,0). The cell-size is 1, the positive y-directions 
         // direction is South to North.
         // 
         if (err == CE_Failure) {

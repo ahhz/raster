@@ -38,7 +38,7 @@ namespace br = blink::raster;
 template<class T>
 br::any_raster<T> recursive_function(br::any_raster<T> r)
 {
-  // continue offsetting by 1 pixel until the cornerpixel is > 4 
+  // continue offsetting by 1 cell until the corner cell is > 4 
 
   int pad_value = 999; // > 4 to guarantee that the recursion will end
   

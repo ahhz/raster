@@ -41,13 +41,13 @@ Operators `+`, `-`, `*`, `/`, `%`, `&&`, `||`, `>`, `<`, `>=`, `>=`, `==` and `!
 |III|`raster_algebra_wrapper<R1>`|`raster_algebra_wrapper<R2>`|
 
 ### Usage I
-Returns a raster with the same dimension as `a` that for every pixel returns the value of the operator applied on the corresponding pixel in `a` and the value of `b`.
+Returns a raster with the same dimension as `a` that for every cell returns the value of the operator applied on the corresponding cell in `a` and the value of `b`.
 
 ### Usage II
-Returns a raster with the same dimension as `b` that for every pixel returns the value of the operator applied on the value of `a` and the corresponding pixel in `b`.
+Returns a raster with the same dimension as `b` that for every cells returns the value of the operator applied on the value of `a` and the corresponding cell in `b`.
 
 ### Usage III
-Returns a raster with the same dimension as `a` and `b` that for every pixel returns the value of the operator applied on the corresponding pixel in `a` and the corresponding pixel in `b`.
+Returns a raster with the same dimension as `a` and `b` that for every cell returns the value of the operator applied on the corresponding cell in `a` and the corresponding cell in `b`.
 
 When the type of `R`, `R1` or `R2` is `any_blind_raster`, then the return type is  `raster_algebra_wrapper<any_blind_raster>`.
 Otherwise, when the type of `R`, `R1` or `R2` is of the form `any_raster<...>` then the return type is of the form `raster_algebra_wrapper<any_raster<...> `>.

@@ -8,7 +8,7 @@ gdal_raster_view<T> open(const filesystem::path& path, access elem_access = read
 ## Description
 Opens a `GDALDataset` using the GDAL library and ties one raster band from the dataset to a new `gdal_raster_view` object. The user does not need to be concerned about closing the `GDALDataset` or `GDALRasterBand`. It will be closed when the `gdal_raster_view` or is deleted / goes out of scope.
 
-The template parameter `T` is the value_type to which values of pixels in the `GDALRasterBand` are cast. This does not necessarily correspond to the data type as present in the raster band.
+The template parameter `T` is the value_type to which values of cells in the `GDALRasterBand` are cast. This does not necessarily correspond to the data type as present in the raster band.
 
 `elem_access` specifies the access type, it is either `read_only` or `read_write`.
 `band_index` specifies which band from the dataset to open. The index is 1-based, so the first raster band has index 1.

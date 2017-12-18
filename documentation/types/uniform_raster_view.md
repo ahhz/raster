@@ -5,7 +5,7 @@
 ```cpp
 template<class T> class uniform_raster_view;
 ```
-The `uniform_raster_view<T>` is a `non mutable, RecursivelySubbable` `RasterView` that has the same value for all pixels. 
+The `uniform_raster_view<T>` is a `non mutable, RecursivelySubbable` `RasterView` that has the same value for all cells. 
 
 The iterator and const_iterator types associated with the  `uniform_raster_view` class are conforming to the `RasterIterator` and `RandomAccessible` concepts.
 

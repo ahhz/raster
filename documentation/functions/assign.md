@@ -17,7 +17,7 @@ The value_type of RasterFrom must be castable to the value_type of RasterTo. Ras
 `to` and `from` must have the same dimensions
 
 ## Complexity
-The complexity is the cost of iterating over all elements in `to` and `from`. It is at least O(n) where n is the number of pixels but can be more depending on `from` and `to`. 
+The complexity is the cost of iterating over all elements in `to` and `from`. It is at least O(n) where n is the number of cells but can be more depending on the type of `from` and `to`. 
 
 ## Example of use
 ```cpp

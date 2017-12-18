@@ -11,7 +11,7 @@ using offset_raster_view = typename padded_raster_view<typename traits<Raster> >
 ```
 
 ## Description
-The `offset` function takes a raster as input and returns a raster of the same dimensions and with the same values but offset by a fixed number of rows and columns. For those pixels where there is no offset coordinate is outside the input raster a pad_value will be used. 
+The `offset` function takes a raster as input and returns a raster of the same dimensions and with the same values but offset by a fixed number of rows and columns. For those cells where there is no offset coordinate is outside the input raster a pad_value will be used. 
 
 ## Definition
 [<blink/raster/offset_raster_view.h>](./../../include/blink/raster/offset_raster_view.h)
