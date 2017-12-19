@@ -20,7 +20,7 @@ namespace blink {
     class reference_proxy
     {
     public:
-      using value_type = typename Accessor::value_type;
+      using value_type = typename std::decay_t<Accessor>::value_type;
       reference_proxy() = delete;
       reference_proxy(const Accessor& accessor) :m_accessor(accessor)
       {}
@@ -34,7 +34,7 @@ namespace blink {
       }
 
       // assignment to make the iterator writable
-      const reference_proxy& operator=(const value_type& v)
+      reference_proxy& operator=(const value_type& v)
       {
         m_accessor.put(v);
         return *this;
@@ -196,7 +196,7 @@ decltype(m_vector.func(std::forward<Args>(args)...))       \
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(resize)
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(swap)
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator=)
-      BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator[])
+     // BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator[ ])
 
     private:
       vector_type m_vector;
