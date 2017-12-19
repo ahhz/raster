@@ -64,9 +64,6 @@ namespace blink {
       assign_blocked(out, in, block_row_size, block_col_size);
     }
 	
-    /*
-	// The functions below are for assigning any_blind_rasters
-	// Still needs some more thought about the appropriate API
     template<class FromRaster>
     struct blind_assign_to
     {
@@ -78,6 +75,7 @@ namespace blink {
       {
         assign(to, m_from);
       }
+    
     private: 
       FromRaster m_from;
     };
@@ -97,15 +95,6 @@ namespace blink {
       ToRaster m_to;
     };
 
-    struct blind_assign_from_to
-    {
-      template<class T>
-      blind_assign_to<any_raster<T> > operator()(any_raster<T> from) const
-      {
-        blind_assign_to<any_raster<T>>(from);
-      }
-    };
-
     template< class RasterFrom>
     void assign(any_blind_raster to, const RasterFrom& from)
     {
@@ -118,11 +107,25 @@ namespace blink {
       blind_function(blind_assign_from<RasterTo>(to), from);
     }
 
+    
+    struct blind_assign_from_to
+    {
+      blind_assign_from_to(any_blind_raster to) : m_to(to)
+      {
+
+      }
+      template<class T>
+      void operator()(any_raster<T> from) const
+      {
+        assign(from, m_to);
+      }
+
+      any_blind_raster m_to;
+    };
+
     void assign(any_blind_raster& to, const any_blind_raster& from)
     {
-      blind_function(
-        blind_function(blind_assign_from_to{}, from), to);
+      blind_function(blind_assign_from_to{to}, from);
     }
-    */
   }
 }
