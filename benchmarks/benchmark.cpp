@@ -46,7 +46,7 @@ void create_data_for_benchmark(int rows, int cols)
   br::assign(raster_c, random_c);
  }
 
-int benchmark()
+int benchmark_3_rasters()
 {
   auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
   auto raster_b = br::open<int>("random_b.tiff", br::access::read_only);
@@ -62,7 +62,7 @@ int benchmark()
   return 0;
 }
 
-int benchmark_blind()
+int benchmark_3_rasters_blind()
 {
   auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
   auto raster_b = br::open_any("random_b.tiff", br::access::read_only);
@@ -77,7 +77,7 @@ int benchmark_blind()
   return 0;
 }
 
-int benchmark_reference()
+int benchmark_3_rasters_reference()
 {
   GDALAllRegister();
   GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
@@ -149,15 +149,115 @@ int benchmark_reference()
   return 0;
 }
 
+
+int benchmark_2_rasters()
+{
+  auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
+  auto raster_b = br::open<int>("random_b.tiff", br::access::read_only);
+  auto raster_out = br::open<int>("output.tiff", br::access::read_write);
+
+
+  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a)
+    + br::raster_algebra_wrap(raster_b);
+
+  //br::assign_blocked(raster_out, raster_sum,256, 256);
+  br::assign(raster_out, raster_sum);
+
+  return 0;
+}
+
+int benchmark_2_rasters_blind()
+{
+  auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
+  auto raster_b = br::open_any("random_b.tiff", br::access::read_only);
+  auto raster_out = br::open_any("output.tiff", br::access::read_write);
+
+  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a)
+    + br::raster_algebra_wrap(raster_b);
+
+  br::assign(raster_out, raster_sum.unwrap());
+
+  return 0;
+}
+
+int benchmark_2_rasters_reference()
+{
+  GDALAllRegister();
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
+  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tiff", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+
+  GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
+  GDALRasterBand* band_b = dataset_b->GetRasterBand(1);
+  GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
+
+
+  CPLAssert(poBand->GetRasterDataType() == GDT_Byte);
+  int nXBlockSize, nYBlockSize;
+
+  band_a->GetBlockSize(&nXBlockSize, &nYBlockSize);
+  int nXBlocks = (band_a->GetXSize() + nXBlockSize - 1) / nXBlockSize;
+  int nYBlocks = (band_a->GetYSize() + nYBlockSize - 1) / nYBlockSize;
+
+  GByte *data_a = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+  GByte *data_b = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+  GByte *data_out = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+
+  for (int iYBlock = 0; iYBlock < nYBlocks; iYBlock++) {
+    for (int iXBlock = 0; iXBlock < nXBlocks; iXBlock++) {
+
+      band_a->ReadBlock(iXBlock, iYBlock, data_a);
+      band_b->ReadBlock(iXBlock, iYBlock, data_b);
+      int nXValid = std::min(nXBlockSize, dataset_a->GetRasterXSize() - iXBlock * nXBlockSize);
+      int nYValid = std::min(nYBlockSize, dataset_a->GetRasterYSize() - iYBlock * nYBlockSize);
+
+      // Compute the portion of the block that is valid
+      // for partial edge blocks.
+
+      for (int iY = 0; iY < nYValid; iY++) {
+        for (int iX = 0; iX < nXValid; iX++) {
+          int index = iX + iY * nXBlockSize;
+          data_out[index] = 3 * data_a[index] + data_b[index] ;
+        }
+      }
+      band_out->WriteBlock(iXBlock, iYBlock, data_out);
+    }
+  }
+  double min, max, mean, stddev;
+  CPLErr try_statistics = band_out->GetStatistics(FALSE,
+    FALSE,
+    &min, &max, &mean, &stddev);
+  // Only update statistics if rasterband thinks that they are up 
+  // to date
+  if (try_statistics != CE_Warning) {
+    band_out->ComputeStatistics(FALSE, &min, &max, &mean, &stddev, NULL, NULL);
+    band_out->SetStatistics(min, max, mean, stddev);
+  }
+
+  CPLFree(data_a);
+  CPLFree(data_b);
+  CPLFree(data_out);
+
+  GDALClose(dataset_a);
+  GDALClose(dataset_b);
+  GDALClose(dataset_out);
+
+  return 0;
+}
+
 int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  // create_data_for_benchmark(1000, 1000);
-  // benchmark();
-  // benchmark_blind();
-   benchmark_reference();
+  //create_data_for_benchmark(10000, 1000);
+  benchmark_2_rasters();
+  // benchmark_2_rasters_blind();
+  // benchmark_2_rasters_reference();
   
+  //benchmark_3_rasters();
+  // benchmark_3rasters_blind();
+  //benchmark_3_rasters_reference();
+
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> diff = end - start;
   std::cout << "That took " << diff.count() << " seconds" << std::endl;
