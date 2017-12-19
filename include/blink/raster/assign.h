@@ -21,12 +21,19 @@ namespace blink {
     template<class RasterTo, class RasterFrom> // only needs to be a range
     void assign(RasterTo& to, const RasterFrom& from)
     {
+      /* this works for rasters, but code below makes it more general*/
+      //auto both = raster_pair(to, from);
+      //for (auto&& v : both)
+      //{
+      // v.first = v.second;
+      //}
+
       auto a = to.begin();
       auto b = from.begin();
       auto b_end = from.end();
       for (; b != b_end; ++b, ++a)
       {
-        *a = *b;
+       *a = *b;
       }
     }
 
