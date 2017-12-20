@@ -37,39 +37,6 @@ namespace blink {
       }
     }
 
-	template<class RasterViewOut, class RasterViewIn>
-    void assign_blocked(RasterViewOut& out, const RasterViewIn& in, int block_row_size, int block_col_size)
-    {
-      assert(out.rows() == in.rows() && out.cols() == in.cols());
-      const int blocks_per_row = (in.rows() + block_row_size - 1) / block_row_size;
-      const int blocks_per_col = (in.cols() + block_row_size - 1) / block_col_size;
-      int nblocks = blocks_per_row * blocks_per_col;
-
-      for (int block_row = 0; block_row < blocks_per_row; ++block_row) {
-        for (int block_col = 0; block_col < blocks_per_col; ++block_col) {
-
-          //auto do_block = [&, block_row, block_col]()
-          //{
-          const int first_row = block_row * block_row_size;
-          const int first_col = block_col * block_col_size;
-          const int rows = std::min<int>(in.rows() - first_row, block_row_size);
-          const int cols = std::min<int>(in.cols() - first_col, block_col_size);
-          assign(out.sub_raster(first_row, first_col, rows, cols),
-            in.sub_raster(first_row, first_col, rows, cols));
-          // };
-          // do_block(); // prepared for parallelization
-        }
-      }
-    }
-
-      // Exploiting that we can get the block size of gdal_raster_views.
-    template<class T, class RasterViewIn>
-    void assign_blocked(gdal_raster_view<T>& out, const RasterViewIn& in)
-    {
-      int block_row_size, block_col_size;
-      out.get_band()->GetBlockSize(&block_col_size, &block_row_size);
-      assign_blocked(out, in, block_row_size, block_col_size);
-    }
 	
     template<class FromRaster>
     struct blind_assign_to
@@ -103,7 +70,7 @@ namespace blink {
     };
 
     template< class RasterFrom>
-    void assign(any_blind_raster to, const RasterFrom& from)
+    void assign(any_blind_raster& to, const RasterFrom& from)
     {
       blind_function(blind_assign_to<RasterFrom>(from), to);
     }
@@ -134,5 +101,42 @@ namespace blink {
     {
       blind_function(blind_assign_from_to{to}, from);
     }
+    
+    template<class RasterViewOut, class RasterViewIn>
+    void assign_blocked(RasterViewOut& out, const RasterViewIn& in, int block_row_size, int block_col_size)
+    {
+      assert(out.rows() == in.rows() && out.cols() == in.cols());
+      const int blocks_per_row = (in.rows() + block_row_size - 1) / block_row_size;
+      const int blocks_per_col = (in.cols() + block_row_size - 1) / block_col_size;
+      int nblocks = blocks_per_row * blocks_per_col;
+
+      for (int block_row = 0; block_row < blocks_per_row; ++block_row) {
+        for (int block_col = 0; block_col < blocks_per_col; ++block_col) {
+
+          //auto do_block = [&, block_row, block_col]()
+          //{
+          const int first_row = block_row * block_row_size;
+          const int first_col = block_col * block_col_size;
+          const int rows = std::min<int>(in.rows() - first_row, block_row_size);
+          const int cols = std::min<int>(in.cols() - first_col, block_col_size);
+          auto sub_out = out.sub_raster(first_row, first_col, rows, cols);
+          auto sub_in = out.sub_raster(first_row, first_col, rows, cols);
+
+          assign(sub_out, sub_in);
+          // };
+          // do_block(); // prepared for parallelization
+        }
+      }
+    }
+
+    // Exploiting that we can get the block size of gdal_raster_views.
+    template<class T, class RasterViewIn>
+    void assign_blocked(gdal_raster_view<T>& out, const RasterViewIn& in)
+    {
+      int block_row_size, block_col_size;
+      out.get_band()->GetBlockSize(&block_col_size, &block_row_size);
+      assign_blocked(out, in, block_row_size, block_col_size);
+    }
+    
   }
 }
