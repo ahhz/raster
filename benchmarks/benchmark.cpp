@@ -245,18 +245,101 @@ int benchmark_2_rasters_reference()
   return 0;
 }
 
+int benchmark_assign()
+{
+  auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
+  auto raster_out = br::open<int>("output.tiff", br::access::read_write);
+  br::assign(raster_out, raster_a);
+  return 0;
+}
+
+int benchmark_assign_blind()
+{
+  auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
+  auto raster_out = br::open_any("output.tiff", br::access::read_write);
+  br::assign(raster_out, raster_a);
+  return 0;
+}
+
+int benchmark_assign_reference()
+{
+  GDALAllRegister();
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+
+  GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
+  GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
+
+
+  CPLAssert(poBand->GetRasterDataType() == GDT_Byte);
+  std::cout << " Check raster type: " << (band_a->GetRasterDataType() == GDT_Byte) << std::endl;
+  int nXBlockSize, nYBlockSize;
+
+  band_a->GetBlockSize(&nXBlockSize, &nYBlockSize);
+  int nXBlocks = (band_a->GetXSize() + nXBlockSize - 1) / nXBlockSize;
+  int nYBlocks = (band_a->GetYSize() + nYBlockSize - 1) / nYBlockSize;
+
+  GByte *data_a = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+  GByte *data_out = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+
+  for (int iYBlock = 0; iYBlock < nYBlocks; iYBlock++) {
+    for (int iXBlock = 0; iXBlock < nXBlocks; iXBlock++) {
+
+      band_a->ReadBlock(iXBlock, iYBlock, data_a);
+      int nXValid = std::min(nXBlockSize, dataset_a->GetRasterXSize() - iXBlock * nXBlockSize);
+      int nYValid = std::min(nYBlockSize, dataset_a->GetRasterYSize() - iYBlock * nYBlockSize);
+
+      // Compute the portion of the block that is valid
+      // for partial edge blocks.
+
+      for (int iY = 0; iY < nYValid; iY++) {
+        for (int iX = 0; iX < nXValid; iX++) {
+          int index = iX + iY * nXBlockSize;
+          data_out[index] = data_a[index];
+        }
+      }
+      band_out->WriteBlock(iXBlock, iYBlock, data_out);
+    }
+  }
+  double min, max, mean, stddev;
+  CPLErr try_statistics = band_out->GetStatistics(FALSE,
+    FALSE,
+    &min, &max, &mean, &stddev);
+  // Only update statistics if rasterband thinks that they are up 
+  // to date
+  if (try_statistics != CE_Warning) {
+    band_out->ComputeStatistics(FALSE, &min, &max, &mean, &stddev, NULL, NULL);
+    band_out->SetStatistics(min, max, mean, stddev);
+  }
+
+  CPLFree(data_a);
+  CPLFree(data_out);
+
+  GDALClose(dataset_a);
+  GDALClose(dataset_out);
+
+  return 0;
+}
+
+
+
 int main()
 {
   auto start = std::chrono::system_clock::now();
   
   //create_data_for_benchmark(10000, 1000);
-  benchmark_2_rasters();
+  //benchmark_2_rasters();
   // benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
   
   //benchmark_3_rasters();
   // benchmark_3rasters_blind();
   //benchmark_3_rasters_reference();
+
+  benchmark_assign();
+  // benchmark_assign_blind();
+  //benchmark_assign_reference();
+
 
   auto end = std::chrono::system_clock::now();
   std::chrono::duration<double> diff = end - start;
