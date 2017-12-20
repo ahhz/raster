@@ -123,7 +123,7 @@ namespace blink {
         : m_from_row(row), m_from_col(col), m_rows(rows), m_cols(cols)
       {}
 
-      template<class T> any_blind_raster operator()(any_raster<T>& r)
+      template<class T> any_blind_raster operator()(any_raster<T> r)
       {
         return any_blind_raster(
           r.sub_raster(m_from_row, m_from_col, m_rows, m_cols));
@@ -245,7 +245,7 @@ namespace blink {
       {}
 
       template<class T>
-      any_blind_raster operator()(any_raster<T>& r1)
+      any_blind_raster operator()(any_raster<T> r1)
       {
         return make_any_blind_raster(transform(m_f, r1, m_r2));
       }
@@ -261,7 +261,7 @@ namespace blink {
       {}
 
       template<class T>
-      any_blind_raster operator()(any_raster<T>& r2)
+      any_blind_raster operator()(any_raster<T> r2)
       {
         return make_any_blind_raster(transform(m_f, m_r1, r2));
       }
@@ -277,7 +277,7 @@ namespace blink {
       {}
 
       template<class T>
-      any_blind_raster operator()(any_raster<T>& r2)
+      any_blind_raster operator()(any_raster<T> r2)
       {
         return blind_function(apply_first<F, any_raster<T> >{ m_f, r2 }, m_r1);
       }
