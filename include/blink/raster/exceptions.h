@@ -14,6 +14,14 @@
 
 namespace blink {
   namespace raster {
+
+    struct unsupported_gdal_datatype : public std::exception
+    {
+      const char *what() const noexcept {
+        return
+          "the gdal datatype is not supported";
+      }
+    };
     struct assigning_an_uninitialized_optional_to_an_initialized_iterator :  public std::exception
     {
       const char *what() const noexcept {
