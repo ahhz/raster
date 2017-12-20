@@ -34,17 +34,10 @@ namespace blink
       using value_type = T;
 
     public:
-      gdal_raster_view(std::shared_ptr<GDALRasterBand> band
-        , int first_row
-        , int first_col
-        , int num_rows
-        , int num_cols) 
-        : m_first_row(first_row), m_first_col(first_col), m_rows(num_rows)
-        , m_cols(num_cols), m_band(band)
+      gdal_raster_view(std::shared_ptr<GDALRasterBand> band) 
+        : m_first_row(0), m_first_col(0), m_rows(band->GetYSize())
+        , m_cols(band->GetXSize()), m_band(band)
       {
-        assert(num_rows >= 0);
-        assert(num_cols >= 0);
-       
         GDALDataType datatype = m_band->GetRasterDataType();
         m_stride = GDALGetDataTypeSize(datatype) / 8;
 
@@ -61,8 +54,8 @@ namespace blink
         case GDT_Float32:  set_accessors<float>();      break;
         case GDT_Float64:  set_accessors<double>();     break;
         // Complex numbers not currently supported 
-		//
-		//case GDT_CInt16:   set_accessors<cint16_t>();   break;
+		    //
+		    //case GDT_CInt16:   set_accessors<cint16_t>();   break;
         //case GDT_CInt32:   set_accessors<cint32_t>();   break;
         //case GDT_CFloat32: set_accessors<cfloat32_t>(); break;
         //case GDT_CFloat64: set_accessors<cfloat64_t>(); break;
@@ -73,22 +66,14 @@ namespace blink
         }
       }
       gdal_raster_view() = default;
-      gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
-        : gdal_raster_view(band, 0, 0, band->GetYSize(), band->GetXSize())
-      {};
-
+     
+      // using the aliasing constructor seems overly complicated now. Just remove for a 
+      // deleter that does nothing?
       gdal_raster_view(GDALRasterBand* band)
         : gdal_raster_view(std::shared_ptr<GDALRasterBand>{
-        std::shared_ptr<GDALRasterBand>{}, band}) // aliasing constructor
+        std::shared_ptr<GDALRasterBand>{}, band}) 
       {};
-
-      gdal_raster_view(GDALRasterBand* band, int first_row
-        , int first_col, int num_rows, int num_cols) 
-          : gdal_raster_view(std::shared_ptr<GDALRasterBand>{
-          std::shared_ptr<GDALRasterBand>{}, band}, first_row, first_col
-            , num_rows, num_cols) // aliasing constructor
-      {};
-
+         
       using iterator = gdal_raster_iterator<value_type
         , access_type::read_write_t>;
       using const_iterator = gdal_raster_iterator<value_type
@@ -146,12 +131,13 @@ namespace blink
         return rows() * cols();
       };
     
-      gdal_raster_view sub_raster(int first_row, int first_col, int num_rows, int num_cols) const
+      gdal_raster_view sub_raster(int first_row, int first_col, int rows, int cols) const
       {
-        return gdal_raster_view(m_band
-          , m_first_row + first_row
-          , m_first_col + first_col
-          , num_rows, num_cols);
+        gdal_raster_view out{m_band};
+        out.m_first_row = m_first_row + first_row;
+        out.m_first_col = m_first_col + first_col;
+        out.m_rows = rows;
+        out.m_cols = cols;
       }
 
       iterator begin() 

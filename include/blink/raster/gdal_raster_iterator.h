@@ -30,12 +30,16 @@ namespace blink
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
       using view_type = gdal_raster_view<T>;
+      // For strictly forward iteration we could use
+      //using proxy_ref = reference_proxy<const gdal_raster_iterator&>;
+      using proxy_ref = reference_proxy<gdal_raster_iterator>;
+
  
     public:
       using is_mutable = std::bool_constant<AccessType::value == read_write>;
  
       using reference = typename std::conditional<is_mutable::value,
-        reference_proxy<gdal_raster_iterator>, T>::type;
+        proxy_ref, T>::type;
       using value_type = T;
       using difference_type = std::ptrdiff_t;
       using pointer = void;
@@ -45,7 +49,6 @@ namespace blink
         : m_block()
         , m_end_of_stretch(m_block.get_null_iterator()) // not so elegant
         , m_pos(m_block.get_null_iterator())            // not so elegant
-        , m_stride(0)
       {}
 
       gdal_raster_iterator(const gdal_raster_iterator& other) = default;
@@ -140,10 +143,10 @@ namespace blink
 
       inline gdal_raster_iterator& operator++()
       {
-        m_pos += m_stride;
+        m_pos += m_view->m_stride;
 
         if (m_pos == m_end_of_stretch) {
-          m_pos -= m_stride;
+          m_pos -= m_view->m_stride;
           return goto_index(get_index() + 1);
         }
         return *this;
@@ -162,7 +165,7 @@ namespace blink
       }
 
     private: 
-      friend class reference_proxy<gdal_raster_iterator>;
+      friend class proxy_ref;
 
       inline T get() const
       {
@@ -183,14 +186,12 @@ namespace blink
       void find_begin(const view_type* view)
       {
         m_view = view;
-        m_stride = m_view->m_stride;
         goto_index(0);
       }
 
       void find_end(const view_type* view)
       {
         m_view = view;
-        m_stride = m_view->m_stride;
         goto_index(m_view->rows() * m_view->cols());
       }
 
@@ -217,10 +218,10 @@ namespace blink
         int major_row = m_block.major_row();
         int major_col = m_block.major_col();
 
-        block_iterator_type start = m_block.get_iterator(0, 0, m_stride);
+        block_iterator_type start = m_block.get_iterator(0, 0, m_view->m_stride);
 
         int index_in_block = static_cast<int>(std::distance(start, m_pos))
-          / m_stride; //  not -1 because m_pos has not been incremented 
+          / m_view->m_stride; //  not -1 because m_pos has not been incremented 
         assert(index_in_block >= 0);
 
         int minor_row = index_in_block / block_cols;
@@ -277,7 +278,7 @@ namespace blink
 
         m_block.reset(m_view->m_band.get(), block_row, block_col);
 
-        m_pos = m_block.get_iterator(row_in_block, col_in_block, m_stride);
+        m_pos = m_block.get_iterator(row_in_block, col_in_block, m_view->m_stride);
 
         int end_col = std::min<int>((block_col + 1) * block_cols
           , m_view->m_first_col + m_view->m_cols);
@@ -285,16 +286,14 @@ namespace blink
         int minor_end_col = 1 + (end_col - 1) % block_cols;
 
         m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col, 
-          m_stride);
+          m_view->m_stride);
 
         return *this;
       }
 
       const view_type* m_view;
 
-      unsigned char m_stride;  // Copied from m_view
-
-      mutable block_type m_block;
+      block_type m_block;
       block_iterator_type m_end_of_stretch;
       block_iterator_type m_pos;
     };

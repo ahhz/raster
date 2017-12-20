@@ -46,44 +46,44 @@ namespace blink
         m_block.reset();
       }
 
-      int block_rows()
+      int block_rows() const
       {
         return m_block->GetYSize();
       }
 
-      int block_cols()
+      int block_cols() const
       {
         return m_block->GetXSize();
       }
 
-      int major_row()
+      int major_row() const
       {
         return m_block->GetYOff();
       }
 
-      int major_col()
+      int major_col() const
       {
         return m_block->GetXOff();
       }
 
-      iterator get_iterator(int minor_row, int minor_col, unsigned char stride)
+      iterator get_iterator(int minor_row, int minor_col, unsigned char stride) const 
       {
         char* block_start = static_cast<char*>(m_block->GetDataRef());
         return block_start + stride * (minor_row * block_cols() + minor_col);
       }
 
-      iterator get_null_iterator()
+      iterator get_null_iterator() const
       {
         return nullptr;
       }
   
-      void mark_dirty()
+      void mark_dirty() const //mutable
       {
         m_block->MarkDirty();
       }
 
     private:
-      std::shared_ptr<GDALRasterBlock> m_block;
+      mutable std::shared_ptr<GDALRasterBlock> m_block;
     };
   }
 }
