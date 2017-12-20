@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include <blink/raster/traits.h>
 #include <blink/raster/index_sequence.h> 
+#include <blink/raster/optional.h>
+#include <blink/raster/traits.h>
 
 #include <functional>
 #include <iterator>
@@ -44,8 +45,7 @@ namespace blink {
       transform_raster_iterator& operator=(const transform_raster_iterator&) = default; //delete because lambdas cannot be assigned
       transform_raster_iterator& operator=(transform_raster_iterator&&) = default;
       
-      using value_type = decltype(std::declval<View>().m_function(
-          std::declval<typename std::iterator_traits<I>::value_type>()...));
+      using value_type = typename View::value_type;
       using reference = value_type;
       using pointer = void;
       using difference_type = std::ptrdiff_t;
@@ -180,7 +180,8 @@ namespace blink {
         // #pragma warning( push )
         // #pragma warning( disable : 4244 ) // suppressing warnings due to casts
         // #pragma warning( disable : 4800 ) // suppressing warnings due to casts
-        return m_view->m_function(
+        auto& f = *(m_view->m_function);
+        return f(
           static_cast<typename
           std::iterator_traits<typename std::tuple_element<S, std::tuple<I...>>::type>::value_type>
           (*std::get<S>(m_iters))...);
@@ -278,7 +279,7 @@ namespace blink {
         , int start_row, int start_col, int rows, int cols) const
       {
         return sub_raster_type
-        (m_function, std::get<S>(m_rasters).sub_raster
+        (*m_function, std::get<S>(m_rasters).sub_raster
         (start_row, start_col, rows, cols)...);
       }
 
@@ -287,7 +288,7 @@ namespace blink {
       friend class const_iterator;
       //friend class iterator;
 
-      function_type m_function;
+      optional<function_type> m_function;
     };
 
     template<class F, class... R> // requires these to be RasterViews
