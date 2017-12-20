@@ -22,32 +22,24 @@
 
 namespace blink {
   namespace raster {
-
     template<template<typename>class F, class T1, class T2 >
-    struct optional_filtered_binary_operator
+    struct filtered_binary_operator
     {
-
       using value_type_1 = recursive_optional_value_type<T1>;
       using value_type_2 = recursive_optional_value_type<T2>;
 
       using common_type = typename std::common_type<value_type_1, value_type_2>::type;
       using function_type = F<common_type>;
       using function_return_type = decltype(std::declval<function_type>()
-        (std::declval<common_type>(), std::declval<common_type>() ) );
-      
-      static const bool returns_optional =
-        is_optional<T1>::value || is_optional<T2>::value;
+        (std::declval<common_type>(), std::declval<common_type>()));
 
-      using return_type = std::conditional_t< returns_optional
-        , optional<function_return_type>
-        , function_return_type>;
+      using return_type = optional<function_return_type>;
 
-      inline return_type operator()(const T1& v1, const T2& v2) const
+      static return_type eval(const T1& v1, const T2& v2) 
       {
         if (recursive_is_initialized(v1) && recursive_is_initialized(v2)) {
-          return  function_type{}(
-            static_cast<common_type>(recursive_get_value(v1)),
-            static_cast<common_type>(recursive_get_value(v2)));
+          return function_type{}(recursive_get_value(v1), 
+            recursive_get_value(v2));
         }
         else {
           return return_type{};
@@ -55,23 +47,44 @@ namespace blink {
       }
     };
 
+    template<template<typename>class F, class T1, class T2 >
+    struct unfiltered_binary_operator
+    {
+      using common_type = typename std::common_type<T1, T1>::type;
+      using function_type = F<common_type>;
+      using return_type = decltype(std::declval<function_type>()
+        (std::declval<common_type>(), std::declval<common_type>()));
+
+      static return_type eval(const T1& v1, const T2& v2) 
+      {
+        return  function_type{}(v1,v2);
+      }
+    };
+
+    template<template<typename>class F, class T1, class T2 >
+    struct optional_filtered_binary_operator_helper
+    {
+      static const bool is_optional =
+        is_optional<T1>::value || is_optional<T2>::value;
+      using type = std::conditional_t< is_optional
+        , filtered_binary_operator<F, T1, T2>
+        , unfiltered_binary_operator<F, T1, T2> >;
+
+    };
+
+    template<template<typename>class F, class T1, class T2 >
+    using  optional_filtered_binary_operator =
+      typename optional_filtered_binary_operator_helper<F, T1, T2>::type;
+
     template<template<typename> class F >
     struct filtered_binary_f
     {
       template<class T1, class T2>
-      auto operator()(const T1& v1, const T2& v2) const
-        ->decltype(optional_filtered_binary_operator<F, T1, T2>{}(v1, v2))
+      typename optional_filtered_binary_operator<F, T1, T2>::return_type
+        operator()(const T1& v1, const T2& v2) const
       {
-        return optional_filtered_binary_operator<F, T1, T2>{}(v1, v2); 
+        return optional_filtered_binary_operator<F, T1, T2>::eval(v1, v2); 
       }
-
-      // without optional filtering
-      //template<class T1, class T2>
-      //auto operator()(const T1& v1, const T2& v2) const
-      //  ->decltype(F<typename std::common_type<T1, T2>::type>{}(v1, v2))
-      //{
-      //  return F<typename std::common_type<T1, T2>::type>{}(v1, v2)
-      //}
     };
     
     template<template<class> class F >
@@ -119,14 +132,14 @@ namespace blink {
     namespace raster {                                             \
                                                                       \
       template<class R, class T>                                      \
-      auto operator op(raster_algebra_wrapper<R> r, T v)              \
+      auto operator op(raster_algebra_wrapper<R> r, const T& v)       \
         ->decltype (raster_algebra(filtered_binary_f<func>{}, r, v))  \
       {                                                               \
         return raster_algebra(filtered_binary_f<func>{}, r, v);       \
       }                                                               \
                                                                       \
       template<class T, class R>                                      \
-      auto operator op(T v, raster_algebra_wrapper<R> r)              \
+      auto operator op(const T& v, raster_algebra_wrapper<R> r)       \
         ->decltype (raster_algebra(filtered_binary_f<func>{}, v, r))  \
       {                                                               \
         return raster_algebra(filtered_binary_f<func>{}, v, r);       \
