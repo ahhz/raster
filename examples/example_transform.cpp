@@ -16,7 +16,7 @@ T join(const T& a, const T& b, const T& c)
 struct sum
 {
   template<class T>
-  T operator()(const T& a, const T& b, const T& c) 
+  T operator()(const T& a, const T& b, const T& c) const
   {
     return a + b + c;
   }
