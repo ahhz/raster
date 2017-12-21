@@ -34,12 +34,9 @@ void create_data_for_benchmark(int rows, int cols)
   auto gen_c = std::mt19937( std::random_device{}() );
 
   // Create the random raster
- // auto random_a = br::random_distribution_raster(rows, cols, dist, gen_a);
- // auto random_b = br::random_distribution_raster(rows, cols, dist, gen_b);
- // auto random_c = br::random_distribution_raster(rows, cols, dist, gen_c);
-  auto random_a = br::uniform(rows, cols, 1);
-  auto random_b = br::uniform(rows, cols, 2);
-  auto random_c = br::uniform(rows, cols, 3);
+ auto random_a = br::random_distribution_raster(rows, cols, dist, gen_a);
+ auto random_b = br::random_distribution_raster(rows, cols, dist, gen_b);
+ auto random_c = br::random_distribution_raster(rows, cols, dist, gen_c);
 
   br::assign(raster_a, random_a);
   br::assign(raster_b, random_b);
@@ -327,7 +324,7 @@ int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  //create_data_for_benchmark(10000, 1000);
+  //create_data_for_benchmark(1000, 1000);
   //benchmark_2_rasters();
   // benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
@@ -337,7 +334,7 @@ int main()
   //benchmark_3_rasters_reference();
 
   benchmark_assign();
-  // benchmark_assign_blind();
+  //benchmark_assign_blind();
   //benchmark_assign_reference();
 
 
