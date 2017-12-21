@@ -23,13 +23,15 @@ O(n), where n is the size of the raster.
 ## Example of use
 ```cpp
 // example_1.cpp
-#include <blink/raster/raster.h>
+#include <blink/raster/io.h>
+#include <blink/raster/plot_raster.h>
+
 #include <random>
+
+namespace br = blink::raster;
 
 int main()
 {
-  namespace br = blink::raster;
-
   std::default_random_engine rng;
   std::uniform_int_distribution<int> dice(1, 6);
 

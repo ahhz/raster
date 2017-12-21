@@ -29,7 +29,8 @@ The raster of random values makes use of a buffer of blockwise precomputed rando
 
 ```cpp
 //example_10.cpp
-#include <blink/raster/raster.h>
+
+#include <blink/raster/plot_raster.h>
 #include <blink/raster/random_raster_view.h>
 
 #include <random> // for distributions and generators

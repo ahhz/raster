@@ -1,16 +1,10 @@
 
-
-
 #include <blink/raster/any_blind_raster.h>
 #include <blink/raster/assign.h>
-#include <blink/raster/raster_algebra.h>
-#include <blink/raster/raster_algebra_operators.h>
-
-
 #include <blink/raster/io.h>
 #include <blink/raster/random_raster_view.h>
-#include <blink/raster/uniform_raster_view.h>
-
+#include <blink/raster/raster_algebra.h>
+#include <blink/raster/raster_algebra_operators.h>
 
 #include <chrono>
 #include <iostream>

@@ -1,6 +1,9 @@
 //example_blind_function.cpp
-#include <blink/raster/raster.h>
+
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/io.h>
+#include <blink/raster/plot_raster.h>
+#include <blink/raster/transform_raster_view.h>
 
 namespace br = blink::raster;
 

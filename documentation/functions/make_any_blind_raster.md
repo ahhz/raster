@@ -22,49 +22,38 @@ O(1)
 ## Example of use
 ```cpp
 //example_any_blind_raster.cpp
-#include <blink/raster/raster.h>
+
 #include <blink/raster/any_blind_raster.h>
-
-#include <random> // for distributions and generators
-
+#include <blink/raster/io.h>
+#include <blink/raster/plot_raster.h>
+#include <blink/raster/transform_raster_view.h>
 
 namespace br = blink::raster;
 
 // the following function shows how any_blind_raster is used to decide 
 // at runtime which value_type to use
+
 template<class Raster> 
 br::any_blind_raster optionally_take_square_root(Raster raster, bool take_root)
 {
   using input_value_type = typename br::traits<Raster>::value_type;
   if (take_root) {
+
     // value type will be return type of sqrt<input_value_type>
+
     auto square_rooted = br::transform(std::sqrt<input_value_type>, raster);
     return br::make_any_blind_raster(square_rooted);
   }
   else {
+
     // value_type will be traits<Raster>::value_type
+
     return br::make_any_blind_raster(raster);
   }
 }
 
-// a function object that can apply on any_raster with any value_type
-struct value_type_getter
-{
-  template<class T>
-  std::string  operator()(const br::any_raster<T>& raster) const
-  {
-    return std::string(typeid(T).name());
-  }
-};
-
-std::string get_value_type(br::any_blind_raster raster)
-{
-  return br::blind_function(value_type_getter{}, raster);
-}
-
 int main()
 {
-  // prepare a raster 
   auto raster = br::create_temp<int>( 3, 4, GDT_Byte);
   auto i = 0;
   for (auto&& v : raster) {
@@ -80,7 +69,6 @@ int main()
 
   return 0;
 }
-
 ```
 Output: 
 

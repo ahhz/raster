@@ -80,7 +80,7 @@ Not applicable
 One limitation is that the `ProxyReference` is not required to be castable to a plain reference. Hence, the following will not compile:
 
 ```cpp
-#include <blink/raster/raster.h>
+#include <blink/raster/io.h>
 #include <iostream>
 
 auto ras = blink::raster::open<int>("demo.tif");
@@ -93,7 +93,7 @@ for(int& i : raster) // will not compile as the reference type of raster is not 
 even though the following will:
 
 ```c++
-#include <blink/raster/raster.h>
+#include <blink/raster/io.h>
 #include <iostream>
 
 auto ras = blink::raster::open<int>("demo.tif");
@@ -106,7 +106,7 @@ for(auto&& i : raster) // i will be a a ProxyReference
 A second limitation becomes apparent when the context does not make clear that the `ProxyReference` must be cast to the `value_type`:
 
 ```c++
-#include <blink/raster/raster.h>
+#include <blink/raster/io.h>
 
 template<class T>
 T square(const T& value){ return value * value };

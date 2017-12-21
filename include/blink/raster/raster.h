@@ -7,6 +7,10 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 
+
+// convenience header, no longer used.
+
+/*
 #pragma once
 
 #include <blink/raster/io.h>
@@ -18,3 +22,4 @@
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/tuple_raster_view.h>
 #include <blink/raster/uniform_raster_view.h>
+*/
