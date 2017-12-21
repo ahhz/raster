@@ -138,6 +138,7 @@ namespace blink
         out.m_first_col = m_first_col + first_col;
         out.m_rows = rows;
         out.m_cols = cols;
+        return out;
       }
 
       iterator begin() 
