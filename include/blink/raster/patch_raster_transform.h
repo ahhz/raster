@@ -194,9 +194,9 @@ namespace blink {
               int this_val = raster_begin[index_coord];
               int this_area = 1;
               int this_perim = 0;
-              int this_index = m_patch_info->size();
+              int this_index = static_cast<int>(m_patch_info->size());
 
-              index_begin[index_coord] = m_patch_info->size();
+              index_begin[index_coord] = static_cast<int>(m_patch_info->size());
               pixel_stack.push_back(coord);
 
               coordinate nb;

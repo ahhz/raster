@@ -288,7 +288,7 @@ namespace blink {
       friend class const_iterator;
       //friend class iterator;
 
-      optional<function_type> m_function;
+      mutable optional<function_type> m_function;
     };
 
     template<class F, class... R> // requires these to be RasterViews

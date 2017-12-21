@@ -18,7 +18,7 @@
 
 #include <functional>
 #include <vector>
-
+ 
 namespace blink {
   namespace raster {
 
@@ -157,6 +157,9 @@ namespace blink {
             , std::placeholders::_1, std::placeholders::_2)...};
       }
     };
+#pragma warning( push )  
+#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
+#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
 
     template<class F>
     apply_on_any_blind_raster_return_type<F> blind_function(F f, any_blind_raster r)
@@ -167,7 +170,8 @@ namespace blink {
   
       return functions[r.index()](f, r);
     }
-     
+#pragma warning( pop )
+
     class any_blind_raster
     {
       template<std::size_t N>

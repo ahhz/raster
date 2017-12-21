@@ -171,13 +171,13 @@ namespace blink
 
         inline iterator& operator+=(std::ptrdiff_t distance)
         {
-          goto_index(get_index() + distance);
+          goto_index(get_index() + static_cast<int>(distance));
           return *this;
         }
 
         inline iterator& operator-=(std::ptrdiff_t distance)
         {
-          goto_index(get_index() - distance);
+          goto_index(get_index() - static_cast<int>(distance));
           return *this;
         }
 

@@ -151,7 +151,8 @@ namespace blink {
       reference dereference() const
       {
         return m_view->get_raster().sub_raster(
-          m_index / m_view->cols(), m_index % m_view->cols(),
+          static_cast<int>(m_index / m_view->cols()), 
+          static_cast<int>(m_index % m_view->cols()),
           m_view->window_rows(), m_view->window_cols());
       }
     private: 

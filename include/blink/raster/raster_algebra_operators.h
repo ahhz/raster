@@ -19,6 +19,9 @@
 
 #include <functional>
 
+#pragma warning( push )  
+#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
+#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
 
 namespace blink {
   namespace raster {
@@ -203,3 +206,5 @@ BLINK_raster_RA_BINARY_OP(!= , std::not_equal_to)
 BLINK_raster_RA_UNARY_OP(-, std::negate)
 BLINK_raster_RA_UNARY_OP(!, std::logical_not)
 // Unary plus? -> bit pointless
+
+#pragma warning( pop )  

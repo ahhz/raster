@@ -1,12 +1,15 @@
 
 
+
 #include <blink/raster/any_blind_raster.h>
 #include <blink/raster/assign.h>
+#include <blink/raster/raster_algebra.h>
+#include <blink/raster/raster_algebra_operators.h>
+
+
 #include <blink/raster/io.h>
 #include <blink/raster/random_raster_view.h>
 #include <blink/raster/uniform_raster_view.h>
-#include <blink/raster/raster_algebra.h>
-#include <blink/raster/raster_algebra_operators.h>
 
 
 #include <chrono>
@@ -252,6 +255,9 @@ int benchmark_assign()
 
 int benchmark_assign_blind()
 {
+
+  // Some code  
+
   auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
   auto raster_out = br::open_any("output.tiff", br::access::read_write);
   br::assign(raster_out, raster_a);

@@ -74,13 +74,13 @@ namespace blink
 
       inline gdal_raster_iterator& operator+=(std::ptrdiff_t distance)
       {
-        goto_index(get_index() + distance);
+        goto_index(get_index() + static_cast<int>(distance));
         return *this;
       }
 
       inline gdal_raster_iterator& operator-=(std::ptrdiff_t distance)
       {
-        goto_index(get_index() - distance);
+        goto_index(get_index() - static_cast<int>(distance));
         return *this;
       }
 

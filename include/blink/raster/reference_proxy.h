@@ -166,12 +166,10 @@ template<class T> const reference_proxy& operator op(const T& v) \
       reference_proxy_vector(reference_proxy_vector&& that)
       {
         m_vector = std::move(that.m_vector);
-        return *this;
       }
       reference_proxy_vector(const reference_proxy_vector& that)
       {
         m_vector = that.m_vector;
-        return *this;
       }
 
       reference_proxy_vector(const std::vector<value_type>& that)

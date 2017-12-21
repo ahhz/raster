@@ -73,8 +73,6 @@
       int sep(int i, int u, std::vector<int>& g, int, const detail::euclidean&)
       {
         return ( (u-i) * (u+i) + (g[u] - g[i]) * (g[u] + g[i] ) ) / (2 * (u - i));
-
-        //return (u*u - i*i + g[u] * g[u] - g[i] * g[i]) / (2 * (u - i));
       }
 
       int sep(int i, int u, std::vector<int>& g, int inf, const manhattan&)
@@ -109,7 +107,8 @@
 
         // g has the values of the result row in reverse order
         for (; g_i != std::rend(g); ++g_i, ++r_i) {
-        *g_i = *r_i;
+          // the result_row may be doubles to  hold sqrt-ed distances
+          *g_i = static_cast<int>(*r_i);
         }
         const int m = static_cast<int>(g.size());
         std::vector<st_pair> st(1, st_pair(0, 0));

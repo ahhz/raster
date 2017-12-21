@@ -17,7 +17,10 @@
 
 namespace blink {
   namespace raster {
-      
+#pragma warning( push )  
+#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
+#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
+
     template<class RasterTo, class RasterFrom> // only needs to be a range
     void assign(RasterTo& to, const RasterFrom& from)
     {
@@ -37,7 +40,7 @@ namespace blink {
       }
     }
 
-	
+
     template<class FromRaster>
     struct blind_assign_to
     {
@@ -102,6 +105,8 @@ namespace blink {
       blind_function(blind_assign_from_to{to}, from);
     }
     
+#pragma warning( pop ) 
+
     template<class RasterViewOut, class RasterViewIn>
     void assign_blocked(RasterViewOut& out, const RasterViewIn& in, int block_row_size, int block_col_size)
     {
