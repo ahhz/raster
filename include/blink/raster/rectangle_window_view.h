@@ -66,7 +66,7 @@ namespace blink {
         m_coordinates = coordinate(0, 0);
         m_view = &view;
         begin_buffer();
-        begin_pixel();
+        begin_cell();
         begin_subrasters();
       }
 
@@ -116,7 +116,7 @@ namespace blink {
           m_view->m_rows_after - 1;
       }
 
-      void begin_pixel()
+      void begin_cell()
       {
         m_indicator = m_view->m_indicator_generator();
         int leading_cols = std::min<int>(m_view->m_cols_before, 
@@ -206,7 +206,7 @@ namespace blink {
         else {
           --m_countdown_subtract_row;
        }
-        begin_pixel();
+        begin_cell();
       }
   
       void add_col()

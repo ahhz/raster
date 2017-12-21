@@ -9,7 +9,7 @@
 //
 // This file contains the functions for delineating patches in the dataset. 
 // For very large datasets this can cause trouble as the algorithm creates a 
-// std::deque of pixel values that can turn very large.
+// std::deque of cell values that can turn very large.
 // Before using a std::deque (FIFO) we used a std::stack (LIFO), std::deque 
 // keeps the stack/deque smaller and saves the day for the large CORINE dataset
 //
@@ -172,7 +172,7 @@ namespace blink {
 
         m_patch_raster_initialized = true;
         int nodata = -1;
-        std::deque<coordinate> pixel_stack;
+        std::deque<coordinate> cell_stack;
 
         static const coordinate N(-1, 0);
         static const coordinate S(1, 0);
@@ -197,7 +197,7 @@ namespace blink {
               int this_index = static_cast<int>(m_patch_info->size());
 
               index_begin[index_coord] = static_cast<int>(m_patch_info->size());
-              pixel_stack.push_back(coord);
+              cell_stack.push_back(coord);
 
               coordinate nb;
 
@@ -208,7 +208,7 @@ namespace blink {
                   ++this_perim;
                 }
                 else if (index_begin[index_nb] == nodata) {
-                  pixel_stack.push_back(nb);
+                  cell_stack.push_back(nb);
                   ++this_area;
                   index_begin[index_nb] = this_index;
                 }
@@ -219,15 +219,15 @@ namespace blink {
                 auto index_nb = index(nb);
                 if (raster_begin[index_nb] == this_val
                   && index_begin[index_nb] == nodata) {
-                  pixel_stack.push_back(nb);
+                  cell_stack.push_back(nb);
                   ++this_area;
                   index_begin[index_nb] = this_index;
                 }
               };
 
-              while (!pixel_stack.empty()) {
-                coordinate curr = pixel_stack.front();
-                pixel_stack.pop_front();
+              while (!cell_stack.empty()) {
+                coordinate curr = cell_stack.front();
+                cell_stack.pop_front();
 
                 nb = add(curr, N); if (nb.first >= 0) rook_lambda();
                 nb = add(curr, S); if (nb.first <= m_raster.rows() - 1) 
