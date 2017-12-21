@@ -30,7 +30,9 @@ namespace blink
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
       using view_type = gdal_raster_view<T>;
-      // For strictly forward iteration we could use
+      
+      // For strictly forward iteration we could use the following and be twice 
+      // as efficient 
       //using proxy_ref = reference_proxy<const gdal_raster_iterator&>;
       using proxy_ref = reference_proxy<gdal_raster_iterator>;
 
