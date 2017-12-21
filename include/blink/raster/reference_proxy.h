@@ -155,10 +155,74 @@ template<class T> const reference_proxy& operator op(const T& v) \
       }
 
       reference_proxy_vector() = default;
+
       template<class... Args>
       reference_proxy_vector(Args&&... args)
-        : m_vector(std::forward<Args>(args)...)
-      {}
+      {
+        m_vector.operator=(std::forward<Args>(args)...);
+        return *this;
+      }
+
+      reference_proxy_vector(reference_proxy_vector&& that)
+      {
+        m_vector = std::move(that.m_vector);
+        return *this;
+      }
+      reference_proxy_vector(const reference_proxy_vector& that)
+      {
+        m_vector = that.m_vector;
+        return *this;
+      }
+
+      reference_proxy_vector(const std::vector<value_type>& that)
+      {
+        m_vector.resize(that.size());
+        auto a = m_vector.begin();
+        auto b = that.begin();
+        auto b_end = that.end();
+        for (; b != b_end; ++a, ++b){
+          *a = *b;
+        }
+        return *this;
+      }
+
+
+      reference_proxy_vector(std::vector<value_type>&& that)
+      {
+        m_vector.resize(that.size());
+        auto a = m_vector.begin();
+        auto b = that.begin();
+        auto b_end = that.end();
+        for (; b != b_end; ++a, ++b) {
+          *a = *b;
+        }
+        return *this;
+      }
+      
+      reference_proxy_vector& operator=(const std::vector<value_type>& that)
+      {
+        m_vector.resize(that.size());
+        auto a = m_vector.begin();
+        auto b = that.begin();
+        auto b_end = that.end();
+        for (; b != b_end; ++a, ++b) {
+          *a = *b;
+        }
+        return *this;
+      }
+
+      reference_proxy_vector& operator=(std::vector<value_type>&& that)
+      {
+        m_vector.resize(that.size());
+        auto a = m_vector.begin();
+        auto b = that.begin();
+        auto b_end = that.end();
+        for (; b != b_end; ++a, ++b) {
+          *a = *b;
+        }
+        return *this;
+      }
+
 
 #define BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(func) \
 template<class... Args> auto func(Args&&... args) ->       \
@@ -195,8 +259,14 @@ decltype(m_vector.func(std::forward<Args>(args)...))       \
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(pop_back)
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(resize)
       BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(swap)
-      BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator=)
-     // BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator[ ])
+     
+      // Visual Studio did not like [] inside macro so, expand 
+      // BLINK_RASTER_REFERENCE_PROXY_VECTOR_FUNCTION(operator[])
+
+      template<class... Args> auto operator[](Args&&... args) ->      
+        decltype(m_vector[std::forward<Args>(args)...])      
+      { return m_vector[(std::forward<Args>(args)...)]; }
+     
 
     private:
       vector_type m_vector;
