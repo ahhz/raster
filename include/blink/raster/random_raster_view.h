@@ -406,6 +406,7 @@ namespace blink
         else {
           fill_one_block(index);
         }
+        
         return block_access(--(m_lru.end()));
       }
 
@@ -429,7 +430,7 @@ namespace blink
 
       lru_iterator add_one_block()  const
       {
-        m_lru.emplace_back(cached_block{});
+         m_lru.emplace_back(cached_block{});
         return --(m_lru.end());
       }
 
@@ -437,7 +438,7 @@ namespace blink
       {
         lru_iterator i;
         if (static_cast<int>(m_lru.size()) < m_max_blocks_in_memory) {
-          i = add_one_block();
+           i = add_one_block();
         } 
         else {
           i = clear_one_block();
@@ -512,11 +513,11 @@ namespace blink
     };
 
     
-    // Default block size is 512 x 512
+    // Default block size is 128 x 128
     // Default generator is mersenne twister, seeded by time
     // Default memory allowance is enough for two rows of blocks
     template<class Distribution, class Generator = std::mt19937_64
-      , int BlockRows = 512, int BlockCols = 512>
+      , int BlockRows = 128, int BlockCols = 128>
     cached_random_blocks<Distribution, Generator, BlockRows, BlockCols>
       random_distribution_raster(int rows, int cols
         , Distribution dist
