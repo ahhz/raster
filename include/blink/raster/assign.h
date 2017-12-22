@@ -11,6 +11,7 @@
 #pragma once
 
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/blind_function.h>
 #include <blink/raster/gdal_raster_view.h>
 
 #include <blink/raster/pair_raster_view.h>

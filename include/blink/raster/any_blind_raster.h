@@ -12,13 +12,14 @@
 
 #include <blink/raster/any.h>
 #include <blink/raster/any_raster.h>
-#include <blink/raster/complex_numbers.h>
-#include <blink/raster/filesystem.h>
-#include <blink/raster/transform_raster_view.h>
 
 #include <functional>
 #include <vector>
  
+#pragma warning( push )  
+#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
+#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
+
 namespace blink {
   namespace raster {
 
@@ -40,7 +41,8 @@ namespace blink {
     struct gdal_class
     {
       using type = T;
-      static const std::size_t index = index_in_tuple<T, gdal_data_types>::value; // static asserts
+      static const std::size_t index 
+        = index_in_tuple<T, gdal_data_types>::value; // static asserts
     };
 
     template<>
@@ -64,7 +66,6 @@ namespace blink {
       //, cfloat64_t
       >;
     
-    class any_blind_raster;
 
     namespace detail {
       template <class T, class Tuple>
@@ -92,86 +93,7 @@ namespace blink {
       static const std::size_t value = detail::Index<T, Tuple>::value;
       static_assert(value != std::tuple_size<Tuple>::value, "No T in Tuple");
     };
-
-    struct row_getter
-    {
-        template<class T> int operator()(const any_raster<T>& r)
-        {
-          return r.rows();
-        }
-    };
-
-    struct col_getter
-    {
-      template<class T> int operator()(const any_raster<T>& r)
-      {
-        return r.cols();
-      }
-    };
-    
-    struct size_getter
-    {
-      template<class T> int operator()(const any_raster<T>& r)
-      {
-        return r.size();
-      }
-    };
-
-    struct sub_raster_getter
-    {
-      sub_raster_getter(int row, int col, int rows, int cols)
-        : m_from_row(row), m_from_col(col), m_rows(rows), m_cols(cols)
-      {}
-
-      template<class T> any_blind_raster operator()(any_raster<T> r)
-      {
-        return any_blind_raster(
-          r.sub_raster(m_from_row, m_from_col, m_rows, m_cols));
-      }
-
-      int m_from_row;
-      int m_from_col;
-      int m_rows;
-      int m_cols;
-    };
-
-    template<class F>
-    using apply_on_any_blind_raster_return_type = decltype(std::declval<F>()(any_raster<int>{}));
-
-    template<class F, class T>
-    apply_on_any_blind_raster_return_type<F>
-      apply_function_on_typed_blind_raster(F f, any_blind_raster r)
-    {
-      return f(r.get_by_type<T>());
-    }
-
-    template<class, class>  struct make_functions;
-    template<class F, class... T>
-    struct make_functions<F, std::tuple<T...>>
-    {
-      using return_type = apply_on_any_blind_raster_return_type<F>;
-      std::vector<std::function<return_type(F, any_blind_raster) > >operator()(F f, any_blind_raster r)
-      {
-        return std::vector<std::function<return_type(F, any_blind_raster)> >{
-          std::bind(apply_function_on_typed_blind_raster<F, T>
-            , std::placeholders::_1, std::placeholders::_2)...};
-      }
-    };
-#pragma warning( push )  
-#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
-#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
-
-    template<class F>
-    apply_on_any_blind_raster_return_type<F> blind_function(F f, any_blind_raster r)
-    {
-      using return_type = apply_on_any_blind_raster_return_type<F>;
-      std::vector<std::function<return_type(F, any_blind_raster)> > functions
-        = make_functions<F, blind_data_types>{}(f, r);
-  
-      return functions[r.index()](f, r);
-    }
-#pragma warning( pop )
-
+      
     class any_blind_raster
     {
       template<std::size_t N>
@@ -185,40 +107,40 @@ namespace blink {
         : m_data(data)
         , m_index(index_in_tuple<T, blind_data_types>::value)
       {
+        m_get_rows = [&]() {return get_by_type<T>().rows(); };
+        m_get_cols = [&]() {return get_by_type<T>().cols(); };
+        m_get_size = [&]() {return get_by_type<T>().size(); };
+        m_get_sub_raster = [&](int a, int b, int c, int d) {
+          return make_any_raster(get_by_type<T>().sub_raster(a, b, c, d));
+        };
       }
 
       template<std::size_t Index>
       any_raster < value_type<Index> >
         get_by_index() const// will throw if you specify the wrong Index
       {
-         return any_cast< any_raster <value_type<Index>> >(m_data);
-      }
-
-	    template<class F>
-      apply_on_any_blind_raster_return_type<F> apply(F function) const
-	    {
-        return blind_function(function, *this);
+         return any_cast< any_raster<value_type<Index> > >(m_data);
       }
 
       template<class T>
-      any_raster <T> get_by_type() // will throw if you specify the wrong T
+      any_raster<T> get_by_type() // will throw if you specify the wrong T
       {
-        return  any_cast<any_raster<T> >(m_data);
+        return any_cast<any_raster<T> >(m_data);
       }
 
       int rows() const 
       { 
-        return apply(row_getter{});
+        return m_get_rows();
       }
 
       int cols() const 
       {
-        return apply(col_getter{});
+        return m_get_cols();
       }
 
       int size() const
       {
-        return apply(size_getter{});
+        return m_get_size();
       }
 
       std::size_t index() const
@@ -228,12 +150,17 @@ namespace blink {
 
       any_blind_raster sub_raster(int r, int c, int rs, int cs) const
       {
-         return apply(sub_raster_getter{r, c, rs, cs});
+        return m_get_sub_raster(r,c,rs,cs);
       }
 
     private:
       std::size_t m_index;
       any m_data; 
+
+      std::function<int()> m_get_rows;
+      std::function<int()> m_get_cols;
+      std::function<int()> m_get_size;
+      std::function<any_blind_raster(int, int, int, int)> m_get_sub_raster;
     };
 
     template<class Raster>
@@ -242,66 +169,7 @@ namespace blink {
       return any_blind_raster(make_any_raster(r));
     }
 
-    template<class F, class Raster>
-    struct apply_first
-    {
-      apply_first(F f, Raster r2) :m_f(f), m_r2(r2)
-      {}
 
-      template<class T>
-      any_blind_raster operator()(any_raster<T> r1)
-      {
-        return make_any_blind_raster(transform(m_f, r1, m_r2));
-      }
-
-      F m_f;
-      Raster m_r2;
-    };
-
-    template<class F, class Raster>
-    struct apply_second
-    {
-      apply_second(F f, Raster r1) :m_f(f), m_r1(r1)
-      {}
-
-      template<class T>
-      any_blind_raster operator()(any_raster<T> r2)
-      {
-        return make_any_blind_raster(transform(m_f, m_r1, r2));
-      }
-
-      F m_f;
-      Raster m_r1;
-    };
-
-    template<class F>
-    struct apply_first_and_second
-    {
-      apply_first_and_second(F f, any_blind_raster r1) :m_f(f), m_r1(r1)
-      {}
-
-      template<class T>
-      any_blind_raster operator()(any_raster<T> r2)
-      {
-        return blind_function(apply_first<F, any_raster<T> >{ m_f, r2 }, m_r1);
-      }
-
-      F m_f;
-      any_blind_raster m_r1;
-    };
-
-    template<class F>
-    struct apply_unary
-    {
-      apply_unary(F function) : m_function(function)
-      {}
-
-      template<class T>
-      any_blind_raster operator()(any_raster<T> r)
-      {
-        return make_any_blind_raster(transform(m_function, r));
-      }
-      F m_function;
-    };
   }
 }
+#pragma warning( pop )

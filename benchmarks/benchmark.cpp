@@ -324,16 +324,16 @@ int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  //create_data_for_benchmark(1000, 1000);
+  create_data_for_benchmark(100, 100);
   //benchmark_2_rasters();
   // benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
   
-  //benchmark_3_rasters();
+  benchmark_3_rasters();
   // benchmark_3rasters_blind();
   //benchmark_3_rasters_reference();
 
-  benchmark_assign();
+  //benchmark_assign();
   //benchmark_assign_blind();
   //benchmark_assign_reference();
 

@@ -14,12 +14,12 @@
 
 #pragma once
 #include <blink/raster/any_blind_raster.h>
-#include <blink/raster/complex_numbers.h>
+#include <blink/raster/blind_function.h>
 #include <blink/raster/exceptions.h>
 #include <blink/raster/filesystem.h>
 #include <blink/raster/gdal_includes.h>
 #include <blink/raster/gdal_raster_view.h>
-#include <blink/raster/complex_numbers.h>
+#include <blink/raster/optional.h>
 
 #include <iostream>
 
@@ -79,7 +79,7 @@ namespace blink
       {
         static const GDALDataType value = GDT_Float64;
       };
-   
+  /*
       template<> struct native_gdal_data_type<cint16_t>
       {
         static const GDALDataType value = GDT_CInt16;
@@ -97,7 +97,7 @@ namespace blink
       {
         static const GDALDataType value = GDT_CFloat64;
       };
-
+*/
       static GDALDataset* create_standard_gdaldataset(
         const filesystem::path& path, int rows, int cols
         , GDALDataType datatype, int nBands = 1)
@@ -429,5 +429,46 @@ namespace blink
         return any_blind_raster{};
       }
     }
+
+    template<class U>
+    struct export_any_helper 
+    {
+      export_any_helper(const filesystem::path& path,
+        optional<gdal_raster_view<U>> model)
+        : m_path(path), m_model(model)
+      {}
+
+      template<class T>
+      void operator()(any_raster<T> in)
+      {
+        if (model) {
+          auto out = create_from_model<T>(m_path, m_model);
+          assign(out, in);
+        }
+        else
+        {
+          auto out = create<T>(m_path, in.rows(), in.cols());
+          assign(out, in);
+        }
+      }
+      
+      const filesystem::path m_path;
+      optional<gdal_raster_view<U> > m_model;
+    };
+    
+
+    template<class U>
+    void export_any(const filesystem::path& path
+      , any_blind_raster raster, gdal_raster_view<U> model)
+    {
+      blind_function(export_any_helper<U>{path, model}, raster);
+    }
+
+    template<class U>
+    void export_any(const filesystem::path& path, any_blind_raster raster)
+    {
+      blind_function(export_any_helper<int>{path, none}, raster);
+    }
+
   }
 }

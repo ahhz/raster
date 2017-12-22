@@ -107,6 +107,30 @@ namespace blink {
       return raster_algebra_wrapper<Raster>(raster);
     }
 
+    template<class F>
+    struct blind_transforming_function_struct
+    {
+      blind_transforming_function_struct(F f) : m_f(f)
+      {
+      }
+
+      template<class... Args>
+      auto operator()(Args&&... args)->decltype(make_any_blind_raster(
+        transform(m_f, std::forward<Args>(args)...)))
+      {
+        return make_any_blind_raster(
+          transform(m_f, std::forward<Args>(args)...));
+      }
+
+      F m_f;
+    };
+
+    template<class F>
+    blind_transforming_function_struct<F> blind_transforming_function(F f)
+    {
+      return  blind_transforming_function_struct<F>(f);
+    }
+
     template<class F, class A, class B>
     struct applicator
     {
@@ -161,9 +185,10 @@ namespace blink {
     template<class F, class A>
     struct applicator<F, A, any_blind_raster >
     {
-      static any_blind_raster f(F function, A a, any_blind_raster b)
+      static any_blind_raster f(F f, A a, any_blind_raster b)
       {
-        return blind_function(apply_second<F, A>(function, a), b);
+        auto f_transform = blind_transforming_function(f);
+        return blind_function_2(f_transform, a, b);
       }
     };
 
@@ -172,8 +197,8 @@ namespace blink {
     {
       static any_blind_raster f(F function, any_blind_raster a, B b)
       {
-        return blind_function(apply_first<F, B>(function, b), a);
-
+        auto f_transform = blind_transforming_function(f);
+        return blind_function_2(f_transform, a, b);
       }
     };
 
@@ -182,7 +207,8 @@ namespace blink {
     {
       static any_blind_raster f(F function, any_blind_raster a, any_blind_raster b)
       {
-        return blind_function(apply_first_and_second<F>(function, a), b);
+        auto f_transform = blind_transforming_function(function);
+        return blind_function_2(f_transform, a, b);
       }
     };
 
@@ -256,18 +282,23 @@ namespace blink {
     // Unary operators
     template<class F, class T>
     auto raster_algebra(F function, raster_algebra_wrapper<T> t)
-      -> decltype(raster_algebra_wrap(transform_raster(function, t.unwrap())))
+      -> decltype(raster_algebra_wrap(transform(function, t.unwrap())))
     {
-      return raster_algebra_wrap(transform_raster(function, t.unwrap()));
+      return raster_algebra_wrap(transform(function, t.unwrap()));
     }
 
     template<class F>
     auto raster_algebra(F function, raster_algebra_wrapper<any_blind_raster> t)
       -> decltype(raster_algebra_wrap(blind_operator(function, t.unwrap())))
     {
-      return raster_algebra_wrap(blind_function(apply_unary<F>(function), t.unwrap()););
+      return
+        raster_algebra_wrap(
+          blind_function(
+            blind_transforming_function_struct(function), t.unwrap()
+          ));
+//      return raster_algebra_wrap(blind_function(apply_unary<F>(function), t.unwrap()););
     }
-
+/*
     struct create_and_assign_helper
     {
       create_and_assign_helper(const filesystem::path& path) : m_path(path)
@@ -336,5 +367,6 @@ namespace blink {
     {
       return create_and_assign_helper_2<Raster>{}(in, path);
     }
+    */
   }
 }

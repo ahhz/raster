@@ -13,6 +13,7 @@
 #pragma once
 
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/blind_function.h>
 #include <blink/raster/optional.h>
 #include <blink/raster/raster_algebra.h>
 
