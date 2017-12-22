@@ -21,48 +21,45 @@
 namespace blink {
   namespace raster {
 
-    using dim_t = optional<std::pair<int, int> >;
+    using optional_dimension = optional<std::pair<int, int> >;
 
-    template<typename T>
-    dim_t get_dim_single(const raster_algebra_wrapper<T>& r)
+    optional_dimension get_dimension()
     {
-      return dim_t{ std::make_pair(r.rows(), r.cols() )};
+      return optional_dimension{};
+    };
+   
+    template<class R, class... Rest>
+    optional_dimension get_dimension(const raster_algebra_wrapper<R>& r, const Rest&...)
+    {
+      return optional_dimension{ std::make_pair(r.rows(), r.cols()) };
     }
 
-    template<typename T>
-    dim_t get_dim_single(const T&)
+    template<class T, class... Rest>
+    optional_dimension get_dimension(const T&, const Rest&... rest)
     {
-      return dim_t{};
+      return get_dimension(rest...);
     }
 
-    template<class T, class...More>
-    dim_t get_dim_multi(const dim_t& dimension, const T& entry, const More&... more)
+    bool check_same_dimension()
     {
-      dim_t add = get_dim_single(entry);
+      return true;
+    };
 
-      if (dimension) {
-        assert(!add || (dimension == add)); // TODO emit warning?
-        return get_dim_multi(dimension, more...);
+    template<class R, class... Rest>
+    bool check_same_dimension(const raster_algebra_wrapper<R>& r
+      , const Rest&... rest)
+    {
+      optional_dimension dim = get_dimension(rest...);
+      if (dim) {
+        return dim == get_dimension(r) && check_same_dimension(rest...);
       }
-      return get_dim_multi(add, more...);
+      else return true;
     }
 
-    template<class T>
-    dim_t get_dim_multi(const dim_t& dimension, const T& entry)
+    template<class T, class... Rest>
+    bool check_same_dimension(const T&, const Rest&... rest)
     {
-      dim_t add = get_dim_single(entry);
-
-      if (dimension) {
-        assert(!add || (dimension == add));// TODO emit warning?
-        return dimension;
-      }
-      return add;
-    }
-
-    template<class... T>
-    dim_t get_dim(const T& ...args)
-    {
-      return get_dim_multi(dim_t{}, args...);
+      return check_same_dimension(rest...);
     }
 
     template<class T>
@@ -81,18 +78,32 @@ namespace blink {
     using is_not_raster = std::false_type;
 
     template <typename... T>
-    struct contains_wrapped_raster;
+    struct check_contains_wrapped_raster;
 
     template <>
-    struct contains_wrapped_raster<> : std::false_type {};
+    struct  check_contains_wrapped_raster<>
+    {
+      static const bool value = false;
+      using type = std::false_type;
+    };
 
     template <typename T, typename... Rest>
-    struct contains_wrapped_raster<raster_algebra_wrapper<T>, Rest...>
-      : std::true_type {};
-
+    struct  check_contains_wrapped_raster<raster_algebra_wrapper<T>, Rest...>
+    {
+      static const bool value = true;
+      using type = std::true_type;
+    };
+ 
     template <typename T, typename... Rest>
-    struct contains_wrapped_raster<T, Rest...>
-      : contains_wrapped_raster<Rest...> {};
+    struct  check_contains_wrapped_raster<T, Rest...>
+    {
+      static const bool value = check_contains_wrapped_raster<Rest...>::value;
+      using type = typename check_contains_wrapped_raster<Rest...>::type;
+    };
+
+    template <typename... Args>
+    using contains_wrapped_raster =
+      typename check_contains_wrapped_raster<Args...>::type;
 
     template<class T>
     struct as_raster_t
@@ -114,38 +125,46 @@ namespace blink {
 
     template<class T>
     auto as_raster(const T& raster_or_value, int rows, int cols)
+      ->decltype(as_raster_t<T>::f(raster_or_value, rows, cols))
     {
       return as_raster_t<T>::f(raster_or_value, rows, cols);
     }
 
+    // If it is a raster, apply the function on the rasters
     template<class F, class... Args>
-    auto raster_algebra_transform1(is_raster, F function, Args&&... args)
+    auto raster_algebra_transform_helper(std::true_type, F function, Args&&... args)
       ->decltype(raster_algebra_wrap(transform(function, 
         as_raster(std::forward<Args>(args), 0, 0)...)))
     {
-      dim_t d = get_dim(std::forward<Args>(args)...);
-      int rows = d->first;
-      int cols = d->second;
+       
+      const optional_dimension d = get_dimension(std::forward<Args>(args)...);
+      const int rows = d->first;
+      const int cols = d->second;
+     
+      assert(d); 
+      assert(check_same_dimension(std::forward<Args>(args)...));
+      
       return raster_algebra_wrap(transform(function, 
         as_raster(std::forward<Args>(args), rows, cols)...));
     }
 
+    // If it is not a raster, apply the function on the values
     template<class F, class... Args>
-    auto raster_algebra_transform1(is_not_raster, F function, Args&&... args)
+    auto raster_algebra_transform_helper(std::false_type, F function, Args&&... args)
       -> decltype(function(std::forward<Args>(args)...))
     {
       return function(std::forward<Args>(args)...);
     }
-
+        
     template< class F, class... Args>
     auto 
       raster_algebra_transform(F function, Args&&... args)
-      -> decltype(raster_algebra_transform1(
-        typename contains_wrapped_raster<std::decay_t<Args>...>::type{},
+      -> decltype(raster_algebra_transform_helper(
+        contains_wrapped_raster<typename std::decay<Args>::type...>{},
         function, std::forward<Args>(args)...))
     {
-      return raster_algebra_transform1(
-        typename contains_wrapped_raster<std::decay_t<Args>...>::type{},
+      return raster_algebra_transform_helper(
+        contains_wrapped_raster<typename std::decay<Args>::type...>{},
         function, std::forward<Args>(args)...);
     }
   }
