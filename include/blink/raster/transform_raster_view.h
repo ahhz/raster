@@ -197,7 +197,6 @@ namespace blink {
     class transform_raster_view
     {
     private:
-
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       
       // Not assignable so does not work with lambdas, TODO wrap in optional???
