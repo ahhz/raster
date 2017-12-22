@@ -8,7 +8,7 @@ auto blind_raster(Function function, any_blind_raster raster) ->decltype(functio
 Apply a function on the raster wrapped by any_blind_raster.
 
 ## Definition
-[<blink/raster/any_blind_raster.h>](./../../include/blink/raster/any_blind_raster.h)
+[<blink/raster/blind_function.h>](./../../include/blink/raster/blind_function.h)
 
 ## Requirements on types
 Function must be `Callable` with with `any_raster<T>` as the input argument, whereby `T` must be a supported type((`bool`, `short`, `unsigned int`, `int`, `unsigned short`, `unsigned char`, `float`, `double`). The return type of the `Function` Callable must be independent of `T`.
@@ -23,6 +23,7 @@ The complexity is that of `function(any_raster<T>)`
 //example_blind_function.cpp
 
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/blind_function.h>
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/transform_raster_view.h>

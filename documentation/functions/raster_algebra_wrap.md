@@ -5,7 +5,7 @@ template<class Raster>
 raster_algebra_wrapper<Raster> raster_algebra_wrap(Raster raster);
 ```
 ## Description
-Wraps a raster in a raster_algebra_wrapper, so it can be used in raster algebra operation. 
+Wraps a raster in a raster_algebra_wrapper, so it can be used in raster algebra operations. 
 
 ## Definition
 [<blink/raster/raster_algebra_wrapper.h>](./../../include/blink/raster/raster_algebra_wrapper.h)
@@ -25,8 +25,8 @@ O(1)
 
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra.h>
 #include <blink/raster/raster_algebra_operators.h>
+#include <blink/raster/raster_algebra_wrapper.h>
 
 namespace br = blink::raster;
 
@@ -56,6 +56,6 @@ Rows: 3, Cols: 4, Value type: int
 1006    1002    1005    1001
 ```
 ## Notes
+
 ## See also
 
-Wrap a Raster for use in raster algebra operations.

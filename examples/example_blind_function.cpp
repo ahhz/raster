@@ -1,6 +1,7 @@
 //example_blind_function.cpp
 
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/blind_function.h>
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/transform_raster_view.h>
