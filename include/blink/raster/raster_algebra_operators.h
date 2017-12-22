@@ -13,9 +13,9 @@
 
 #pragma once
 
+#include <blink/raster/optional.h>
 #include <blink/raster/raster_algebra_wrapper.h>
 #include <blink/raster/traits.h>
-#include <blink/raster/optional.h>
 
 #include <functional>
 
