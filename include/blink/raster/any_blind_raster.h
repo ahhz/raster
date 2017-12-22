@@ -23,34 +23,6 @@
 namespace blink {
   namespace raster {
 
-    using gdal_data_types = std::tuple
-      < uint8_t
-      , int16_t
-      , uint16_t
-      , int32_t
-      , uint32_t
-      , float
-      , double
-      //, cint16_t
-      //, cint32_t
-      //, cfloat32_t
-      //, cfloat64_t
-      >;
-
-    template<class T>
-    struct gdal_class
-    {
-      using type = T;
-      static const std::size_t index 
-        = index_in_tuple<T, gdal_data_types>::value; // static asserts
-    };
-
-    template<>
-    struct gdal_class<bool>
-    {
-      using type = uint8_t;
-    };
-
     using blind_data_types = std::tuple
       < bool
       , uint8_t
@@ -59,12 +31,7 @@ namespace blink {
       , int32_t
       , uint32_t
       , float
-      , double
-      //, cint16_t
-      //, cint32_t
-      //, cfloat32_t
-      //, cfloat64_t
-      >;
+      , double>;
     
 
     namespace detail {
@@ -168,8 +135,6 @@ namespace blink {
     {
       return any_blind_raster(make_any_raster(r));
     }
-
-
   }
 }
 #pragma warning( pop )

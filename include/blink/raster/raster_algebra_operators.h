@@ -13,7 +13,7 @@
 
 #pragma once
 
-#include <blink/raster/raster_algebra.h>
+#include <blink/raster/raster_algebra_wrapper.h>
 #include <blink/raster/traits.h>
 #include <blink/raster/optional.h>
 
@@ -25,6 +25,197 @@
 
 namespace blink {
   namespace raster {
+    template<class F>
+    struct blind_transforming_function_struct
+    {
+      blind_transforming_function_struct(F f) : m_f(f)
+      {
+      }
+
+      template<class... Args>
+      auto operator()(Args&&... args)->decltype(make_any_blind_raster(
+        transform(m_f, std::forward<Args>(args)...)))
+      {
+        return make_any_blind_raster(
+          transform(m_f, std::forward<Args>(args)...));
+      }
+
+      F m_f;
+    };
+
+    template<class F>
+    blind_transforming_function_struct<F> blind_transforming_function(F f)
+    {
+      return  blind_transforming_function_struct<F>(f);
+    }
+
+    template<class F, class A, class B>
+    struct applicator
+    {
+      using type = transform_raster_view<F, A, B>;
+
+      static type f(F function, A a, B b)
+      {
+        return transform(function, a, b);
+      }
+    };
+
+    template<class F, class A, class B>
+    using return_type
+      = decltype(std::declval<F>()(std::declval<A>(), std::declval<B>()));
+
+
+    template<class F, class A, class U>
+    struct applicator<F, A, any_raster<U> >
+    {
+      using T = typename traits<A>::value_type;
+      using type = any_raster< return_type<F, T, U> >;
+
+      static type f(F function, A a, any_raster<U> b)
+      {
+        return make_any_raster(transform(function, a, b));
+      }
+    };
+
+    template<class F, class T, class B>
+    struct applicator<F, any_raster<T>, B >
+    {
+      using U = typename traits<B>::value_type;
+      using type = any_raster< return_type<F, T, U> >;
+
+      static type f(F function, any_raster<T> a, B b)
+      {
+        return make_any_raster(transform(function, a, b));
+      }
+    };
+
+    template<class F, class T, class U>
+    struct applicator<F, any_raster<T>, any_raster<U> >
+    {
+      using type = any_raster< return_type<F, T, U> >;
+
+      static type f(F function, any_raster<T> a, any_raster<U> b)
+      {
+        return make_any_raster(transform(function, a, b));
+      }
+    };
+
+    template<class F, class A>
+    struct applicator<F, A, any_blind_raster >
+    {
+      static any_blind_raster f(F f, A a, any_blind_raster b)
+      {
+        auto f_transform = blind_transforming_function(f);
+        return blind_function_2(f_transform, a, b);
+      }
+    };
+
+    template<class F, class B>
+    struct applicator<F, any_blind_raster, B >
+    {
+      static any_blind_raster f(F function, any_blind_raster a, B b)
+      {
+        auto f_transform = blind_transforming_function(f);
+        return blind_function_2(f_transform, a, b);
+      }
+    };
+
+    template<class F>
+    struct applicator<F, any_blind_raster, any_blind_raster>
+    {
+      static any_blind_raster f(F function, any_blind_raster a, any_blind_raster b)
+      {
+        auto f_transform = blind_transforming_function(function);
+        return blind_function_2(f_transform, a, b);
+      }
+    };
+
+    template<class F, class T, class U>
+    struct raster_algebra_apply;
+    //{
+    //  static_assert(false, "T or U must be a raster_algebra_wrapper");
+    //};
+
+    template<class F, class T, class U>
+    struct raster_algebra_apply<F, raster_algebra_wrapper<T>, U>
+    {
+      using r1 = T;
+      using r2 = uniform_raster_view<U>;
+      using fun = applicator< F, r1, r2 >;
+      using type = decltype(fun::f(std::declval<F>(),
+        std::declval<r1>(), std::declval<r2>()));
+      using wrapped = raster_algebra_wrapper<type>;
+
+      static wrapped f(F function, raster_algebra_wrapper<T> t, U u)
+      {
+        return raster_algebra_wrap(
+          fun::f(function, t.unwrap(), uniform(t.rows(), t.cols(), u)));
+      };
+    };
+
+    template<class F, class T, class U>
+    struct raster_algebra_apply<F, T, raster_algebra_wrapper<U> >
+    {
+      using r1 = uniform_raster_view<T>;
+      using r2 = U;
+      using fun = applicator< F, r1, r2 >;
+      using type = decltype(fun::f(std::declval<F>(),
+        std::declval<r1>(), std::declval<r2>()));
+      using wrapped = raster_algebra_wrapper<type>;
+
+      static wrapped f(F function, T t, raster_algebra_wrapper<U> u)
+      {
+        return raster_algebra_wrap(
+          fun::f(function, uniform(u.rows(), u.cols(), t), u.unwrap()));
+      };
+    };
+
+    template<class F, class T, class U>
+    struct raster_algebra_apply
+      <F, raster_algebra_wrapper<T>, raster_algebra_wrapper<U> >
+    {
+      using r1 = T;
+      using r2 = U;
+      using fun = applicator< F, r1, r2 >;
+      using type = decltype(fun::f(std::declval<F>(),
+        std::declval<r1>(), std::declval<r2>()));
+      using wrapped = raster_algebra_wrapper<type>;
+
+      static wrapped f(F function, raster_algebra_wrapper<T> t
+        , raster_algebra_wrapper<U> u)
+      {
+        return raster_algebra_wrap(fun::f(function, t.unwrap(), u.unwrap()));
+      };
+    };
+
+    // Binary operators
+    // Requires T or U is raster_algebra_wrapper
+    template<class F, class T, class U>
+    auto raster_algebra(F function, T t, U u)
+      -> decltype(raster_algebra_apply<F, T, U>::f(function, t, u))
+    {
+      return raster_algebra_apply<F, T, U>::f(function, t, u);
+    }
+
+    // Unary operators
+    template<class F, class T>
+    auto raster_algebra(F function, raster_algebra_wrapper<T> t)
+      -> decltype(raster_algebra_wrap(transform(function, t.unwrap())))
+    {
+      return raster_algebra_wrap(transform(function, t.unwrap()));
+    }
+
+    template<class F>
+    auto raster_algebra(F function, raster_algebra_wrapper<any_blind_raster> t)
+      -> decltype(raster_algebra_wrap(blind_operator(function, t.unwrap())))
+    {
+      return
+        raster_algebra_wrap(
+          blind_function(
+            blind_transforming_function_struct(function), t.unwrap()
+          ));
+    }
+
     template<template<typename>class F, class T1, class T2 >
     struct filtered_binary_operator
     {

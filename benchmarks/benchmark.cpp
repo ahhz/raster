@@ -3,8 +3,8 @@
 #include <blink/raster/assign.h>
 #include <blink/raster/io.h>
 #include <blink/raster/random_raster_view.h>
-#include <blink/raster/raster_algebra.h>
 #include <blink/raster/raster_algebra_operators.h>
+#include <blink/raster/raster_algebra_wrapper.h>
 
 #include <chrono>
 #include <iostream>
