@@ -42,8 +42,8 @@ namespace blink
         m_stride = GDALGetDataTypeSize(datatype) / 8;
 
         // Using pointers to member functions as a means of run-time polymorphism
-        static_assert(sizeof(float) == 4);
-        static_assert(sizeof(double) == 8);
+        static_assert(sizeof(float) == 4, "GDAL assumes size of float is 4 bytes");
+        static_assert(sizeof(double) == 8, "GDAL assumes size of double is 8 bytes");
         switch (m_band->GetRasterDataType())
         {
         case GDT_Byte:     set_accessors<uint8_t >();   break;
