@@ -1,7 +1,8 @@
 //example_v_edge.cpp
+
+#include <blink/raster/edge_raster.h>
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/edge_raster.h>
 
 namespace br = blink::raster;
 

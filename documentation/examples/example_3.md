@@ -5,8 +5,8 @@ The following example is a simple case of opening two rasters and performing an 
 
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra.h>
 #include <blink/raster/raster_algebra_operators.h>
+#include <blink/raster/raster_algebra_wrapper.h>
 
 namespace br = blink::raster;
 

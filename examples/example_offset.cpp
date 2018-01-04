@@ -1,7 +1,8 @@
 //example_offset.cpp
+
+#include <blink/raster/io.h>
 #include <blink/raster/offset_raster_view.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/io.h>
 
 namespace br = blink::raster;
 

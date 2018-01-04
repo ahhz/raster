@@ -4,7 +4,6 @@
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/raster_algebra_transform.h>
 
-
 namespace br = blink::raster;
 
 template<class T>

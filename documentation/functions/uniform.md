@@ -23,8 +23,9 @@ O(1), the same complexity as copying a object of type T.
 ```cpp
 //example_uniform.cpp
 
-#include <blink/raster/uniform_raster_view.h>
 #include <blink/raster/plot_raster.h>
+#include <blink/raster/uniform_raster_view.h>
+
 
 namespace br = blink::raster;
 

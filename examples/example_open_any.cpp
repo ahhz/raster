@@ -1,6 +1,8 @@
 //example_open_any.cpp
+
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
+
 namespace br = blink::raster;
 
 int main()

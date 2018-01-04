@@ -29,7 +29,6 @@ O(1)
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/transform_raster_view.h>
 
-
 namespace br = blink::raster;
 
 template<class T>

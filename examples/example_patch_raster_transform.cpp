@@ -1,13 +1,11 @@
-
 //example_patch_raster_transform.cpp
-#include <blink/raster/random_raster_view.h>
+
 #include <blink/raster/patch_raster_transform.h>
 #include <blink/raster/plot_raster.h>
 #include <blink/raster/transform_raster_view.h>
+#include <blink/raster/random_raster_view.h>
 
 namespace br = blink::raster;
-
-
 
 int main()
 {

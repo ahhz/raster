@@ -21,8 +21,10 @@ The cost of the operation is governed by the filesystem that has to open the tif
 ## Example of use
 ```cpp
 //example_open_any.cpp
+
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
+
 namespace br = blink::raster;
 
 int main()

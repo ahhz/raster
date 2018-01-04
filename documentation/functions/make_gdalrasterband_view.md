@@ -35,8 +35,10 @@ Constant cost, independent of raster size
 ## Example of use
 ```cpp
 //example_make_gdalrasterdata_view.cpp
+
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
+
 namespace br = blink::raster;
 
 int main()

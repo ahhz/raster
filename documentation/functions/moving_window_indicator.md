@@ -37,9 +37,9 @@ The complexity of this function is O(1), but the complexity of iterating over th
 //example_moving_window_indicator.cpp
 
 #include <blink/raster/io.h>
+#include <blink/raster/moving_window_indicator.h>
 #include <blink/raster/plot_raster.h>
 
-#include <blink/raster/moving_window_indicator.h>
 #include <blink/raster/indicator/mean.h>
 
 namespace br = blink::raster;

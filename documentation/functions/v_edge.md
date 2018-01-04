@@ -22,10 +22,12 @@ Raster must be initialized.
 Independent of raster size, O(1)
 
 ## Example of use
-```cpp//example_v_edge.cpp
+```cpp
+//example_v_edge.cpp
+
+#include <blink/raster/edge_raster.h>
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/edge_raster.h>
 
 namespace br = blink::raster;
 

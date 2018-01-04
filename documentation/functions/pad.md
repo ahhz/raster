@@ -24,10 +24,13 @@ leading_rows, trailing_rows, leading_cols and trailing_cols must be positive. Th
 O(1)
 
 ## Example of use
-```cpp//example_pad.cpp
+```cpp
+//example_pad.cpp
+
+#include <blink/raster/io.h>
 #include <blink/raster/padded_raster_view.h>
 #include <blink/raster/plot_raster.h>
-#include <blink/raster/io.h>
+
 
 namespace br = blink::raster;
 
