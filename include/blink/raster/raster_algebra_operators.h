@@ -113,7 +113,7 @@ namespace blink {
     template<class F, class B>
     struct applicator<F, any_blind_raster, B >
     {
-      static any_blind_raster f(F function, any_blind_raster a, B b)
+      static any_blind_raster f(F f, any_blind_raster a, B b)
       {
         auto f_transform = blind_transforming_function(f);
         return blind_function_2(f_transform, a, b);
@@ -123,9 +123,9 @@ namespace blink {
     template<class F>
     struct applicator<F, any_blind_raster, any_blind_raster>
     {
-      static any_blind_raster f(F function, any_blind_raster a, any_blind_raster b)
+      static any_blind_raster f(F f, any_blind_raster a, any_blind_raster b)
       {
-        auto f_transform = blind_transforming_function(function);
+        auto f_transform = blind_transforming_function(f);
         return blind_function_2(f_transform, a, b);
       }
     };

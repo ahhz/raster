@@ -199,12 +199,8 @@ namespace blink {
     private:
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       
-      // Not assignable so does not work with lambdas, TODO wrap in optional???
       using function_type = F;
     
-      // Using std::function because lambdas cannot be copy-assigned
-      //using function_type = std::function<value_type(typename traits<R>::value_type...)>;
-
       static const std::size_t N = sizeof...(R);
       using tuple_indices = make_index_sequence<N>;
 
