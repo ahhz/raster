@@ -101,7 +101,8 @@ namespace blink {
       any_blind_raster m_to;
     };
 
-    void assign(any_blind_raster& to, const any_blind_raster& from)
+    inline // because it is not a template function, need to inline or put in cpp
+	void assign(any_blind_raster& to, const any_blind_raster& from)
     {
       blind_function(blind_assign_from_to{to}, from);
     }

@@ -14,6 +14,7 @@
 
 #pragma once
 #include <blink/raster/any_blind_raster.h>
+#include <blink/raster/assign.h>
 #include <blink/raster/blind_function.h>
 #include <blink/raster/exceptions.h>
 #include <blink/raster/filesystem.h>
@@ -398,7 +399,9 @@ namespace blink
       return make_gdalrasterdata_view<T>(sh_band, data_type);
     }
 
-    any_blind_raster open_any(
+	// inline because this is a non-template function and strictly speaking 
+	// this should be in a cpp file
+    inline any_blind_raster open_any(
       const filesystem::path& path,
       access elem_access = read_write,
       int band_index = 1)
@@ -441,8 +444,8 @@ namespace blink
       template<class T>
       void operator()(any_raster<T> in)
       {
-        if (model) {
-          auto out = create_from_model<T>(m_path, m_model);
+        if (m_model) {
+          auto out = create_from_model<T>(m_path, *m_model);
           assign(out, in);
         }
         else
@@ -464,8 +467,7 @@ namespace blink
       blind_function(export_any_helper<U>{path, model}, raster);
     }
 
-    template<class U>
-    void export_any(const filesystem::path& path, any_blind_raster raster)
+    inline void export_any(const filesystem::path& path, any_blind_raster raster)
     {
       blind_function(export_any_helper<int>{path, none}, raster);
     }
