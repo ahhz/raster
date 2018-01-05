@@ -20,7 +20,7 @@ namespace blink {
     class reference_proxy
     {
     public:
-      using value_type = typename std::decay_t<Accessor>::value_type;
+      using value_type = typename std::decay<Accessor>::type::value_type;
       reference_proxy() = delete;
       reference_proxy(const Accessor& accessor) :m_accessor(accessor)
       {}
@@ -105,7 +105,7 @@ template<class T> const reference_proxy& operator op(const T& v) \
       operator<<(std::basic_ostream<CharType, CharTrait>& out
         , reference_proxy<Accessor> const& p)
     {
-      using value_type = reference_proxy<Accessor>::value_type;
+      using value_type = typename reference_proxy<Accessor>::value_type;
       out << static_cast<value_type>(p);
       return out;
     }
@@ -115,7 +115,7 @@ template<class T> const reference_proxy& operator op(const T& v) \
       operator >> (std::basic_istream<CharType, CharTrait>& in
         , reference_proxy<Accessor>& p)
     {
-      using value_type = reference_proxy<Accessor>::value_type;
+      using value_type = typename reference_proxy<Accessor>::value_type;
       value_type v;
       in >> v;
       p = v;
@@ -263,7 +263,7 @@ decltype(m_vector.func(std::forward<Args>(args)...))       \
 
       template<class... Args> auto operator[](Args&&... args) ->      
         decltype(m_vector[std::forward<Args>(args)...])      
-      { return m_vector[(std::forward<Args>(args)...)]; }
+      { return m_vector[std::forward<Args>(args)...]; }
      
 
     private:
