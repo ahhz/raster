@@ -1,4 +1,4 @@
-//example_create.cpp
+//example_vector_of_raster.cpp
 
 #include <blink/raster/io.h>
 #include <blink/raster/plot_raster.h>
