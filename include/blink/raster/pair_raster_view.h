@@ -60,7 +60,7 @@ namespace blink {
 
       pair_raster_iterator operator+(const difference_type& n) const
       {
-        tuple_raster_iterator temp(*this);
+		pair_raster_iterator temp(*this);
         temp.m_iters.first += n;
         temp.m_iters.second += n;
         return temp;
@@ -83,14 +83,14 @@ namespace blink {
 
       pair_raster_iterator operator--(int)
       {
-        tuple_raster_iterator temp(*this);
+		pair_raster_iterator temp(*this);
         --(*this);
         return temp;
       }
 
       pair_raster_iterator operator-(const difference_type& n) const
       {
-        tuple_raster_iterator temp(*this);
+		pair_raster_iterator temp(*this);
         temp.m_iters.first -= n;
         temp.m_iters.second -= n;
         return temp;
