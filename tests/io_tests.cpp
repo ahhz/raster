@@ -101,5 +101,7 @@ TEST(RasterTest, IO) {
   EXPECT_TRUE(test_create_temp());
   EXPECT_TRUE(test_create());
   EXPECT_TRUE(test_open());
+#ifdef NDEBUG // Don't debug large data file
   EXPECT_TRUE(test_create_open_large());
+#endif
 }
