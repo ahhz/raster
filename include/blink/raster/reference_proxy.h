@@ -80,10 +80,9 @@ namespace blink {
         m_accessor.put(--m_accessor.get());
         return temp;
       }
-
 #define BLINK_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(op)      \
 template<class T> const reference_proxy& operator op(const T& v) \
-{ m_accessor.put(m_accessor.get() op v); return *this; }
+{ auto temp = m_accessor.get(); temp op v;m_accessor.put(temp); return *this; }
       
       BLINK_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(+=)
       BLINK_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(-= )
