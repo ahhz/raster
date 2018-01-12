@@ -25,7 +25,7 @@
 - [Indicator Generator](./concepts/indicator_generator.md)
 
 ## Types
-- [acces(enum)](./types/access.md)
+- [access(enum)](./types/access.md)
 - [GDALDataType(enum)](./types/gdal_data_type.md)
 - [any_raster](./types/any_raster.md)
 - [any_blind_raster](./types/any_blind_raster.md)
