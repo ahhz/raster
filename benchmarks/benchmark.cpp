@@ -1,3 +1,12 @@
+//
+//=======================================================================
+// Copyright 2017
+// Author: Alex Hagen-Zanker
+// University of Surrey
+//
+// Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
+//=======================================================================
+//
 
 #include <blink/raster/any_blind_raster.h>
 #include <blink/raster/assign.h>
