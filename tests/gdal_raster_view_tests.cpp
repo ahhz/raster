@@ -1,3 +1,12 @@
+//
+//=======================================================================
+// Copyright 2017
+// Author: Alex Hagen-Zanker
+// University of Surrey
+//
+// Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
+//=======================================================================
+//
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
