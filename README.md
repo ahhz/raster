@@ -1,3 +1,4 @@
+# Blink Raster library
  <table style="width:100%">
   <tr>
     <td><img src="./documentation/resources/logo.bmp" width="350"> </td>
