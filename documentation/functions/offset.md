@@ -14,7 +14,7 @@ using offset_raster_view = typename padded_raster_view<typename traits<Raster> >
 The `offset` function takes a raster as input and returns a raster of the same dimensions and with the same values but offset by a fixed number of rows and columns. For those cells where there is no offset coordinate is outside the input raster a pad_value will be used. 
 
 ## Definition
-[<blink/raster/offset_raster_view.h>](./../../include/blink/raster/offset_raster_view.h)
+[<pronto/raster/offset_raster_view.h>](./../../include/pronto/raster/offset_raster_view.h)
 
 ## Requirements on types
 `Raster` must implement the `RasterView` concept.
@@ -29,22 +29,22 @@ O(1)
 ```cpp
 //example_offset.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/offset_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/offset_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>(5, 6);
+  auto raster = pr::create_temp<int>(5, 6);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;
     v = i;
   }
   
-  auto off = br::offset(raster, 2, 3, -1);
+  auto off = pr::offset(raster, 2, 3, -1);
   plot_raster(raster);
   plot_raster(off);
   return 0;

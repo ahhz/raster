@@ -1,11 +1,11 @@
 //example_10.cpp
 
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/random_raster_view.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/random_raster_view.h>
 
 #include <random> // for distributions and generators
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
@@ -20,7 +20,7 @@ int main()
   auto cols = 8;
 
   // Create the random raster
-  auto rr = br::random_distribution_raster(rows, cols, dist, gen);
+  auto rr = pr::random_distribution_raster(rows, cols, dist, gen);
 
   // Plot all values in the raster
   plot_raster(rr);

@@ -12,7 +12,7 @@ template<class Distribution, class Generator = std::mt19937_64
 Create a raster of random distributed values using a specific random number generator (by default std::mt19937_64), and using buffered values (by default in blocks of 512 rows by 512 columns). The return type is a model of RasterView.
 
 ## Definition
-[<blink/raster/random_distribution_raster.h>](./../../include/blink/raster/random_distribution_raster.h)
+[<pronto/raster/random_distribution_raster.h>](./../../include/pronto/raster/random_distribution_raster.h)
 
 ## Requirements on types
 `Distribution` must be a model of [RandomNumberDistribution](http://en.cppreference.com/w/cpp/concept/RandomNumberDistribution)
@@ -30,12 +30,12 @@ The raster of random values makes use of a buffer of blockwise precomputed rando
 ```cpp
 //example_10.cpp
 
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/random_raster_view.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/random_raster_view.h>
 
 #include <random> // for distributions and generators
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
@@ -50,7 +50,7 @@ int main()
   auto cols = 8;
 
   // Create the random raster
-  auto rr = br::random_distribution_raster(rows, cols, dist, gen);
+  auto rr = pr::random_distribution_raster(rows, cols, dist, gen);
 
   // Plot all values in the raster
   plot_raster(rr);

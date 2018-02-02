@@ -10,18 +10,18 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <blink/raster/filesystem.h>
-#include <blink/raster/io.h>
-#include <blink/raster/gdal_raster_view.h>
+#include <pronto/raster/filesystem.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/gdal_raster_view.h>
 
 #include <vector>
 
-namespace br = blink::raster;
-namespace fs = br::filesystem;
+namespace pr = pronto::raster;
+namespace fs = pr::filesystem;
 
 bool test_create_temp()
 {
-  auto r = br::create_temp<int>(5, 3);
+  auto r = pr::create_temp<int>(5, 3);
   int count = 0;
   for (auto&& i : r) {
     i = count++;
@@ -37,7 +37,7 @@ bool test_create_temp()
 bool test_create()
 {
   {
-    auto r = br::create<int>("temp.tif", 5, 3);
+    auto r = pr::create<int>("temp.tif", 5, 3);
     int count = 0;
     for (auto&& i : r) {
       i = count++;
@@ -52,7 +52,7 @@ bool test_create()
 bool test_open()
 {
   {
-    auto r = br::create<int>("temp.tif", 5, 3);
+    auto r = pr::create<int>("temp.tif", 5, 3);
     int count = 0;
     for (auto&& i : r) {
       i = count++;
@@ -61,7 +61,7 @@ bool test_open()
   bool check_exist = fs::exists("temp.tif");
   bool check_contents;
   {
-    auto r = blink::raster::open<int>("temp.tif", br::access::read_only);
+    auto r = pronto::raster::open<int>("temp.tif", pr::access::read_only);
     std::vector<int> check_vector;
     for (auto&& i : r) {
       check_vector.push_back(i);
@@ -79,7 +79,7 @@ bool test_create_open_large()
   int rows = 2000;
   int cols = 1500;
   {
-    auto view = br::create<int>("temp.tif", rows, cols);
+    auto view = pr::create<int>("temp.tif", rows, cols);
     int count = 0;
     for (auto&& i : view) {
       i = count++;
@@ -89,7 +89,7 @@ bool test_create_open_large()
 
   bool check_contents;
   {
-    auto view = br::open<int>("temp.tif", br::access::read_only);
+    auto view = pr::open<int>("temp.tif", pr::access::read_only);
 
     std::vector<int> check_vector;
     for (auto&& i : view) {

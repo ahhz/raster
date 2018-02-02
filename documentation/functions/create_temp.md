@@ -21,7 +21,7 @@ Uses GDAL to create a single-band raster dataset of given dimensions at a tempor
 The temporary file dataset is deleted when the gdal_raster_view is deleted / goes out of scope. 
   
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/io.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
 
 ## Requirements on types
 If the data_type parameter is not used, `T `must be one of the [supported data types](./../types/gdal_data_type.md) ( `unsigned char`, `unsigned int`, `int`, `float`, `double`).
@@ -37,14 +37,14 @@ The cost of the operation is governed by the filesystem that has to create the t
 ```cpp
 //example_create_temp.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>(3, 4, GDT_Byte);
+  auto raster = pr::create_temp<int>(3, 4, GDT_Byte);
   int i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;

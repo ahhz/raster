@@ -8,7 +8,7 @@ auto blind_raster(Function function, any_blind_raster raster) ->decltype(functio
 Apply a function on the raster wrapped by any_blind_raster.
 
 ## Definition
-[<blink/raster/blind_function.h>](./../../include/blink/raster/blind_function.h)
+[<pronto/raster/blind_function.h>](./../../include/pronto/raster/blind_function.h)
 
 ## Requirements on types
 Function must be `Callable` with with `any_raster<T>` as the input argument, whereby `T` must be a supported type((`bool`, `short`, `unsigned int`, `int`, `unsigned short`, `unsigned char`, `float`, `double`). The return type of the `Function` Callable must be independent of `T`.
@@ -22,26 +22,26 @@ The complexity is that of `function(any_raster<T>)`
 ```cpp
 //example_blind_function.cpp
 
-#include <blink/raster/any_blind_raster.h>
-#include <blink/raster/blind_function.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/blind_function.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 struct square
 {
 public:
   template<class T>
-  br::any_blind_raster operator()(const br::any_raster<T>& raster) const
+  pr::any_blind_raster operator()(const pr::any_raster<T>& raster) const
   {
     auto sq_fun = [](const T& v) {return v * v; };
-    auto result_typed = br::transform(sq_fun, raster);
+    auto result_typed = pr::transform(sq_fun, raster);
 
     // wrapping as any_blind_raster because the return type must be 
     // independent of T.
-    return br::make_any_blind_raster(result_typed);
+    return pr::make_any_blind_raster(result_typed);
   }
 };
 
@@ -49,7 +49,7 @@ int main()
 {
   // prepare a raster in separate scope
   {
-    auto raster = br::create<int>("demo.tif", 3, 4, GDT_Byte);
+    auto raster = pr::create<int>("demo.tif", 3, 4, GDT_Byte);
     auto i = 0;
     for (auto&& v : raster) {
       i = (i + 3) % 7;
@@ -58,8 +58,8 @@ int main()
   }
 
   // Open without specifying the type of the raster
-  br::any_blind_raster ras = br::open_any("demo.tif");
-  br::any_blind_raster ras_sq = br::blind_function(square{}, ras);
+  pr::any_blind_raster ras = pr::open_any("demo.tif");
+  pr::any_blind_raster ras_sq = pr::blind_function(square{}, ras);
   plot_raster(ras);
   plot_raster(ras_sq);
   return 0;

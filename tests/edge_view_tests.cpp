@@ -10,25 +10,25 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <blink/raster/filesystem.h>
-#include <blink/raster/io.h>
-#include <blink/raster/gdal_raster_view.h>
-#include <blink/raster/edge_raster.h>
+#include <pronto/raster/filesystem.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/gdal_raster_view.h>
+#include <pronto/raster/edge_raster.h>
 
 #include <vector>
 
-namespace br = blink::raster;
-namespace fs = br::filesystem;
+namespace pr = pronto::raster;
+namespace fs = pr::filesystem;
 
 bool test_v_edge()
 {
-  auto r = br::create_temp<int>(3, 5);
+  auto r = pr::create_temp<int>(3, 5);
   int count = 0;
   for (auto&& i : r) {
     i = count++;
   }
 
-  auto t = br::v_edge(r);
+  auto t = pr::v_edge(r);
   
   std::vector < std::pair<int, int> > check_vector;
   for (auto&& i : t) {
@@ -54,13 +54,13 @@ bool test_v_edge()
 
 bool test_h_edge()
 {
-  auto r = br::create_temp<int>(3, 5);
+  auto r = pr::create_temp<int>(3, 5);
   int count = 0;
   for (auto&& i : r) {
     i = count++;
   }
 
-  auto t = br::h_edge(r);
+  auto t = pr::h_edge(r);
 
   std::vector < std::pair<int, int> > check_vector;
   for (auto&& i : t) {

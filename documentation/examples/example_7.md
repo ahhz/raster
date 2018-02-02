@@ -3,27 +3,27 @@ The following example opens a raster dataset and calculates the mean value of a 
 ```cpp
 // example_7.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/moving_window_indicator.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/moving_window_indicator.h>
+#include <pronto/raster/plot_raster.h>
 
-#include <blink/raster/indicator/mean.h>
+#include <pronto/raster/indicator/mean.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto in = br::create_temp<int>(5, 6);
+  auto in = pr::create_temp<int>(5, 6);
   int i = 0;
   for (auto&& v : in) {
     i = (i + 3) % 7;
     v = i;
   }
 
-  auto window = br::circle(2);
-  auto indicator = br::mean_generator<int>{};
+  auto window = pr::circle(2);
+  auto indicator = pr::mean_generator<int>{};
 
-  auto out = br::moving_window_indicator(in, window, indicator);
+  auto out = pr::moving_window_indicator(in, window, indicator);
 
   plot_raster(in);
   plot_raster(out);

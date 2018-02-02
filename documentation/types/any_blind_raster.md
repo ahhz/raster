@@ -1,6 +1,6 @@
 # any_blind_raster
 ```cpp
-#include <blink/raster/any_blind_raster.h>
+#include <pronto/raster/any_blind_raster.h>
 ```
 ```cpp
 class any_blind_raster;

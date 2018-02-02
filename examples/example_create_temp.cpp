@@ -1,13 +1,13 @@
 //example_create_temp.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>(3, 4, GDT_Byte);
+  auto raster = pr::create_temp<int>(3, 4, GDT_Byte);
   int i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;

@@ -8,7 +8,7 @@ void assign(RasterTo& to, const RasterFrom& from);
 ## Description
 Assigns the value of each element in `Raster` `from` to the corresponding element in `Raster` `to`
 ## Definition
-[<blink/raster/assign.h>](./../../include/blink/raster/assign.h)
+[<pronto/raster/assign.h>](./../../include/pronto/raster/assign.h)
 
 ## Requirements on types
 The value_type of RasterFrom must be castable to the value_type of RasterTo. RasterTo must be mutable. RasterFrom and RasterTo both must be Rasters.
@@ -23,23 +23,23 @@ The complexity is the cost of iterating over all elements in `to` and `from`. It
 ```cpp
 //example_assign.cpp
 
-#include <blink/raster/assign.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/assign.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto a = br::create_temp<int>(3, 4, GDT_Byte);
-  auto b = br::create_temp<int>(3, 4, GDT_Byte);
+  auto a = pr::create_temp<int>(3, 4, GDT_Byte);
+  auto b = pr::create_temp<int>(3, 4, GDT_Byte);
   int count = 0;
   for (auto&& i : a) {
     i = count++;
   }
 
   // copies the values in a over to b
-  br::assign(b, a);
+  pr::assign(b, a);
 
   for (auto&& i : a) {
     i = count++;

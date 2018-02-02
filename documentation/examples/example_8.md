@@ -1,18 +1,18 @@
-Nodata values are a common occurance in geographical data. Often a special value is used to indicate an absence of data. This is called the nodata value. In modern C++, the `optional<T>` class is used for objects that may be in an uninitialized state (either boost::optional<T> or std::optional<T> in C++17). The following example shows how the Blink Raster library helps working with nodata values. First, a data-set is opened (`in`) then a view is created (`nodata`) that has the value type `optional<int>` and treats the cells with value 6 as unitialized. Finally a view is created, with `int` as value_type again that assigns the value of -99 to the unitialized values. Thus the user of the library has full control of the treatment of nodata values. 
+Nodata values are a common occurance in geographical data. Often a special value is used to indicate an absence of data. This is called the nodata value. In modern C++, the `optional<T>` class is used for objects that may be in an uninitialized state (either boost::optional<T> or std::optional<T> in C++17). The following example shows how the Pronto Raster library helps working with nodata values. First, a data-set is opened (`in`) then a view is created (`nodata`) that has the value type `optional<int>` and treats the cells with value 6 as unitialized. Finally a view is created, with `int` as value_type again that assigns the value of -99 to the unitialized values. Thus the user of the library has full control of the treatment of nodata values. 
  
 ```cpp
 //example_8.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/nodata_transform.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/nodata_transform.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
   // Create some data
-  auto in = br::create_temp<int>(4,5);
+  auto in = pr::create_temp<int>(4,5);
   int i = 0;
   for (auto&& v : in) {
     v = i;
@@ -20,10 +20,10 @@ int main()
   }
 
   // Treat value 6 as nodata
-  auto nodata = br::nodata_to_optional(in, 6);
+  auto nodata = pr::nodata_to_optional(in, 6);
 
   // Treat nodata as value -99
-  auto un_nodata = br::optional_to_nodata(nodata, -99);
+  auto un_nodata = pr::optional_to_nodata(nodata, -99);
 
   plot_raster(in);
   plot_raster(nodata);

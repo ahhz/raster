@@ -20,7 +20,7 @@ Creates an alternate view of the input raster Raster that for each element retur
 These are simple structs that are constructed using a single argument (radius).
 
 ## Definition
-[<blink/raster/moving_window_indicator.h>](./../../include/blink/raster/moving_window_indicator.h)
+[<pronto/raster/moving_window_indicator.h>](./../../include/pronto/raster/moving_window_indicator.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept. IndicatorGenerator must implement the IndicatorGenerator concept.
@@ -36,25 +36,25 @@ The complexity of this function is O(1), but the complexity of iterating over th
 ```
 //example_moving_window_indicator.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/moving_window_indicator.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/moving_window_indicator.h>
+#include <pronto/raster/plot_raster.h>
 
-#include <blink/raster/indicator/mean.h>
+#include <pronto/raster/indicator/mean.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>( 3, 4, GDT_Byte);
+  auto raster = pr::create_temp<int>( 3, 4, GDT_Byte);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;
     v = i;
   }
   
-  auto window_mean = br::moving_window_indicator(raster, br::square(1), 
-    br::mean_generator<int>{});
+  auto window_mean = pr::moving_window_indicator(raster, pr::square(1), 
+    pr::mean_generator<int>{});
 
   plot_raster(raster);
   plot_raster(window_mean);

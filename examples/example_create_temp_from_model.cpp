@@ -1,15 +1,15 @@
 //example_create_temp_from_model.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto model = br::create<int>("test.tif", 3, 4);
+  auto model = pr::create<int>("test.tif", 3, 4);
 
-  auto output = br::create_temp_from_model<float>(model);
+  auto output = pr::create_temp_from_model<float>(model);
   float i = 0.7f;
   for (auto&& v : output) {
     i = i * (1 - i);

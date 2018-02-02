@@ -1,19 +1,19 @@
 //example_9.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/subraster_window_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/subraster_window_view.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto in = br::open<int>("demo.tif");
+  auto in = pr::open<int>("demo.tif");
   
   int radius = 1;
   int pad_value = -99;
 
-  auto window = br::make_square_subraster_window_view(in, radius, pad_value);
+  auto window = pr::make_square_subraster_window_view(in, radius, pad_value);
 
   plot_raster(in);
 

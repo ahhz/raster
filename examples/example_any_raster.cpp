@@ -1,35 +1,35 @@
 //example_any_raster.cpp
 
-#include <blink/raster/any_raster.h>
-#include <blink/raster/io.h>
-#include <blink/raster/offset_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/any_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/offset_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 // Here any_raster is used to implement a recursive function. Without 
 // using the type erasure of any_raster it would be impossible to 
 // determine the return type.
 
 template<class T>
-br::any_raster<T> recursive_function(br::any_raster<T> r)
+pr::any_raster<T> recursive_function(pr::any_raster<T> r)
 {
   // continue offsetting by 1 cell until the corner cell is > 4 
 
   int pad_value = 999; // > 4 to guarantee that the recursion will end
   
-  auto offset_view = br::offset(r, 1, 1, pad_value);
+  auto offset_view = pr::offset(r, 1, 1, pad_value);
   if (*offset_view.begin() > 4) {
-    return br::make_any_raster(offset_view);
+    return pr::make_any_raster(offset_view);
   }
   else {
-    return recursive_function(br::make_any_raster(offset_view));
+    return recursive_function(pr::make_any_raster(offset_view));
   }
 }
 
 int main()
 {
-  auto raster = br::create_temp<int>(5, 4);
+  auto raster = pr::create_temp<int>(5, 4);
 
   auto i = 0;
   for (auto&& v : raster) {
@@ -37,7 +37,7 @@ int main()
     v = i;
   }
 
-  auto result = recursive_function(br::make_any_raster(raster));
+  auto result = recursive_function(pr::make_any_raster(raster));
 
   plot_raster(raster);
   plot_raster(result);

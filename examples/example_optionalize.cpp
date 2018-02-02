@@ -1,23 +1,23 @@
 //example_optionalize.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/optional.h>
-#include <blink/raster/optional_raster_view.h>
-#include <blink/raster/padded_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/optional.h>
+#include <pronto/raster/optional_raster_view.h>
+#include <pronto/raster/padded_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>(3, 4, GDT_Byte);
+  auto raster = pr::create_temp<int>(3, 4, GDT_Byte);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;
     v = i;
   }
-  auto optional_raster = br::optionalize(raster);
-  auto padded_optional_raster = br::pad(optional_raster, 2, 2, 2, 2, br::none);
+  auto optional_raster = pr::optionalize(raster);
+  auto padded_optional_raster = pr::pad(optional_raster, 2, 2, 2, 2, pr::none);
   
   plot_raster(raster);
   plot_raster(optional_raster);

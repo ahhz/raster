@@ -1,12 +1,12 @@
 // example_2.cpp
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 #include <iostream>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::open<int>("demo.tif"); // assuming file exists and is valid
+  auto raster = pr::open<int>("demo.tif"); // assuming file exists and is valid
   int sum = 0;
   for (auto&& value : raster) {
     sum += value;

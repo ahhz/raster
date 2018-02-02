@@ -1,16 +1,16 @@
 //example_raster_algebra_wrapper.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra_operators.h>
-#include <blink/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra_operators.h>
+#include <pronto/raster/raster_algebra_wrapper.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster =br::create_temp<int>(3, 4);
-  auto wrapped = br::raster_algebra_wrap(raster);
+  auto raster =pr::create_temp<int>(3, 4);
+  auto wrapped = pr::raster_algebra_wrap(raster);
   int i = 0;
   for (auto&& v : raster) {
     v = ((i+=3)%=7);
