@@ -3,13 +3,13 @@
 #include <pronto/raster/io.h>
 #include <pronto/raster/plot_raster.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto model = br::create<int>("test.tif", 3, 4);
+  auto model = pr::create<int>("test.tif", 3, 4);
 
-  auto output = br::create_temp_from_model<float>(model);
+  auto output = pr::create_temp_from_model<float>(model);
   float i = 0.7f;
   for (auto&& v : output) {
     i = i * (1 - i);

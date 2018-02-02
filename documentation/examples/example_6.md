@@ -9,21 +9,21 @@ The following example creates a raster dataset and calculates the mean value of 
 
 #include <pronto/raster/indicator/mean.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto in = br::create_temp<int>(5, 6);
+  auto in = pr::create_temp<int>(5, 6);
   int i = 0;
   for (auto&& v : in) {
     i = (i + 3) % 7;
     v = i;
   }
   
-  auto window = br::square(2);
-  auto indicator = br::mean_generator<int>{};
+  auto window = pr::square(2);
+  auto indicator = pr::mean_generator<int>{};
  
-  auto out = br::moving_window_indicator(in, window, indicator );
+  auto out = pr::moving_window_indicator(in, window, indicator );
  
   plot_raster(in);
   plot_raster(out);

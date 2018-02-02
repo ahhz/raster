@@ -12,20 +12,20 @@ int max_of_four(int a, int b, int c, int d)
   return std::max<int>(std::max<int>(a, b), std::max<int>(c, d));
 }
 
-namespace br = pronto::raster; 
+namespace pr = pronto::raster; 
 
 int main()
 {
-  auto in = br::open<int>("demo.tif");// as produced in example_1
+  auto in = pr::open<int>("demo.tif");// as produced in example_1
 
   int pad_value = 0;
 
-  auto a = br::offset(in, 1, 0, pad_value); // row offset = 1, column offset = 0
-  auto b = br::offset(in, -1, 0, pad_value);
-  auto c = br::offset(in, 0, 1, pad_value);
-  auto d = br::offset(in, 0, -1, pad_value);
+  auto a = pr::offset(in, 1, 0, pad_value); // row offset = 1, column offset = 0
+  auto b = pr::offset(in, -1, 0, pad_value);
+  auto c = pr::offset(in, 0, 1, pad_value);
+  auto d = pr::offset(in, 0, -1, pad_value);
 
-  auto out = br::transform(max_of_four, a, b, c, d);
+  auto out = pr::transform(max_of_four, a, b, c, d);
 
   plot_raster(in);
   plot_raster(out);

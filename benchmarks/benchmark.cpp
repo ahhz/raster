@@ -21,14 +21,14 @@
 
 
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 void create_data_for_benchmark(int rows, int cols)
 {
-	auto raster_a = br::create<int>("random_a.tiff", rows, cols, GDT_Byte);
-	auto raster_b = br::create<int>("random_b.tiff", rows, cols, GDT_Byte);
-	auto raster_c = br::create<int>("random_c.tiff", rows, cols, GDT_Byte);
-	auto raster_d = br::create<int>("output.tiff", rows, cols, GDT_Byte);
+	auto raster_a = pr::create<int>("random_a.tiff", rows, cols, GDT_Byte);
+	auto raster_b = pr::create<int>("random_b.tiff", rows, cols, GDT_Byte);
+	auto raster_c = pr::create<int>("random_c.tiff", rows, cols, GDT_Byte);
+	auto raster_d = pr::create<int>("output.tiff", rows, cols, GDT_Byte);
 	
 	
 	 // Choose a distribution to use, here the fair dice distribution
@@ -40,42 +40,42 @@ void create_data_for_benchmark(int rows, int cols)
   auto gen_c = std::mt19937( std::random_device{}() );
 
   // Create the random raster
- auto random_a = br::random_distribution_raster(rows, cols, dist, gen_a);
- auto random_b = br::random_distribution_raster(rows, cols, dist, gen_b);
- auto random_c = br::random_distribution_raster(rows, cols, dist, gen_c);
+ auto random_a = pr::random_distribution_raster(rows, cols, dist, gen_a);
+ auto random_b = pr::random_distribution_raster(rows, cols, dist, gen_b);
+ auto random_c = pr::random_distribution_raster(rows, cols, dist, gen_c);
 
-  br::assign(raster_a, random_a);
-  br::assign(raster_b, random_b);
-  br::assign(raster_c, random_c);
+  pr::assign(raster_a, random_a);
+  pr::assign(raster_b, random_b);
+  pr::assign(raster_c, random_c);
  }
 
 int benchmark_3_rasters()
 {
-  auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
-  auto raster_b = br::open<int>("random_b.tiff", br::access::read_only);
-  auto raster_c = br::open<int>("random_c.tiff", br::access::read_only);
-  auto raster_out = br::open<int>("output.tiff", br::access::read_write);
+  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open<int>("random_b.tiff", pr::access::read_only);
+  auto raster_c = pr::open<int>("random_c.tiff", pr::access::read_only);
+  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
 
  
-  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a) 
-    + br::raster_algebra_wrap(raster_b) * br::raster_algebra_wrap(raster_c);
+  auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
+    + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 	
-  br::assign(raster_out, raster_sum);
+  pr::assign(raster_out, raster_sum);
 
   return 0;
 }
 
 int benchmark_3_rasters_blind()
 {
-  auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
-  auto raster_b = br::open_any("random_b.tiff", br::access::read_only);
-  auto raster_c = br::open_any("random_c.tiff", br::access::read_only);
-  auto raster_out = br::open_any("output.tiff", br::access::read_write);
+  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open_any("random_b.tiff", pr::access::read_only);
+  auto raster_c = pr::open_any("random_c.tiff", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
 
-  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a) 
-    + br::raster_algebra_wrap(raster_b) * br::raster_algebra_wrap(raster_c);
+  auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
+    + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 
-  br::assign(raster_out, raster_sum.unwrap());
+  pr::assign(raster_out, raster_sum.unwrap());
 
   return 0;
 }
@@ -155,30 +155,30 @@ int benchmark_3_rasters_reference()
 
 int benchmark_2_rasters()
 {
-  auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
-  auto raster_b = br::open<int>("random_b.tiff", br::access::read_only);
-  auto raster_out = br::open<int>("output.tiff", br::access::read_write);
+  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open<int>("random_b.tiff", pr::access::read_only);
+  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
 
 
-  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a)
-    + br::raster_algebra_wrap(raster_b);
+  auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+    + pr::raster_algebra_wrap(raster_b);
 
-  //br::assign_blocked(raster_out, raster_sum,256, 256);
-  br::assign(raster_out, raster_sum);
+  //pr::assign_blocked(raster_out, raster_sum,256, 256);
+  pr::assign(raster_out, raster_sum);
 
   return 0;
 }
 
 int benchmark_2_rasters_blind()
 {
-  auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
-  auto raster_b = br::open_any("random_b.tiff", br::access::read_only);
-  auto raster_out = br::open_any("output.tiff", br::access::read_write);
+  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open_any("random_b.tiff", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
 
-  auto raster_sum = 3 * br::raster_algebra_wrap(raster_a)
-    + br::raster_algebra_wrap(raster_b);
+  auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+    + pr::raster_algebra_wrap(raster_b);
 
-  br::assign(raster_out, raster_sum.unwrap());
+  pr::assign(raster_out, raster_sum.unwrap());
 
   return 0;
 }
@@ -250,9 +250,9 @@ int benchmark_2_rasters_reference()
 
 int benchmark_assign()
 {
-  auto raster_a = br::open<int>("random_a.tiff", br::access::read_only);
-  auto raster_out = br::open<int>("output.tiff", br::access::read_write);
-  br::assign(raster_out, raster_a);
+  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
+  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
+  pr::assign(raster_out, raster_a);
   return 0;
 }
 
@@ -261,9 +261,9 @@ int benchmark_assign_blind()
 
   // Some code  
 
-  auto raster_a = br::open_any("random_a.tiff", br::access::read_only);
-  auto raster_out = br::open_any("output.tiff", br::access::read_write);
-  br::assign(raster_out, raster_a);
+  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
+  pr::assign(raster_out, raster_a);
   return 0;
 }
 

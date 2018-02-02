@@ -42,19 +42,19 @@ The complexity of this function is O(1), but the complexity of iterating over th
 
 #include <pronto/raster/indicator/mean.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>( 3, 4, GDT_Byte);
+  auto raster = pr::create_temp<int>( 3, 4, GDT_Byte);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;
     v = i;
   }
   
-  auto window_mean = br::moving_window_indicator(raster, br::square(1), 
-    br::mean_generator<int>{});
+  auto window_mean = pr::moving_window_indicator(raster, pr::square(1), 
+    pr::mean_generator<int>{});
 
   plot_raster(raster);
   plot_raster(window_mean);

@@ -8,12 +8,12 @@ The following example is a simple case of opening a raster and performing an cel
 #include <pronto/raster/raster_algebra_operators.h>
 #include <pronto/raster/raster_algebra_wrapper.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto in = br::open<int>("a.tif"); // as created in example_3.cpp
-  auto out = br::raster_algebra_wrap(in) * 5;
+  auto in = pr::open<int>("a.tif"); // as created in example_3.cpp
+  auto out = pr::raster_algebra_wrap(in) * 5;
  
   plot_raster(in);
   plot_raster(out);
@@ -45,12 +45,12 @@ Note that it is not required to specify the value type of the cells, using `open
 #include <pronto/raster/raster_algebra.h>
 #include <pronto/raster/raster_algebra_operators.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto in = br::open_any("a.tif"); // as created in example_3.cpp
-  auto out = br::raster_algebra_wrap(in) * 5;
+  auto in = pr::open_any("a.tif"); // as created in example_3.cpp
+  auto out = pr::raster_algebra_wrap(in) * 5;
  
   plot_raster(in);
   plot_raster(out);

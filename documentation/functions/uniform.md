@@ -27,11 +27,11 @@ O(1), the same complexity as copying a object of type T.
 #include <pronto/raster/uniform_raster_view.h>
 
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::uniform(5, 6, 3.14);
+  auto raster = pr::uniform(5, 6, 3.14);
   plot_raster(raster);
   return 0;
 }

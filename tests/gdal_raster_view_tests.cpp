@@ -15,12 +15,12 @@
 
 #include <vector>
 
-namespace br = pronto::raster;
-namespace fs = br::filesystem;
+namespace pr = pronto::raster;
+namespace fs = pr::filesystem;
 
 bool test_assign_reference_proxy()
 {
-	auto r = br::create_temp<double>(1, 1);
+	auto r = pr::create_temp<double>(1, 1);
 	auto iter = r.begin();
 	*iter = 3.0;
 	return *iter == 3;
@@ -28,7 +28,7 @@ bool test_assign_reference_proxy()
 
 bool test_increment_reference_proxy()
 {
-	auto r = br::create_temp<double>(1, 1);
+	auto r = pr::create_temp<double>(1, 1);
 	auto iter = r.begin();
 	*iter = 3.0;
 	(*iter) += 2.0;

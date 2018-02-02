@@ -5,7 +5,7 @@
 #include <pronto/raster/transform_raster_view.h>
 #include <pronto/raster/random_raster_view.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
@@ -17,12 +17,12 @@ int main()
   auto cols = 5;
 
   // Create the random raster
-  auto raster = br::random_distribution_raster(rows, cols, dist);
+  auto raster = pr::random_distribution_raster(rows, cols, dist);
 
  
-  auto patch = br::patch_raster(raster, br::queen_contiguity{});
-  auto get_area = [](const br::patch_info& pi) {return pi.m_area; };
-  auto patch_size = br::transform(br::optionalize_function(get_area), patch);
+  auto patch = pr::patch_raster(raster, pr::queen_contiguity{});
+  auto get_area = [](const pr::patch_info& pi) {return pi.m_area; };
+  auto patch_size = pr::transform(pr::optionalize_function(get_area), patch);
 
   plot_raster(raster);
   plot_raster(patch_size.sub_raster(1,1,2,2));

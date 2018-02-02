@@ -4,18 +4,18 @@
 #include <pronto/raster/io.h>
 #include <pronto/raster/plot_raster.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<unsigned char>(3, 4);
+  auto raster = pr::create_temp<unsigned char>(3, 4);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 3) % 7;
     v = i;
   }
   
-  auto edges = br::v_edge(raster);
+  auto edges = pr::v_edge(raster);
  
   plot_raster(raster);
   plot_raster(edges);

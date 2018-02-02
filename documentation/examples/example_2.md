@@ -4,11 +4,11 @@ The following example is a simple case of opening a raster dataset and calculati
 #include <pronto/raster/io.h>
 #include <iostream>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::open<int>("demo.tif"); // assuming file exists and is valid
+  auto raster = pr::open<int>("demo.tif"); // assuming file exists and is valid
   int sum = 0;
   for (auto&& value : raster) {
     sum += value;

@@ -4,7 +4,7 @@
 #include <pronto/raster/plot_raster.h>
 #include <pronto/raster/raster_algebra_transform.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 template<class T>
 T join(const T& a, const T& b, const T& c)
@@ -25,8 +25,8 @@ int main()
 {
   auto product = [](int a, int b, int c) { return a * b * c;  };
   
-  auto a = br::create_temp<int>(4, 5);
-  auto b = br::create_temp<int>(4, 5);
+  auto a = pr::create_temp<int>(4, 5);
+  auto b = pr::create_temp<int>(4, 5);
   auto c = 5;
 
   int i = 0;
@@ -38,12 +38,12 @@ int main()
     v = ((i += 3) %= 7);
   }
 
-  auto wrapped_a = br::raster_algebra_wrap(a);
-  auto wrapped_b = br::raster_algebra_wrap(b);
+  auto wrapped_a = pr::raster_algebra_wrap(a);
+  auto wrapped_b = pr::raster_algebra_wrap(b);
 
-  auto join_abc = br::raster_algebra_transform(join<int>, wrapped_a, wrapped_b, c);
-  auto sum_abc = br::raster_algebra_transform(sum{}, wrapped_a, wrapped_b, c);
-  auto product_abc = br::raster_algebra_transform(product, wrapped_a, wrapped_b, c);
+  auto join_abc = pr::raster_algebra_transform(join<int>, wrapped_a, wrapped_b, c);
+  auto sum_abc = pr::raster_algebra_transform(sum{}, wrapped_a, wrapped_b, c);
+  auto product_abc = pr::raster_algebra_transform(product, wrapped_a, wrapped_b, c);
   
   plot_raster(join_abc);
   plot_raster(sum_abc);

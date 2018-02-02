@@ -28,20 +28,20 @@ The complexity is that of `function(any_raster<T>)`
 #include <pronto/raster/plot_raster.h>
 #include <pronto/raster/transform_raster_view.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 struct square
 {
 public:
   template<class T>
-  br::any_blind_raster operator()(const br::any_raster<T>& raster) const
+  pr::any_blind_raster operator()(const pr::any_raster<T>& raster) const
   {
     auto sq_fun = [](const T& v) {return v * v; };
-    auto result_typed = br::transform(sq_fun, raster);
+    auto result_typed = pr::transform(sq_fun, raster);
 
     // wrapping as any_blind_raster because the return type must be 
     // independent of T.
-    return br::make_any_blind_raster(result_typed);
+    return pr::make_any_blind_raster(result_typed);
   }
 };
 
@@ -49,7 +49,7 @@ int main()
 {
   // prepare a raster in separate scope
   {
-    auto raster = br::create<int>("demo.tif", 3, 4, GDT_Byte);
+    auto raster = pr::create<int>("demo.tif", 3, 4, GDT_Byte);
     auto i = 0;
     for (auto&& v : raster) {
       i = (i + 3) % 7;
@@ -58,8 +58,8 @@ int main()
   }
 
   // Open without specifying the type of the raster
-  br::any_blind_raster ras = br::open_any("demo.tif");
-  br::any_blind_raster ras_sq = br::blind_function(square{}, ras);
+  pr::any_blind_raster ras = pr::open_any("demo.tif");
+  pr::any_blind_raster ras_sq = pr::blind_function(square{}, ras);
   plot_raster(ras);
   plot_raster(ras_sq);
   return 0;

@@ -37,13 +37,13 @@ The cost of the operation is governed by the filesystem that has to create the t
 #include <pronto/raster/io.h>
 #include <pronto/raster/plot_raster.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto input = br::create<int>("test.tif", 3, 4);
+  auto input = pr::create<int>("test.tif", 3, 4);
   
-  auto output = br::create_from_model<float>("test_float.tif", in)
+  auto output = pr::create_from_model<float>("test_float.tif", in)
   float i = 0.7;
   for (auto&& v : output) {
     i = i * (1-i);

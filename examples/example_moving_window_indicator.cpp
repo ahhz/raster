@@ -14,11 +14,11 @@
 #include <pronto/raster/indicator/patch_weighted_shape_index.h>
 #include <pronto/raster/indicator/shannon_diversity.h>
 
-namespace br = pronto::raster;
+namespace pr = pronto::raster;
 
 int main()
 {
-  auto raster = br::create_temp<int>( 7, 5);
+  auto raster = pr::create_temp<int>( 7, 5);
   auto i = 0;
   for (auto&& v : raster) {
     i = (i + 1) * 7 % 1000 ;
@@ -26,44 +26,44 @@ int main()
   }
 
   // cell-based indicators
-  auto window_most_common = br::moving_window_indicator(
+  auto window_most_common = pr::moving_window_indicator(
      raster
-    , br::circle(2) // alternatively br::square(2)
-    , br::most_common_class_generator<int>{}
+    , pr::circle(2) // alternatively pr::square(2)
+    , pr::most_common_class_generator<int>{}
     );
 
-  auto window_shannon_diversity = br::moving_window_indicator(
+  auto window_shannon_diversity = pr::moving_window_indicator(
     raster
-    , br::square(2) // alternatively br::circle(2)
-    , br::shannon_diversity_generator{}
+    , pr::square(2) // alternatively pr::circle(2)
+    , pr::shannon_diversity_generator{}
     );
     
   // edge-based indicators
-  auto window_edge_density = br::moving_window_indicator(
+  auto window_edge_density = pr::moving_window_indicator(
     raster
-    , br::edge_square(2)  // alternatively br::edge_circle(2)
-    , br::edge_density_generator<int>{}
+    , pr::edge_square(2)  // alternatively pr::edge_circle(2)
+    , pr::edge_density_generator<int>{}
     );
 
-  auto window_interspersion = br::moving_window_indicator(
+  auto window_interspersion = pr::moving_window_indicator(
     raster
-    , br::edge_square(2)  // alternatively br::edge_circle(2)
-    , br::interspersion_generator<int>{}
+    , pr::edge_square(2)  // alternatively pr::edge_circle(2)
+    , pr::interspersion_generator<int>{}
     );
 
   // patch-based indicators
-  auto window_patch_size = br::moving_window_indicator(
+  auto window_patch_size = pr::moving_window_indicator(
     raster
-    , br::patch_square(2) // alternatively br::patch_circle(2)
-    , br::area_weighted_patch_size_generator{}
-    , br::rook_contiguity{} // alternatively br::queen_contiguity{}
+    , pr::patch_square(2) // alternatively pr::patch_circle(2)
+    , pr::area_weighted_patch_size_generator{}
+    , pr::rook_contiguity{} // alternatively pr::queen_contiguity{}
     );
 
-  auto window_patch_shape = br::moving_window_indicator(
+  auto window_patch_shape = pr::moving_window_indicator(
     raster
-    , br::patch_circle(2) // alternatively br::patch_square(2)
-    , br::patch_weighted_shape_index_generator{}
-    , br::queen_contiguity{} // alternatively br::queen_contiguity{}
+    , pr::patch_circle(2) // alternatively pr::patch_square(2)
+    , pr::patch_weighted_shape_index_generator{}
+    , pr::queen_contiguity{} // alternatively pr::queen_contiguity{}
     );
 
 
