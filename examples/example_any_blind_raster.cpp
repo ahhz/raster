@@ -1,11 +1,11 @@
 //example_any_blind_raster.cpp
 
-#include <blink/raster/any_blind_raster.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 // the following function shows how any_blind_raster is used to decide 
 // at runtime which value_type to use

@@ -1,6 +1,6 @@
 ### padded_raster_view
 ```cpp
-#include <blink/raster/padded_raster_view.h>
+#include <pronto/raster/padded_raster_view.h>
 ```
 ```cpp
 template<class Raster> class padded_raster_view;

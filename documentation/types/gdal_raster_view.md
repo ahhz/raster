@@ -8,7 +8,7 @@ A model of RasterView that gives access to the data of a `GDALRasterBand`.
 See, for instance, the documentation of [`open`](./../functions/open.md) of which the return type is a `gdal_raster_view<T>`.
 
 ## Definition
-[<blink/raster/gdal_raster_view.h>](./../../include/blink/raster/gdal_raster_view.h0
+[<pronto/raster/gdal_raster_view.h>](./../../include/pronto/raster/gdal_raster_view.h0
 
 ## Template parameters
 |Parameter|Description|Default|

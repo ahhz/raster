@@ -30,7 +30,7 @@ The following traits are supported.
 ## Notes 
 
 ```cpp
-#include <blink/raster/traits.h>
+#include <pronto/raster/traits.h>
 ```
 The traits struct is used to introspect properties of a `Raster`. The following traits are supported.
 

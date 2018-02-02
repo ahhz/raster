@@ -1,6 +1,6 @@
 # raster_algebra_wrapper
 ```cpp
-#include <blink/raster/raster_algebra.h>
+#include <pronto/raster/raster_algebra.h>
 ```
 ```cpp
 template<class R> raster_algebra_wrapper;
@@ -30,7 +30,7 @@ sub_raster_type sub_raster(int start_row, int start_col, int rows, int cols) con
 ```
 ## Overloaded binary operators for `raster_algebra_wrapper<R>`
 ```cpp
-#include <blink/raster/raster_algebra_operators.h>
+#include <pronto/raster/raster_algebra_operators.h>
 ```
 Operators `+`, `-`, `*`, `/`, `%`, `&&`, `||`, `>`, `<`, `>=`, `>=`, `==` and `!=` are overloaded for operations on `raster_algebra_wrapper<R>` values. The following situations are considered, when applied as `a [operator] b`.
 

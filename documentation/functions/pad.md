@@ -12,7 +12,7 @@ padded_raster_view<Raster> pad(Raster raster
 Takes an input raster and return the same raster augmented with trailing rows and columns. The added rows and columns are not mutable, even when the input raster is. 
 
 ## Definition
-[<blink/raster/padded_raster_view.h>](./../../include/blink/raster/padded_raster_view.h)
+[<pronto/raster/padded_raster_view.h>](./../../include/pronto/raster/padded_raster_view.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept
@@ -27,12 +27,12 @@ O(1)
 ```cpp
 //example_pad.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/padded_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/padded_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

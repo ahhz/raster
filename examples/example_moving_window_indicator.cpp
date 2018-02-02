@@ -1,20 +1,20 @@
 //example_moving_window_indicator.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/moving_window_indicator.h>
-#include <blink/raster/optional.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/moving_window_indicator.h>
+#include <pronto/raster/optional.h>
+#include <pronto/raster/plot_raster.h>
 
-#include <blink/raster/indicator/area_weighted_patch_size.h>
-#include <blink/raster/indicator/count.h>
-#include <blink/raster/indicator/edge_density.h>
-#include <blink/raster/indicator/interspersion.h>
-#include <blink/raster/indicator/mean.h>
-#include <blink/raster/indicator/most_common_class.h>
-#include <blink/raster/indicator/patch_weighted_shape_index.h>
-#include <blink/raster/indicator/shannon_diversity.h>
+#include <pronto/raster/indicator/area_weighted_patch_size.h>
+#include <pronto/raster/indicator/count.h>
+#include <pronto/raster/indicator/edge_density.h>
+#include <pronto/raster/indicator/interspersion.h>
+#include <pronto/raster/indicator/mean.h>
+#include <pronto/raster/indicator/most_common_class.h>
+#include <pronto/raster/indicator/patch_weighted_shape_index.h>
+#include <pronto/raster/indicator/shannon_diversity.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

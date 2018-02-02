@@ -7,7 +7,7 @@ optional_raster_view<Raster> optionalize(Raster raster)
 ## Description
 Takes a raster view with value_type input_value_type as input and returns a raster view of to the same values but wrapped as an optional<input_value_type>. The resulting raster is non-mutable, even if the input raster is. 
 ## Definition
-[<blink/raster/optional_raster_view.h>](./../../include/blink/raster/optional_raster_view.h)
+[<pronto/raster/optional_raster_view.h>](./../../include/pronto/raster/optional_raster_view.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept. 
@@ -23,13 +23,13 @@ O(1)
 ```cpp
 //example_optional_raster_view.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/optional.h>
-#include <blink/raster/optional_raster_view.h>
-#include <blink/raster/padded_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/optional.h>
+#include <pronto/raster/optional_raster_view.h>
+#include <pronto/raster/padded_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

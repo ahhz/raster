@@ -7,7 +7,7 @@ any_blind_raster open_any(const filesystem::path& path, access elem_access = rea
 The `open_any` function opens the raster band in its native data type, which is only known at runtime, and subsequently wraps it as a `any_blind_raster` object.  Unlike the `open` function, here it is not necessary to specify the value_type of the opened raster. The raster is opened in its native format, i.e. based on its GDALDataType. `band_index` specifies which band from the dataset to open. The index is 1-based, so the first raster band has index 1
  
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/io.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
 
 ## Requirements on types
 N.A.
@@ -22,10 +22,10 @@ The cost of the operation is governed by the filesystem that has to open the tif
 ```cpp
 //example_open_any.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

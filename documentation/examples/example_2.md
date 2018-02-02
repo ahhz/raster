@@ -1,10 +1,10 @@
 The following example is a simple case of opening a raster dataset and calculating the average value of all cells.
 ```cpp
 // example_2.cpp
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 #include <iostream>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

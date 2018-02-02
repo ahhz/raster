@@ -1,8 +1,8 @@
 // example_2.cpp
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 #include <iostream>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

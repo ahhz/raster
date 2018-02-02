@@ -14,7 +14,7 @@ The template parameter `T` is the value_type to which values of cells in the `GD
 `band_index` specifies which band from the dataset to open. The index is 1-based, so the first raster band has index 1.
 
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/io.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
 
 ## Requirements on types
 The type of the raster dataset must be castable to `T` 
@@ -29,10 +29,10 @@ The cost of the operation is governed by the filesystem that has to open the tif
 ```cpp
 //example_open.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

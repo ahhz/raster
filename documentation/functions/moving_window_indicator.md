@@ -20,7 +20,7 @@ Creates an alternate view of the input raster Raster that for each element retur
 These are simple structs that are constructed using a single argument (radius).
 
 ## Definition
-[<blink/raster/moving_window_indicator.h>](./../../include/blink/raster/moving_window_indicator.h)
+[<pronto/raster/moving_window_indicator.h>](./../../include/pronto/raster/moving_window_indicator.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept. IndicatorGenerator must implement the IndicatorGenerator concept.
@@ -36,13 +36,13 @@ The complexity of this function is O(1), but the complexity of iterating over th
 ```
 //example_moving_window_indicator.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/moving_window_indicator.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/moving_window_indicator.h>
+#include <pronto/raster/plot_raster.h>
 
-#include <blink/raster/indicator/mean.h>
+#include <pronto/raster/indicator/mean.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

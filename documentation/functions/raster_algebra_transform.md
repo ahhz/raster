@@ -9,7 +9,7 @@ auto raster_algebra_transform(F f, Args... args)
 The arguments to the raster_algebra_transform can be a mix of rasters (wrapped in raster_algebra_wrapper) and other values. The result is a RasterView that iterates over all rasters and applies the `Callable` `f` taking as its arguments either the corresponding elements in rasters or the corresponding value.  The `Callable` cannot modify its input variable. The return_type is an non-mutable RasterView wrapped in a raster_algebra_wrapper, except when non of the input arguments is a raster, then the return type is the return type of F..
 
 ## Definition
-[<blink/raster/raster_algebra_transform.h>](./../../include/blink/raster/raster_algebra_transform.h)
+[<pronto/raster/raster_algebra_transform.h>](./../../include/pronto/raster/raster_algebra_transform.h)
 
 ## Requirements on types
 `F` is a callable that requires as many arguments as there are arguments in Args. For exposition, let's assume there are three arguments and F is a Callable such that : out_value =  f(in_value_1, in_value_2, in_value_3). Then Arg1 must either be in_value_type_1 or raster_algebra_wrap<Raster> of which the value_type is value_type_1.
@@ -34,7 +34,7 @@ auto raster_algebra_transform(F f, Args... args)
 The arguments to the raster_algebra_transform can be a mix of rasters (wrapped in raster_algebra_wrapper) and other values. The result is a RasterView that iterates over all rasters and applies the `Callable` `f` taking as its arguments either the corresponding elements in rasters or the corresponding value.  The `Callable` cannot modify its input variable. The return_type is an non-mutable RasterView, except when non of the input arguments is a raster, then the return type is the return type of F..
 
 ## Definition
-[<blink/raster/raster_algebra_transform.h>](./../../include/blink/raster/raster_algebra_transform.h)
+[<pronto/raster/raster_algebra_transform.h>](./../../include/pronto/raster/raster_algebra_transform.h)
 
 ## Requirements on types
 `F` is a callable that requires as many arguments as there are arguments in Args. For exposition, let's assume there are three arguments and F is a Callable such that : out_value =  f(in_value_1, in_value_2, in_value_3). Then Arg1 must either be in_value_type_1 or raster_algebra_wrap<Raster> of which the value_type is value_type_1.
@@ -50,11 +50,11 @@ O(1)
 ```
 //example_raster_algebra_transform.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra_transform.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra_transform.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 template<class T>
 T join(const T& a, const T& b, const T& c)

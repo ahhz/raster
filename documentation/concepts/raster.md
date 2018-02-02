@@ -39,11 +39,11 @@ sr = nmr.sub_raster(first_row, first_col, rows, cols);
 
 The following expressions are used to inspect  traits:
 ```cpp
-typename blink::raster::traits<R>::iterator;
-typename blink::raster::traits<R>::const_iterator;
-typename blink::raster::traits<R>::value_type;
-typename blink::raster::traits<R>::reference;
-typename blink::raster::traits<R>::sub_raster;
+typename pronto::raster::traits<R>::iterator;
+typename pronto::raster::traits<R>::const_iterator;
+typename pronto::raster::traits<R>::value_type;
+typename pronto::raster::traits<R>::reference;
+typename pronto::raster::traits<R>::sub_raster;
 ```
 
 #### Expression Semantics

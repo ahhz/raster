@@ -1,9 +1,9 @@
 //example_create_from_model.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

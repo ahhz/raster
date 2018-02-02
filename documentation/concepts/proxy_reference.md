@@ -74,16 +74,16 @@ Not applicable
 Not applicable
 
 ## Models
-`ProxyReferences` are implemented as the `reference` type of most iterators in the Blink Raster library. The actual class used is considered an implementation detail. 
+`ProxyReferences` are implemented as the `reference` type of most iterators in the Pronto Raster library. The actual class used is considered an implementation detail. 
 
 ## Notes
 One limitation is that the `ProxyReference` is not required to be castable to a plain reference. Hence, the following will not compile:
 
 ```cpp
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 #include <iostream>
 
-auto ras = blink::raster::open<int>("demo.tif");
+auto ras = pronto::raster::open<int>("demo.tif");
 for(int& i : raster) // will not compile as the reference type of raster is not int& 
 {
   std::cout << i * 2 << std::endl; 
@@ -93,10 +93,10 @@ for(int& i : raster) // will not compile as the reference type of raster is not 
 even though the following will:
 
 ```c++
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 #include <iostream>
 
-auto ras = blink::raster::open<int>("demo.tif");
+auto ras = pronto::raster::open<int>("demo.tif");
 for(auto&& i : raster) // i will be a a ProxyReference
 {
   std::cout << i * 2 << std::endl; // i will be cast to int.
@@ -106,14 +106,14 @@ for(auto&& i : raster) // i will be a a ProxyReference
 A second limitation becomes apparent when the context does not make clear that the `ProxyReference` must be cast to the `value_type`:
 
 ```c++
-#include <blink/raster/io.h>
+#include <pronto/raster/io.h>
 
 template<class T>
 T square(const T& value){ return value * value };
 
 int main()
 {
-  auto ras = blink::raster::open<int>("demo.tif");
+  auto ras = pronto::raster::open<int>("demo.tif");
   for(auto&& i : ras) 
   {
     // i = square(i);   // would not compile as the template 

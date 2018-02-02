@@ -1,11 +1,11 @@
 //example_10.cpp
 
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/random_raster_view.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/random_raster_view.h>
 
 #include <random> // for distributions and generators
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

@@ -8,7 +8,7 @@ any_blind_raster make_any_blind_raster(Raster raster)
 Creates an any_blind_raster that wraps around a raster. This is a form of type_erasure as the value_type of a RasterView is known at compile time, but the value_type of an any_blind_raster is only known at run-time.
 
 ## Definition
-[<blink/raster/any_blind_raster.h>](./../../include/blink/raster/any_blind_raster.h)
+[<pronto/raster/any_blind_raster.h>](./../../include/pronto/raster/any_blind_raster.h)
 
 ## Requirements on types
 Raster implements the RasterView concept.
@@ -23,12 +23,12 @@ O(1)
 ```cpp
 //example_any_blind_raster.cpp
 
-#include <blink/raster/any_blind_raster.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 // the following function shows how any_blind_raster is used to decide 
 // at runtime which value_type to use

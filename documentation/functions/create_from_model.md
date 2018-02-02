@@ -17,7 +17,7 @@ Uses the GDAL library to create a single-band raster dataset at a file location 
 - the interleave option is set to band  
 
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/io.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
 
 ## Requirements on types
 If the data_type parameter is not used, T must be one of the [supported data types](./../types/gdal_data_type.md) ( unsigned char, unsigned int, int, float, double).
@@ -34,10 +34,10 @@ The cost of the operation is governed by the filesystem that has to create the t
 ```cpp
 //example_create_from_model.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

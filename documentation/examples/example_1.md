@@ -2,12 +2,12 @@ The following example is a simple case of creating a raster of 10 rows by 5 colu
 
 ```cpp
 // example_1.cpp
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
 #include <random>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

@@ -1,13 +1,13 @@
-Nodata values are a common occurance in geographical data. Often a special value is used to indicate an absence of data. This is called the nodata value. In modern C++, the `optional<T>` class is used for objects that may be in an uninitialized state (either boost::optional<T> or std::optional<T> in C++17). The following example shows how the Blink Raster library helps working with nodata values. First, a data-set is opened (`in`) then a view is created (`nodata`) that has the value type `optional<int>` and treats the cells with value 6 as unitialized. Finally a view is created, with `int` as value_type again that assigns the value of -99 to the unitialized values. Thus the user of the library has full control of the treatment of nodata values. 
+Nodata values are a common occurance in geographical data. Often a special value is used to indicate an absence of data. This is called the nodata value. In modern C++, the `optional<T>` class is used for objects that may be in an uninitialized state (either boost::optional<T> or std::optional<T> in C++17). The following example shows how the Pronto Raster library helps working with nodata values. First, a data-set is opened (`in`) then a view is created (`nodata`) that has the value type `optional<int>` and treats the cells with value 6 as unitialized. Finally a view is created, with `int` as value_type again that assigns the value of -99 to the unitialized values. Thus the user of the library has full control of the treatment of nodata values. 
  
 ```cpp
 //example_8.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/nodata_transform.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/nodata_transform.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

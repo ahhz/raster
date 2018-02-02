@@ -1,11 +1,11 @@
 //example_patch_raster_transform.cpp
 
-#include <blink/raster/patch_raster_transform.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
-#include <blink/raster/random_raster_view.h>
+#include <pronto/raster/patch_raster_transform.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
+#include <pronto/raster/random_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

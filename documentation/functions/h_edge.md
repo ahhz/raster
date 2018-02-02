@@ -10,7 +10,7 @@ Create a view of the input raster that iterates over all horizontal edges in the
 h_edge_view<Raster> is a typedef for a class that implements the RasterView concept. If the iterator of Raster is a RandomAccessibleRasterIterator then that of h_edge_view<Raster> is too.
 
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/edge_raster.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/edge_raster.h)
 
 ## Requirements on types
 Raster must implement [RasterView](.\..\concepts\raster_view.md)
@@ -23,12 +23,12 @@ Independent of raster size, O(1)
 
 ## Example of use
 ```cpp//example_h_edge.cpp
-#include <blink/raster/edge_raster.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/edge_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

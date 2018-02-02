@@ -1,13 +1,13 @@
 //example_fuzzy_kappa.cpp
 
-#include <blink/raster/fuzzy_kappa.h>
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/uniform_raster_view.h>
-#include <blink/raster/vector_of_raster_view.h>
+#include <pronto/raster/fuzzy_kappa.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/uniform_raster_view.h>
+#include <pronto/raster/vector_of_raster_view.h>
 
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 
 

@@ -3,12 +3,12 @@ The following example is a simple case of opening a raster and performing an cel
 ```cpp
 //example_4.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra_operators.h>
-#include <blink/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra_operators.h>
+#include <pronto/raster/raster_algebra_wrapper.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {
@@ -40,12 +40,12 @@ Note that it is not required to specify the value type of the cells, using `open
 ```cpp
 //example_4b.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra.h>
-#include <blink/raster/raster_algebra_operators.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra.h>
+#include <pronto/raster/raster_algebra_operators.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

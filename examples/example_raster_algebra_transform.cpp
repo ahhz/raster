@@ -1,10 +1,10 @@
 //example_raster_algebra_transform.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra_transform.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra_transform.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 template<class T>
 T join(const T& a, const T& b, const T& c)

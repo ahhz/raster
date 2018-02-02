@@ -8,7 +8,7 @@ uniform_raster<T> uniform(int rows, int cols, const T& value)
 Creates a uniform raster view of given dimensions and value. The raster is non-mutable. The results raster implements the RasterView concept.
 
 ## Definition
-[<blink/raster/uniform_raster_view.h>](./../../include/blink/raster/uniform_raster_view.h)
+[<pronto/raster/uniform_raster_view.h>](./../../include/pronto/raster/uniform_raster_view.h)
 
 ## Requirements on types
 T must be copy constructible.
@@ -23,11 +23,11 @@ O(1), the same complexity as copying a object of type T.
 ```cpp
 //example_uniform.cpp
 
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/uniform_raster_view.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/uniform_raster_view.h>
 
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

@@ -8,7 +8,7 @@ any_raster<typename traits<Raster>::value_type> make_any_raster(Raster raster);
 Create a type erased any_raster for a a given `Raster`. 
 
 ## Definition
-[<blink/raster/any_blind_raster.h>](./../../include/blink/raster/any_blind_raster.h)
+[<pronto/raster/any_blind_raster.h>](./../../include/pronto/raster/any_blind_raster.h)
 
 ## Requirements on types
 `Raster` must implement the `RasterView` concept.
@@ -24,12 +24,12 @@ O(1)
 ```cpp
 //example_any_raster.cpp
 
-#include <blink/raster/any_raster.h>
-#include <blink/raster/io.h>
-#include <blink/raster/offset_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/any_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/offset_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 // Here any_raster is used to implement a recursive function. Without 
 // using the type erasure of any_raster it would be impossible to 

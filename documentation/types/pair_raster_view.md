@@ -1,6 +1,6 @@
 # pair_raster_view
 ```cpp
-#include <blink/raster/pair_raster_view.h>
+#include <pronto/raster/pair_raster_view.h>
 ```
 ```cpp
 template<class R1, class R2> class pair_raster_view;

@@ -8,12 +8,12 @@
 //=======================================================================
 //
 
-#include <blink/raster/any_blind_raster.h>
-#include <blink/raster/assign.h>
-#include <blink/raster/io.h>
-#include <blink/raster/random_raster_view.h>
-#include <blink/raster/raster_algebra_operators.h>
-#include <blink/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/assign.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/random_raster_view.h>
+#include <pronto/raster/raster_algebra_operators.h>
+#include <pronto/raster/raster_algebra_wrapper.h>
 
 #include <chrono>
 #include <iostream>
@@ -21,7 +21,7 @@
 
 
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 void create_data_for_benchmark(int rows, int cols)
 {

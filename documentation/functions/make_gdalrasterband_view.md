@@ -21,7 +21,7 @@ std::shared_ptr<GDALDataset> detail::open_dataset(filesystem::path path, access 
 std::shared_ptr<GDALRasterBand> detail::open_band(std::shared_ptr<GDALDataset> dataset, int band_index);
 ```
 ## Definition
-[<blink/raster/io.h>](./../../include/blink/raster/io.h)
+[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
 
 ## Requirements on types
 The native value type of the GDALRasterBand must be castable to T. 
@@ -36,10 +36,10 @@ Constant cost, independent of raster size
 ```cpp
 //example_make_gdalrasterdata_view.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

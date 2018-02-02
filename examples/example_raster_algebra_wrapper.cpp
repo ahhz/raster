@@ -1,11 +1,11 @@
 //example_raster_algebra_wrapper.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra_operators.h>
-#include <blink/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra_operators.h>
+#include <pronto/raster/raster_algebra_wrapper.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

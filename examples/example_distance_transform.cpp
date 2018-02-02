@@ -1,9 +1,9 @@
 //example_offset.cpp
-#include <blink/raster/distance_transform.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/io.h>
+#include <pronto/raster/distance_transform.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/io.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

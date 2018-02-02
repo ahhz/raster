@@ -10,7 +10,7 @@
 Takes a Callable f, and return another Callable that applies the same function, but treats optional input arguments differently. If any of the arguments are optional and uninitialized then the optional_filtered_function returns an uninitialized optional. Otherwise, the function return an initialized optional value derived from applying the Callable f on all the input arguments, whereby optional values are resolved to the underlying value. The function is included in the library in particular to be used in combination with the `transform`and `raster_algebra_transform` functions.
 
 ## Definition
-[<blink/raster/optional.h>](./../../include/blink/raster/optional.h)
+[<pronto/raster/optional.h>](./../../include/pronto/raster/optional.h)
 
 ## Requirements on types
 `F` must be a Callable.
@@ -25,13 +25,13 @@ O(1)
 ```cpp
 //example_optionalize_function.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/nodata_transform.h>
-#include <blink/raster/optional.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/nodata_transform.h>
+#include <pronto/raster/optional.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int square(const int& v)
 {

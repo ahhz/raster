@@ -10,7 +10,7 @@ transform_raster_view<F, R...> transform(F f, R... rasters)
 Create a transform_view that applies the `Callable` `f` cell-by-cell to the corresponding elements in rasters.  The `Callable` cannot modify its input variable. The return_type is an non-mutable RasterView.
 
 ## Definition
-[<blink/raster/transform_raster_view.h>](./../../include/blink/raster/transform_raster_view.h)
+[<pronto/raster/transform_raster_view.h>](./../../include/pronto/raster/transform_raster_view.h)
 
 ## Requirements on types
 `F` is a callable that takes as many input arguments as the are input rasters. The type of the input arguments must correspond to the value_type of the respective rasters.  
@@ -25,11 +25,11 @@ O(1)
 ```
 //example_transform.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 template<class T>
 T join(const T& a, const T& b, const T& c)

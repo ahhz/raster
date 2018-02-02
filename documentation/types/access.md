@@ -1,6 +1,6 @@
 # access (enum)
 ```cpp
-#include <blink/raster/access_type.h>
+#include <pronto/raster/access_type.h>
 ```
 
 ```cpp

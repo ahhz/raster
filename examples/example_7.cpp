@@ -1,12 +1,12 @@
 // example_7.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/moving_window_indicator.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/moving_window_indicator.h>
+#include <pronto/raster/plot_raster.h>
 
-#include <blink/raster/indicator/mean.h>
+#include <pronto/raster/indicator/mean.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

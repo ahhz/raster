@@ -1,6 +1,6 @@
 # uniform_raster_view
 ```cpp
-#include <blink/raster/uniform_raster_view.h>
+#include <pronto/raster/uniform_raster_view.h>
 ```
 ```cpp
 template<class T> class uniform_raster_view;

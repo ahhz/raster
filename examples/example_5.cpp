@@ -1,9 +1,9 @@
 // example_5.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/offset_raster_view.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/offset_raster_view.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
 #include <algorithm>
 
@@ -12,7 +12,7 @@ int max_of_four(int a, int b, int c, int d)
   return std::max<int>(std::max<int>(a, b), std::max<int>(c, d));
 }
 
-namespace br = blink::raster; 
+namespace br = pronto::raster; 
 
 int main()
 {

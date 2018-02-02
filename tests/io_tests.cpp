@@ -10,13 +10,13 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <blink/raster/filesystem.h>
-#include <blink/raster/io.h>
-#include <blink/raster/gdal_raster_view.h>
+#include <pronto/raster/filesystem.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/gdal_raster_view.h>
 
 #include <vector>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 namespace fs = br::filesystem;
 
 bool test_create_temp()
@@ -61,7 +61,7 @@ bool test_open()
   bool check_exist = fs::exists("temp.tif");
   bool check_contents;
   {
-    auto r = blink::raster::open<int>("temp.tif", br::access::read_only);
+    auto r = pronto::raster::open<int>("temp.tif", br::access::read_only);
     std::vector<int> check_vector;
     for (auto&& i : r) {
       check_vector.push_back(i);

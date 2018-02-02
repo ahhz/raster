@@ -1,12 +1,12 @@
 //example_optionalize_function.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/nodata_transform.h>
-#include <blink/raster/optional.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/transform_raster_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/nodata_transform.h>
+#include <pronto/raster/optional.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/transform_raster_view.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int square(const int& v)
 {

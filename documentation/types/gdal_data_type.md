@@ -9,7 +9,7 @@ enum  	GDALDataType {
   GDT_TypeCount = 12
 }
 ```
-Of these, only the following are supported by the Blink Raster library:
+Of these, only the following are supported by the Pronto Raster library:
 - `GDT_Byte` (associated with `std::uint8_t`)
 - `GDT_UInt16` (associated with `std::uint16_t`)
 - `GDT_Int16` (associated with `std::int16_t`)

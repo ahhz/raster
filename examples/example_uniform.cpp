@@ -1,9 +1,9 @@
 //example_uniform.cpp
 
-#include <blink/raster/uniform_raster_view.h>
-#include <blink/raster/plot_raster.h>
+#include <pronto/raster/uniform_raster_view.h>
+#include <pronto/raster/plot_raster.h>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 
 int main()
 {

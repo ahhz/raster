@@ -10,12 +10,12 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <blink/raster/io.h>
-#include <blink/raster/gdal_raster_view.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/gdal_raster_view.h>
 
 #include <vector>
 
-namespace br = blink::raster;
+namespace br = pronto::raster;
 namespace fs = br::filesystem;
 
 bool test_assign_reference_proxy()
