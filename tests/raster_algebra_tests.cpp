@@ -186,10 +186,10 @@ bool test_any_blind_raster_plus_any_blind_raster()
 
 TEST(RasterTest, MapAlgebra) {
   EXPECT_TRUE(test_raster_plus_raster());
- // EXPECT_TRUE(test_raster_mod_raster());
- // EXPECT_TRUE(test_constant_plus_raster());
- // EXPECT_TRUE(test_raster_plus_constant());
- // EXPECT_TRUE(test_constant_plus_any_blind_raster());
- // EXPECT_TRUE(test_any_blind_raster_plus_any_blind_raster());
+  EXPECT_TRUE(test_raster_mod_raster());
+  EXPECT_TRUE(test_constant_plus_raster());
+  EXPECT_TRUE(test_raster_plus_constant());
+  EXPECT_TRUE(test_constant_plus_any_blind_raster());
+  EXPECT_TRUE(test_any_blind_raster_plus_any_blind_raster());
 }
 
