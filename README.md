@@ -12,5 +12,5 @@ The library requires one of the following:
 
 See the [full documentation](./documentation/raster.md) for details.
 
-This library was previously called Blink Raster, but it is now renamed to avoid any confussion with the Chromium Blink library. 
+This library was previously called Blink Raster, but it is now renamed to avoid any confusion with the Chromium Blink library. 
    
