@@ -47,5 +47,5 @@ typename pronto::raster::traits<R>::sub_raster;
 ```
 
 #### Expression Semantics
-The `begin()` and `end()` functions return iterators that correspond to respectively the first and one-past-the-last element of the `Raster`. The order of iteration over elements in the Raster is row-by-row and within each row column-by-column.  The `size()`, `rows()` and `cols()` are used to query the dimensions of the the `Raster`, whereby size() == rows() * cols().  
+The `begin()` and `end()` functions return iterators that correspond to respectively the first and one-past-the-last element of the `Raster`. The order of iteration over elements in the Raster is row-by-row and within each row column-by-column.  The `size()`, `rows()` and `cols()` are used to query the dimensions of the the `Raster`, whereby `size() == rows() * cols()`.  
 The `sub_raster(first_row, first_col, rows, cols)` member function returns a `RasterView` (a Raster that does not own its data and hence is cheap to copy) that refers to a subset of the raster.
