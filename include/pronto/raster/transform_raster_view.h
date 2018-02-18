@@ -197,6 +197,7 @@ namespace pronto {
     class transform_raster_view
     {
     private:
+      static_assert(std::is_copy_constructible<F>::value, "because this models RasterView, use std::ref in transform function");
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       
       using function_type = F;
@@ -211,7 +212,8 @@ namespace pronto {
       transform_raster_view& operator=(const transform_raster_view&) = default; // cannot assign lambdas
       transform_raster_view& operator=(transform_raster_view&&) = default;
 
-      transform_raster_view(F f, R ...r) : m_function(f), m_rasters(r...)
+      template<class FF>
+      transform_raster_view(FF&& f, R ...r) : m_function(std::forward<FF>(f)), m_rasters(r...)
       { }
 
       using const_iterator = transform_raster_iterator<transform_raster_view,
@@ -285,13 +287,57 @@ namespace pronto {
 
       mutable optional<function_type> m_function;
     };
-
-    template<class F, class... R> // requires these to be RasterViews
-    transform_raster_view<F, R...>
-      transform(F f, R... r)
+    template<class T>
+    struct special_decay
     {
-      return transform_raster_view<typename std::decay<F>::type, R...>
+      using type = typename std::decay<T>::type;
+    };
+
+    template<class T>
+    struct special_decay<std::reference_wrapper<T>>
+    {
+      using type = T & ;
+    };
+
+    template<class T>
+    using special_decay_t = typename special_decay<T>::type;
+
+    template<class T>
+    using decay_t = typename std::decay<T>::type;
+
+    template<class F>
+    class reference_function
+    {
+    public:
+      reference_function(F& f) : m_f(f)
+      {}
+
+      reference_function(const reference_function& f) = default;
+      
+      template<class...Args>
+      auto operator()(Args&&... args)->decltype(std::declval<F>()(std::forward<Args>(args)...))
+      {
+        return m_f(std::forward<Args>(args)...);
+      }
+    private:
+      F& m_f;
+   };
+    
+    template<class F, class... R> // requires these to be RasterViews
+    transform_raster_view<decay_t<F>, R...>
+      transform(F&& f, R... r)
+    {
+      return transform_raster_view<decay_t<F>, R...>
         (std::forward<F>(f), r...);
+    }
+
+    // if the function is to be treated as a reference, wrap it.
+    template<class F, class... R> // requires these to be RasterViews
+    transform_raster_view<reference_function<F>, R...>
+      transform(std::reference_wrapper<F> f, R... r)
+    {
+      return transform_raster_view<reference_function<F>, R...>
+        (reference_function<F>(f), r...);
     }
   }
 }
