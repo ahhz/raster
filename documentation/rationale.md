@@ -1,18 +1,18 @@
 # Rationale
-The purpose of this library is to facilitate working with geographical raster data using idiomatic C++, foremost the range based for-loop introduced in C++11. The advantage of that is that it becomes possible to use standard programming techniques and C++ libraries on raster data. The library is intended to especially useful for environmental modelling, including Cellular Automata modelling, spatial statistics and multi-scale analysis.
-The central concept is RasterView; a RasterView object is a range with begin() and end() member functions that return iterators directing to the first cell of the associated raster and one-past-the-last. The order of iteration is row-by-row and within each row, column-by-column. Furthermore the RasterView concept has size(), rows() and cols() member functions to query the dimensions of the raster. The views are cheap to copy, so they can be passed by value.
-All functions on raster views are lazy, using expression templates, unless otherwise indicated. For instance the transform and raster algebra functions do not perform the operations cell-by-cell directly, but return a raster view of which the cell values are only calculated when they are iterated over. 
+The purpose of this library is to facilitate computations on geographical raster data efficiently using idiomatic C++. In particular it achieves that by combining [Expression Template](https://web.archive.org/web/20050210090012/http://osl.iu.edu/~tveldhui/papers/Expression-Templates/exprtmpl.html ) technique and the [Range](https://ericniebler.github.io/std/wg21/D4128.html ) concept. By exposing raster data as ranges, values in a raster can be iterated over using the C++11 range-based for-loop. It hides the complexity of raster data access, such as caching blocks of data, behind the most standard and basic interface.  The Expression Template technique means that operations on raster data can be performed without unnecessarily creating temporary datasets for intermediate results, making operations more efficient and robust than existing approaches. A number of elementary spatial operators provide transformed views of existing raster datasets, that also do not require creating temporary datasets, such as iterating over a subset of the raster, or iterating over cells in a raster at a spatial offset. These elementary spatial transforms can be combined into more complex spatial operation, including highly efficient moving window analysis.
+
+The library is intended to especially useful for environmental modelling, including Map Algebra operations, Cellular Automata modelling, spatial statistics and multi-scale analysis.
+
+The library offers the following main functionality:
 
 ## Accessing raster data
-The library supports the following operations to access and transform raster data:
-
 - open and create permanent or temporary geographical raster data sets
-- expose raster data sets as raster views.
+- expose raster data sets as raster views
 - access raster views cell-by-cell using standard conforming iterators and range-based for loops
 - deal with nodata values gracefully by having `optional<T>` value types.
-- apply type erasure on raster views to support runtime polymorphical operations
+- apply type erasure on raster views to support runtime polymorphic operations
 
-## Accessing spatial subsets and offsets
+## Elementary spatial transforms
 - create raster views that expose a subset (range of rows and columns) of other raster views
 - create raster views that pad other raster views with leading and trailing rows and columns
 - create raster views that expose other raster views at a given row and column offset
@@ -20,9 +20,9 @@ The library supports the following operations to access and transform raster dat
 
 ## Raster algebra
 The library supports the following operations to access and transform raster data:
-- create raster views that apply any function on cell-by-cell on one or more raster views (transform function)
+- create raster views that apply any function cell-by-cell on one or more raster views (transform function)
 - create raster view that apply a function on a mix of raster data and non-raster (scalar) data
-- Overload arithmatic(+,-, *, /, etc.) and logical (>, <, &&, ||, etc.) operators on  cell-by-cell operations on raster views.
+- Overload arithmetic(+,-, *, /, etc.) and logical (>, <, &&, ||, etc.) operators on  cell-by-cell operations on raster views.
 
 ## Moving windows
 The library supports the following operations to access and transform raster data:
