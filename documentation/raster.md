@@ -24,26 +24,6 @@
 - [Indicator](./concepts/indicator.md)
 - [Indicator Generator](./concepts/indicator_generator.md)
 
-## Types
-- [access(enum)](./types/access.md)
-- [GDALDataType(enum)](./types/gdal_data_type.md)
-- [any_raster](./types/any_raster.md)
-- [any_blind_raster](./types/any_blind_raster.md)
-- [raster_algebra_wrapper](./types/raster_algebra_wrapper.md)
-- [optional](./types/optional.md)
-- [filesystem::path](./types/path.md)
-- [gdal_raster_view](./types/gdal_raster_view.md)
-- [padded_raster_view](./types/padded_raster_view.md)
-- [pair_raster_view](./types/pair_raster_view.md)
-- [tuple_raster_view](./types/tuple_raster_view.md)
-- [transform_raster_view](./types/transform_raster_view.md)
-- [uniform_raster_view](./types/uniform_raster_view.md)
-- [random_raster_view]
-- [circular_window_view]
-- [circular_edge_window_view]
-- [square_window_view]
-- [square_edge_window_view]
-
 ## Functions
 
 ### Opening and creating raster files
@@ -90,6 +70,28 @@
 
 ### Displaying raster values
 - [plot_raster](./functions/plot_raster.md)
+
+
+## Types
+- [access(enum)](./types/access.md)
+- [GDALDataType(enum)](./types/gdal_data_type.md)
+- [any_raster](./types/any_raster.md)
+- [any_blind_raster](./types/any_blind_raster.md)
+- [raster_algebra_wrapper](./types/raster_algebra_wrapper.md)
+- [optional](./types/optional.md)
+- [filesystem::path](./types/path.md)
+- [gdal_raster_view](./types/gdal_raster_view.md)
+- [padded_raster_view](./types/padded_raster_view.md)
+- [pair_raster_view](./types/pair_raster_view.md)
+- [tuple_raster_view](./types/tuple_raster_view.md)
+- [transform_raster_view](./types/transform_raster_view.md)
+- [uniform_raster_view](./types/uniform_raster_view.md)
+- [random_raster_view]
+- [circular_window_view]
+- [circular_edge_window_view]
+- [square_window_view]
+- [square_edge_window_view]
+
 
 
 
