@@ -72,7 +72,7 @@ namespace pronto {
 
       transform_raster_iterator operator+(const difference_type& n) const
       {
-		transform_raster_iterator temp(*this);
+		    transform_raster_iterator temp(*this);
         temp += n;
         return temp;
       }
@@ -159,7 +159,7 @@ namespace pronto {
       template<template<std::size_t...> class Pack, std::size_t ...S>
       void decrement(Pack<S...>)
       {
-        auto dummy = { (++std::get<S>(m_iters), 0)... };
+        auto dummy = { (--std::get<S>(m_iters), 0)... };
       }
 
       template<template<std::size_t...> class Pack, std::size_t ...S>
@@ -209,7 +209,7 @@ namespace pronto {
       transform_raster_view() = default;
       transform_raster_view(const transform_raster_view&) = default;
       transform_raster_view(transform_raster_view&&) = default;
-      transform_raster_view& operator=(const transform_raster_view&) = default; // cannot assign lambdas
+      transform_raster_view& operator=(const transform_raster_view&) = default; 
       transform_raster_view& operator=(transform_raster_view&&) = default;
 
       template<class FF>
@@ -275,6 +275,7 @@ namespace pronto {
       sub_raster_type sub_raster(Pack<S...>
         , int start_row, int start_col, int rows, int cols) const
       {
+        assert(start_row >= 0 && start_col >= 0 && rows + start_row <= this->rows() && cols + start_col <= this->cols());
         return sub_raster_type
         (*m_function, std::get<S>(m_rasters).sub_raster
         (start_row, start_col, rows, cols)...);
@@ -283,24 +284,10 @@ namespace pronto {
       std::tuple<R...> m_rasters;
     private:
       friend class const_iterator;
-      //friend class iterator;
-
+     
       mutable optional<function_type> m_function;
     };
-    template<class T>
-    struct special_decay
-    {
-      using type = typename std::decay<T>::type;
-    };
-
-    template<class T>
-    struct special_decay<std::reference_wrapper<T>>
-    {
-      using type = T & ;
-    };
-
-    template<class T>
-    using special_decay_t = typename special_decay<T>::type;
+    
 
     template<class T>
     using decay_t = typename std::decay<T>::type;
@@ -324,10 +311,10 @@ namespace pronto {
    };
     
     template<class F, class... R> // requires these to be RasterViews
-    transform_raster_view<decay_t<F>, R...>
+    transform_raster_view<typename std::decay<F>::type, R...>
       transform(F&& f, R... r)
     {
-      return transform_raster_view<decay_t<F>, R...>
+      return transform_raster_view<typename std::decay<F>::type, R...>
         (std::forward<F>(f), r...);
     }
 
