@@ -14,6 +14,7 @@
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/reference_proxy.h>
 
+#include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <utility>
