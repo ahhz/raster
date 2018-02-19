@@ -328,8 +328,10 @@ bool transform_sub_raster_random_access()
   auto t6 = *(++i) == *(++i_check);
   auto t7 = *(i++) == *(i_check++);
   auto t8 = *(i) == *(i_check);
-
-  return t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8;
+  auto t9 = *(--c.end()) == *(--check.end());
+  auto t10 = *(c.end() - 2) == *(check.end() - 2);
+  return t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8 && t9 && t10;
+  
 
 }
 

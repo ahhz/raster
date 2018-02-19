@@ -98,7 +98,7 @@ namespace pronto {
 
       transform_raster_iterator operator-(const difference_type& n) const
       {
-		transform_raster_iterator temp(*this);
+		    transform_raster_iterator temp(*this);
         temp -= n;
         return temp;
       }

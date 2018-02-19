@@ -115,7 +115,7 @@ namespace pronto
       inline gdal_raster_iterator operator-(std::ptrdiff_t distance) const
       {
         gdal_raster_iterator temp(*this);
-        temp += distance;
+        temp -= distance;
         return temp;
       }
 
@@ -256,7 +256,7 @@ namespace pronto
           }
           // Go to last block, one past the last element.
           goto_index(index - 1);
-          ++m_pos;
+          m_pos += m_view->m_stride;
           return *this;
         }
 

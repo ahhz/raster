@@ -19,32 +19,7 @@
 namespace pr = pronto::raster;
 namespace fs = pr::filesystem;
 
-bool test_empty_gdal_raster_view()
-{
-	auto r = pr::create_temp<int>(1, 1).sub_raster(0,0,0,0);
-	for (auto&& i : r) {
-		return false;
-	}
-	return r.size() == 0 && r.rows() ==0 && r.cols()==0;
-}
 
-bool test_empty_gdal_raster_view_zero_rows()
-{
-  auto r = pr::create_temp<int>(1, 1).sub_raster(0, 0, 0, 1);
-  for (auto&& i : r) {
-    return false;
-  }
-  return r.size() == 0 && r.rows() == 0 && r.cols() == 1;
-}
-
-bool test_empty_gdal_raster_view_zero_cols()
-{
-  auto r = pr::create_temp<int>(1, 1).sub_raster(0, 0, 1, 0);
-  for (auto&& i : r) {
-    return false;
-  }
-  return r.size() == 0 && r.rows() == 1 && r.cols() == 0;
-}
 
 
 bool test_create_temp()
@@ -135,9 +110,6 @@ bool test_create_open_large()
 }
 
 TEST(RasterTest, IO) {
-  EXPECT_TRUE(test_empty_gdal_raster_view());
-  EXPECT_TRUE(test_empty_gdal_raster_view_zero_rows());
-  EXPECT_TRUE(test_empty_gdal_raster_view_zero_cols());
   EXPECT_TRUE(test_create_temp());
   EXPECT_TRUE(test_create());
   EXPECT_TRUE(test_open());
