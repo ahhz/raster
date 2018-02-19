@@ -10,7 +10,7 @@ The library requires one of the following:
 - GDAL, Boost (for Boost.Any, Boost.Filesystem and Boost.Optional) and C++11
 - GDAL, C++17 (for std\::any, std\::filesystem and std\::optional)
 
-See the [full documentation](./documentation/raster.md) for details.
+See the [full documentation](./docs/raster.md) for details.
 
 This library was previously called Blink Raster, but it is now renamed to avoid any confusion with the Chromium Blink library. 
    
