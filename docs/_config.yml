@@ -1,2 +1,3 @@
-remote_theme: mmistakes/minimal-mistakes
+theme: jekyll-theme-cayman
+#remote_theme: mmistakes/minimal-mistakes
 title: Pronto Raster
