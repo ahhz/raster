@@ -1,2 +1,10 @@
 theme: jekyll-theme-cayman
 title: Pronto Raster
+defaults:
+  # _docs
+  - scope:
+      path: ""
+      type: docs
+    values:
+      sidebar:
+        nav: "docs"
