@@ -23,7 +23,7 @@ The library offers the following main functionality:
 ## Raster algebra
 - create raster views that apply any function cell-by-cell on one or more raster views (transform function)
 - create raster view that apply a function on a mix of raster data and non-raster (scalar) data
-- Overload arithmetic(+,-, *, /, etc.) and logical (>, <, &&, \||, etc.) operators on  cell-by-cell operations on raster views.
+- Overload arithmetic(+,-, *, /, etc.) and logical (>, <, &&, \|\|, etc.) operators on  cell-by-cell operations on raster views.
 
 ## Moving windows
 - create raster views that iterate over indicators calculated for subrasters centered on each cell
