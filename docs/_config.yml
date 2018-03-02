@@ -1,11 +1,2 @@
 remote_theme: mmistakes/minimal-mistakes
 title: Pronto Raster
-defaults:
-  # _docs
-  - scope:
-      path: "docs"
-      type: docs
-    values:
-      sidebar:
-        nav: "docs"
-theme: jekyll-theme-cayman
