@@ -14,6 +14,7 @@
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/reference_proxy.h>
 
+#include <algorithm>
 #include <cassert>
 #include <iterator>
 #include <utility>
@@ -86,9 +87,9 @@ namespace pronto
 
       inline gdal_raster_iterator& operator--()
       {
-        auto d = std::distance(m_block->get_iterator(0, 0, m_stride), m_pos);
-        if ( d % m_block->block_cols() > 0) {
-          m_pos -= m_stride;
+        auto d = std::distance(m_block.get_iterator(0, 0, m_view->m_stride), m_pos);
+        if ( d % m_block.block_cols() > 0) {
+          m_pos -= m_view->m_stride;
           return *this;
         }
         else
@@ -114,7 +115,7 @@ namespace pronto
       inline gdal_raster_iterator operator-(std::ptrdiff_t distance) const
       {
         gdal_raster_iterator temp(*this);
-        temp += distance;
+        temp -= distance;
         return temp;
       }
 
@@ -255,7 +256,7 @@ namespace pronto
           }
           // Go to last block, one past the last element.
           goto_index(index - 1);
-          ++m_pos;
+          m_pos += m_view->m_stride;
           return *this;
         }
 

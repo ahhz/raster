@@ -3,20 +3,23 @@
 ## Prototype
 ```cpp
 template<class F, class... R>
-transform_raster_view<F, R...> transform(F f, R... rasters)
+auto transform(F f, R... rasters)
+
+template<class F, class... R>
+auto transform(std::reference_wrapper<F> f, R... rasters)
 ```
 
 ## Description
-Create a transform_view that applies the `Callable` `f` cell-by-cell to the corresponding elements in rasters.  The `Callable` cannot modify its input variable. The return_type is an non-mutable RasterView.
+Create a non-mutable `RasterView` that applies the `Callable` `f` cell-by-cell to the corresponding elements in rasters.  The `Callable` cannot modify its input variables. The first prototype copies `f` by value, the second takes a reference. 
 
 ## Definition
 [<pronto/raster/transform_raster_view.h>](./../../include/pronto/raster/transform_raster_view.h)
 
 ## Requirements on types
-`F` is a callable that takes as many input arguments as the are input rasters. The type of the input arguments must correspond to the value_type of the respective rasters.  
+`F` is a callable that takes as many input arguments as the are input rasters. The type of the input arguments must correspond to the value_type of the respective rasters.  F must be copy-constructible, or be wrapped in a std::reference_wrapper. 
 
 ## Preconditions
-All rasters must have the same dimensions. The `Callable` `f` is passed by value and should therefore be trivially copyable.
+All rasters must have the same dimensions. The `Callable` `f` is passed by value and should therefore be copy-constructible at negligible cost. 
 
 ## Complexity
 O(1)
