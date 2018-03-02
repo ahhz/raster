@@ -3,7 +3,7 @@ title: Pronto Raster
 defaults:
   # _docs
   - scope:
-      path: ""
+      path: "docs"
       type: docs
     values:
       sidebar:
