@@ -5,6 +5,8 @@ In particular it achieves that by combining [Expression Template](https://web.ar
 
 The library is intended to especially useful for environmental modelling, including Map Algebra operations, Cellular Automata modelling, spatial statistics and multi-scale analysis.
 
+Prefer a PowerPoint introduction? Check out the FOSS4G UK 2018 presentation on [Slideshare](https://www.slideshare.net/AlexHagenZanker/pronto-raster-v3).
+
 The library offers the following main functionality:
 
 ## Accessing raster data

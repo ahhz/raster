@@ -12,5 +12,7 @@ The library requires one of the following:
 
 See the [full documentation](./docs/raster.md) for details.
 
+Prefer a PowerPoint introduction? Check  out the FOSS4G UK 2018 presentation on [Slideshare](https://www.slideshare.net/AlexHagenZanker/pronto-raster-v3)
+
 This library was previously called Blink Raster, but it is now renamed to avoid any confusion with the Chromium Blink library. 
    
