@@ -5,6 +5,8 @@ In particular it achieves that by combining [Expression Template](https://web.ar
 
 The library is intended to especially useful for environmental modelling, including Map Algebra operations, Cellular Automata modelling, spatial statistics and multi-scale analysis.
 
+Prefer a PowerPoint introduction? Check out the FOSS4G UK 2018 presentation on [Slideshare](https://www.slideshare.net/AlexHagenZanker/pronto-raster-v3).
+
 The library offers the following main functionality:
 
 ## Accessing raster data
@@ -23,7 +25,7 @@ The library offers the following main functionality:
 ## Raster algebra
 - create raster views that apply any function cell-by-cell on one or more raster views (transform function)
 - create raster view that apply a function on a mix of raster data and non-raster (scalar) data
-- Overload arithmetic(+,-, *, /, etc.) and logical (>, <, &&, ||, etc.) operators on  cell-by-cell operations on raster views.
+- Overload arithmetic(+,-, *, /, etc.) and logical (>, <, &&, \|\|, etc.) operators on  cell-by-cell operations on raster views.
 
 ## Moving windows
 - create raster views that iterate over indicators calculated for subrasters centered on each cell

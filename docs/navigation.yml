@@ -1,0 +1,11 @@
+docs:
+  - title: Rationale
+    url: .\rationale.md
+  - title: Installation and configuration
+    url: .\installation_configuration.md
+  - title: Examples
+    children:
+      - title: "Example 1"
+        url: .\examples\example_1.md
+      - title: "Example 2"
+        url: .\examples\example_2.md
