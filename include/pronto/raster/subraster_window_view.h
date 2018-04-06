@@ -241,7 +241,7 @@ namespace pronto {
         const_iterator i;
         i.m_view = this;
         i.m_index = size();
-        return i
+        return i;
       }
 
     private:
