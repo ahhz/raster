@@ -17,7 +17,7 @@
 #include <functional>
 #include <iterator>
 #include <utility>
-
+#include <cassert>
 namespace pronto {
   namespace raster {
     
