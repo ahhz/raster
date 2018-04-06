@@ -15,6 +15,7 @@
 #include <pronto/raster/patch_raster_transform.h>
 #include <pronto/raster/rectangle_edge_window_view.h>
 #include <pronto/raster/square_window_view.h>
+#include <pronto/raster/distance_weighted_window_view.h>
 
 #include <vector>
 
@@ -62,6 +63,8 @@ namespace pronto {
       patch_circle(double radius) : radius(radius) {}
       double radius;
     };
+
+    
 
     template<class Raster, class IndicatorGenerator>
     auto moving_window_indicator(const Raster& raster, const square& window
@@ -122,6 +125,15 @@ namespace pronto {
     {
       return extract(make_circular_window_view(patch_raster(raster, contiguity)
         , window.radius, indicator_generator));
+    }
+
+    template<class Raster, class IndicatorGenerator, class RasterAllocator, class WeightType>
+    auto moving_window_indicator(const Raster& raster
+      , weighted_window<RasterAllocator, WeightType> window //pass by value
+      , const IndicatorGenerator& indicator_generator)->
+      decltype(make_distance_weighted_indicator_view(raster, window, indicator_generator))
+    {
+      return make_distance_weighted_indicator_view(raster, window, indicator_generator);
     }
 
   }
