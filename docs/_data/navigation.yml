@@ -6,12 +6,12 @@ main:
 
 docs:
   - title: Rationale
-    url: \rationale
+    url: rationale
   - title: Installation and configuration
-    url: \installation_configuration
+    url: .\installation_configuration
   - title: Examples
     children:
       - title: "Example 1"
-        url: \examples\example_1
+        url: .\examples\example_1
       - title: "Example 2"
-        url: \examples\example_2
+        url: .\examples\example_2
