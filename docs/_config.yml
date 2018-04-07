@@ -255,7 +255,6 @@ compress_html:
 
 
 # Defaults
-# Defaults
 defaults:
   # _posts
   - scope:
@@ -268,7 +267,8 @@ defaults:
       comments: true
       share: true
       related: true
-  # _pages
+  sidebar:
+        nav: "docs"# _pages
   - scope:
       path: "_pages"
       type: pages
