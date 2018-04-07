@@ -1,6 +1,7 @@
 ---
 layout: single
-title: Rationale
+sidebar: 
+  nav: docs
 ---
 # Rationale
 The purpose of this library is to facilitate computations on geographical raster data efficiently using idiomatic C++. 
