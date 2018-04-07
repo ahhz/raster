@@ -133,7 +133,6 @@ author:
 include:
   - .htaccess
   - _pages
-  - _data
 exclude:
   - "*.sublime-project"
   - "*.sublime-workspace"
@@ -264,54 +263,13 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: true
+      comments: # true
       share: true
-      related: true
-  sidebar:
-        nav: "docs"
-  # _pages
-  - scope:
-      path: "_pages"
-      type: pages
-    values:
-      layout: single
-      author_profile: true
   # _docs
   - scope:
       path: ""
       type: docs
     values:
-      layout: single
-      read_time: false
-      author_profile: false
-      share: false
-      comments: false
       sidebar:
         nav: "docs"
-  # _recipes
-  - scope:
-      path: ""
-      type: recipes
-    values:
-      layout: single
-      author_profile: true
-      share: true
-      comments: true
-  # _pets
-  - scope:
-      path: ""
-      type: pets
-    values:
-      layout: single
-      author_profile: true
-      share: true
-      comment: true
-  # _portfolio
-  - scope:
-      path: ""
-      type: portfolio
-    values:
-      layout: single
-      author_profile: false
-      share: true
-
+related: true
