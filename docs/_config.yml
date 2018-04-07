@@ -265,15 +265,12 @@ defaults:
       read_time: true
       comments: # true
       share: true
-      sidebar:
-        nav: "docs"
   # _docs
   - scope:
       path: ""
       type: docs
-      values:
+    values:
       layout: single
-      share: true
       sidebar:
         nav: "docs"
- related: true
+related: true
