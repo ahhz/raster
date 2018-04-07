@@ -1,3 +1,9 @@
+main:
+  - title: "Home"
+    url: .\raster.md
+  - title: "Github Page"
+    url: https://github.com/ahhz/raster
+
 docs:
   - title: Rationale
     url: .\rationale.md
