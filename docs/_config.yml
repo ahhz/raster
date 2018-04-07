@@ -271,7 +271,9 @@ defaults:
   - scope:
       path: ""
       type: docs
-    values:
+      values:
+      layout: single
+      share: true
       sidebar:
         nav: "docs"
-related: true
+ related: true
