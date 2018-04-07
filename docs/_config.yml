@@ -268,7 +268,8 @@ defaults:
       share: true
       related: true
   sidebar:
-        nav: "docs"# _pages
+        nav: "docs"
+  # _pages
   - scope:
       path: "_pages"
       type: pages
