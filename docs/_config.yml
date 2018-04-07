@@ -265,6 +265,8 @@ defaults:
       read_time: true
       comments: # true
       share: true
+      sidebar:
+        nav: "docs"
   # _docs
   - scope:
       path: ""
