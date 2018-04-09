@@ -273,10 +273,10 @@ defaults:
       layout: single
       sidebar:
         nav: "docs"
-   - scope: 
+  - scope: 
        path: "examples"
-     values: 
-       layout: single
-       sidebar: 
-         nav: "docs"
+    values: 
+      layout: single
+      sidebar: 
+        nav: "docs"
 related: true
