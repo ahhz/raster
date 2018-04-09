@@ -1,10 +1,12 @@
 main:
   - title: "Home"
-    url: /raster
+    url: raster
   - title: "Github Page"
     url: https://github.com/ahhz/raster
 
 docs:
+  - title: Overview
+    url: raster
   - title: Rationale
     url: rationale
   - title: Installation and configuration
@@ -13,5 +15,25 @@ docs:
     children:
       - title: "Example 1"
         url: examples/example_1
-      - title: "Example 2"
-        url: examples/example_2
+      - title: "Create a raster and fill with values"
+        url: examples/example_1.md
+      - title: Open a raster and fill with values
+        url: examples/example_2.md
+      - title: Sum two rasters cell-by-cell
+        url: examples/example_3.md
+      - title: Multiply raster by constant
+        url: examples/example_4.md
+      - title: Apply a custom function on a four-cell moving window 
+        url: examples/example_5.md
+      - title: Calculate statistics for a circular moving window
+        url: examples/example_6.md)
+      - title: Calculate statistics for a square moving window
+        url: examples/example_7.md
+      - title: Use the optional value type for nodata values
+        url: examples/example_8.md
+      - title: Iterate over square windows centered on each cell]
+        url: examples/example_9.md
+      - title: Create a raster of random values based on a probability distribution
+        url: examples/example_10.md
+      - title: Apply a function to a subsection of a raster
+        url: examples/example_11.md
