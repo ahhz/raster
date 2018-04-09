@@ -277,7 +277,7 @@ defaults:
        path: "examples"
     values: 
       layout: single
-      title: ""
+      title: null
       sidebar: 
         nav: "docs"
 related: true
