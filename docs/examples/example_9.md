@@ -1,5 +1,5 @@
+# Iterate over square windows centered on each subsequent cell
 The following example shows how the library can be used to iterator over subrasters that are windows centered on each cell. Note that the subrasters are not formed by copying over the data, but do in fact refer to the same data.
-
 ```cpp
 //example_9.cpp
 

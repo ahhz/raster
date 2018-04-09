@@ -1,3 +1,4 @@
+# Open a raster and fill with values
 The following example is a simple case of opening a raster dataset and calculating the average value of all cells.
 ```cpp
 // example_2.cpp

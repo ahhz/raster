@@ -1,5 +1,5 @@
+# Calculate statistics for a circular moving window
 The following example creates a raster dataset and calculates the mean value of a surrounding square window for each cell. For larger rasters, the computational cost is proportional to the size of the raster, but independent of the radius (distance from the center cell to the side of the window).
-
 ```cpp
 // example_6.cpp
 

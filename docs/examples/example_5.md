@@ -1,3 +1,4 @@
+# Apply custom function on a four-cell moving window
 The following example calculates each cell of a raster as the maximum of its four neighbours in the input raster.
 
 ```cpp

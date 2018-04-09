@@ -1,5 +1,5 @@
+# Create raster and fill with values 
 The following example is a simple case of creating a raster of 10 rows by 5 columns and filling it with random values between 1 and 6. 
-
 ```cpp
 // example_1.cpp
 #include <pronto/raster/io.h>

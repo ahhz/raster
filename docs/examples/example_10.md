@@ -1,3 +1,4 @@
+# Create a raster of values based on a probability distribution
 [Example 1](.\example_1.md) showed how a raster can be filled with random values following a probability distribution. That solution however is not useful when only a subset of random values in a larger raster of random values is needed. Therefore the library offers its own random_raster_view function to create a raster of random values of which subsets can be accessed without precomputing all random values in the raster. 
 
  

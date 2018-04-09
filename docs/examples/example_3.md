@@ -1,5 +1,5 @@
+# Sum two rasters cell-by-cell
 The following example is a simple case of opening two rasters and performing an cell-by-cell summation.
-
 ```cpp
 // example_3.cpp
 

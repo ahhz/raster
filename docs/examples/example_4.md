@@ -1,3 +1,4 @@
+# Multiply raster by constant
 The following example is a simple case of opening a raster and performing an cell-by-cell multiplication.
 
 ```cpp
