@@ -274,10 +274,10 @@ defaults:
       sidebar:
         nav: "docs"
   - scope: 
-       path: "examples"
+      path: "examples"
     values: 
       layout: single
-      title: null
+      strip_title: true
       sidebar: 
         nav: "docs"
 related: true
