@@ -1,5 +1,6 @@
 ---
 layout: single
+title: null
 sidebar: 
   nav: docs
 ---
