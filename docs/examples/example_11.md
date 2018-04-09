@@ -1,22 +1,22 @@
 # Apply a function to a subsection of raster
-Examples [9](./example_9.md) and [10](./example_10.md) already included the use of the `sub_raster` member function. This is an fundamental function in the library, because it can be used with all supported rasters. Where possible functions on rasters are lazy and don't evaluate cell-values until they are needed. Functions such a offset, transform, and raster algebra operations do not actually iterate over values, but produce a expression template that is itself a raster of which a sub_raster can be taken. 
+Examples [9](./example_9.md) and [10](./example_10.md) already included the use of the `sub_raster` member function. This is an fundamental function in the library, because it can be used with all supported rasters. Where possible functions on rasters are lazy and don't evaluate cell-values until they are needed. Functions such as offset, transform, and raster algebra operations do not actually iterate over values, but produce a expression template that is itself a raster of which a sub_raster can be taken. 
 
 Thus, in the example below, the + operation is only applied on six cells.
  
 ```cpp
 // example_11.cpp
 
-#include <blink/raster/io.h>
-#include <blink/raster/plot_raster.h>
-#include <blink/raster/raster_algebra.h>
-#include <blink/raster/raster_algebra_operators.h>
+#include <pronto/raster/io.h>
+#include <pronto/raster/plot_raster.h>
+#include <pronto/raster/raster_algebra.h>
+#include <pronto/raster/raster_algebra_operators.h>
 
-namespace br = blink::raster;
+namespace pr = pronto::raster;
 
 void create_rasters_for_demo()
 {
-  auto a = br::create<int>("a.tif", 4, 5);
-  auto b = br::create<int>("b.tif", 4, 5);
+  auto a = pr::create<int>("a.tif", 4, 5);
+  auto b = pr::create<int>("b.tif", 4, 5);
   int i = 0; for (auto&& v : a) { v = ++i; }
   int j = 0; for (auto&& w : b) { j += 100;  w = j; }
 }
@@ -25,9 +25,9 @@ int main()
 {
   create_rasters_for_demo();
 
-  auto a = br::open<int>("a.tif"); // assuming raster exists
-  auto b = br::open<int>("b.tif"); // assuming raster exists and same dimensions as "a.tif"
-  auto c = br::raster_algebra_wrap(a) + br::raster_algebra_wrap(b);
+  auto a = pr::open<int>("a.tif"); // assuming raster exists
+  auto b = pr::open<int>("b.tif"); // assuming raster exists and same dimensions as "a.tif"
+  auto c = pr::raster_algebra_wrap(a) + pr::raster_algebra_wrap(b);
 
   
   plot_raster(a);
