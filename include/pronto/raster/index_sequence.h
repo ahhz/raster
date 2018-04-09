@@ -9,7 +9,7 @@
 //
 
 #pragma once
-
+#include <cstddef> //std::size_t
 namespace pronto {
   namespace raster {
       

@@ -1,3 +1,8 @@
+---
+layout: single
+sidebar: 
+  nav: docs
+--
 # Raster
 - [Rationale](./rationale.md)
 - [Installation and Configuration](./installation_configuration.md)

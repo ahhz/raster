@@ -12,7 +12,7 @@
 #include <pronto/raster/gdal_includes.h>
 
 #include <memory> //shared_ptr
-
+#include <cassert>
 namespace pronto
 {
   namespace raster

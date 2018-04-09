@@ -1,0 +1,17 @@
+main:
+  - title: "Home"
+    url: /raster
+  - title: "Github Page"
+    url: https://github.com/ahhz/raster
+
+docs:
+  - title: Rationale
+    url: rationale
+  - title: Installation and configuration
+    url: installation_configuration
+  - title: Examples
+    children:
+      - title: "Example 1"
+        url: examples/example_1
+      - title: "Example 2"
+        url: examples/example_2
