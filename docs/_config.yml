@@ -205,9 +205,9 @@ plugins:
   - jekyll-sitemap
   - jekyll-gist
   - jekyll-feed
-  - jemoji
   - jekyll-titles-from-headings
-
+  - jemoji
+ 
   # mimic GitHub Pages with --safe
 whitelist:
   - jekyll-paginate
@@ -255,8 +255,8 @@ compress_html:
 
 titles_from_headings:
   enabled:     true
-  strip_title: false
-  collections: false
+  strip_title: true
+  collections: true
 
 # Defaults
 defaults:
@@ -282,7 +282,6 @@ defaults:
       path: "examples"
     values: 
       layout: single
-      strip_title: true
       sidebar: 
         nav: "docs"
 related: true
