@@ -3,6 +3,7 @@ layout: single
 sidebar: 
   nav: docs
 ---
+
 # Installation and configuration
 The Pronto Raster library is a header-only library that depends on C+\+11 language features and STL and the GDAL library. Depending on the project configuration it further requires the Boost library and/or some C+\+17 features. 
 The library can be configured to use the `any`, `filesystem::path` and `optional` classes from either C+\+17 STL or Boost. By default it uses the STL. If you wish to use Boost instead, include the following in your project before including any file from the Pronto Raster library:
