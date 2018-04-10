@@ -206,15 +206,16 @@ plugins:
   - jekyll-gist
   - jekyll-feed
   - jemoji
+  - jekyll-titles-from-headings
 
-# mimic GitHub Pages with --safe
+  # mimic GitHub Pages with --safe
 whitelist:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
   - jekyll-feed
   - jemoji
-
+  - jekyll-titles-from-headings
 
 # Archives
 #  Type
@@ -252,6 +253,10 @@ compress_html:
   ignore:
     envs: development
 
+titles_from_headings:
+  enabled:     true
+  strip_title: false
+  collections: false
 
 # Defaults
 defaults:
