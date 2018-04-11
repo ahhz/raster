@@ -284,4 +284,22 @@ defaults:
       layout: single
       sidebar: 
         nav: "docs"
+  - scope: 
+      path: "functions"
+    values: 
+      layout: single
+      sidebar: 
+        nav: "docs"
+  - scope: 
+      path: "concepts"
+    values: 
+      layout: single
+      sidebar: 
+        nav: "docs"
+  - scope: 
+      path: "types"
+    values: 
+      layout: single
+      sidebar: 
+        nav: "docs"
 related: true
