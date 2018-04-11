@@ -1,7 +1,7 @@
 main:
-  - title: "Home"
+  - title: Home
     url: /raster
-  - title: "Github Page"
+  - title: Github project page
     url: https://github.com/ahhz/raster
 
 docs:
@@ -13,7 +13,7 @@ docs:
     url: installation_configuration
   - title: Examples
     children:
-      - title: "Create and fill a raster"
+      - title: Create and fill a raster
         url: examples/example_1
       - title: Open and fill a raster
         url: examples/example_2
@@ -35,3 +35,106 @@ docs:
         url: examples/example_10
       - title: Apply function on sub-raster
         url: examples/example_11
+- title: Concepts
+    children:
+      - title: Raster
+        url: concepts/raster
+      - title: Raster View
+        url: concepts/raster_view
+      - title: Raster Iterator
+        url: concepts/raster_iterator
+      - title: Indicator
+        url: concepts/indicator
+      - title: Indicator Generator
+        url: concepts/indicator_generator
+      - title: Proxy Reference
+        url: concepts/proxy_reference
+      - title: Random Accessibile Raster Iterator
+        url: random_accessible_raster_iterator
+ - title: Functions
+    children:
+      - title: assign
+        url: functions/assign
+      - title: blind_function
+        url: functions/blind_function
+      - title: create
+        url: functions/create
+      - title: create_from_model
+        url: functions/create_from_model
+      - title: create_temp
+        url: functions/create_temp
+      - title: create_temp_from_model
+        url: functions/create_temp
+      - title: h_edge
+        url: functions/h_edge
+      - title: make_any_blind_raster
+        url: functions/make_any_blind_raster
+      - title: make_any_raster
+        url: functions/make_any_raster
+      - title: make_gdalrasterband_view
+        url: functions/make_gdalrasterband_view
+      - title: moving_window_indicator
+        url: functions/moving_window_indicator
+      - title: nodata_to_optional
+        url: functions/nodata_to_optional
+      - title: offset
+        url: functions/offset
+      - title: open
+        url: functions/open
+      - title: open_any
+        url: functions/open_any
+      - title: optional_to_nodata
+        url: functions/optional_to_nodata
+      - title: optionalize
+        url: functions/optionalize
+      - title: optionalize
+        url: functions/optionalize
+      - title: optionalize_function
+        url: functions/optionalize_function
+      - title: pad
+        url: functions/pad
+      - title: plot_raster
+        url: functions/plot_raster        
+      - title: random_distribution_raster
+        url: functions/random_distribution_raster  
+        url: functions/pad       
+      - title: raster_algebra_transform
+        url: functions/raster_algebra_transform     
+      - title: raster_algebra_wrap
+        url: functions/raster_algebra_wrap  
+      - title: transform
+        url: functions/transform  
+      - title: uniform
+        url: functions/uniform  
+      - title: v_edge
+        url: functions/v_edge   
+  - title: Types
+     children:
+      - title: access
+        url: types/access
+      - title: any_blind_raster
+        url: types/any_blind_raster
+      - title: any_raster
+        url: types/any_raster
+      - title: gdal_data_type
+        url: types/gdal_data_type
+      - title: gdal_raster_view
+        url: types/gdal_raster_view
+      - title: optional
+        url: types/optional
+      - title: padded_raster_view
+        url: types/padded_raster_view
+      - title: pair_raster_view
+        url: types/pair_raster_view
+      - title: path
+        url: types/path
+      - title: raster_algebra_wrapper
+        url: types/raster_algebra_wrapper
+      - title: traits
+        url: types/traits
+      - title: transform_raster_view
+        url: types/transform_raster_view
+      - title: tuple_raster_view
+        url: types/tuple_raster_view
+      - title: uniform_raster_view
+        url: types/uniform_raster_view
