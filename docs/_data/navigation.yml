@@ -35,7 +35,7 @@ docs:
         url: examples/example_10
       - title: Apply function on sub-raster
         url: examples/example_11
-- title: Concepts
+  - title: Concepts
     children:
       - title: Raster
         url: concepts/raster
@@ -51,7 +51,7 @@ docs:
         url: concepts/proxy_reference
       - title: Random Accessibile Raster Iterator
         url: random_accessible_raster_iterator
- - title: Functions
+  - title: Functions
     children:
       - title: assign
         url: functions/assign
@@ -108,7 +108,7 @@ docs:
         url: functions/uniform  
       - title: v_edge
         url: functions/v_edge   
-  - title: Types
+   - title: Types
      children:
       - title: access
         url: types/access
