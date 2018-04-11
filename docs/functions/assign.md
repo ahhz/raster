@@ -1,4 +1,5 @@
 # assign 
+
 ## Prototype
 ```cpp
 template<class RasterTo, class RasterFrom>
@@ -7,8 +8,9 @@ void assign(RasterTo& to, const RasterFrom& from);
 
 ## Description
 Assigns the value of each element in `Raster` `from` to the corresponding element in `Raster` `to`
+
 ## Definition
-[<pronto/raster/assign.h>](./../../include/pronto/raster/assign.h)
+<pronto/raster/assign.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/assign.h)
 
 ## Requirements on types
 The value_type of RasterFrom must be castable to the value_type of RasterTo. RasterTo must be mutable. RasterFrom and RasterTo both must be Rasters.
