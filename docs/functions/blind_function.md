@@ -1,4 +1,5 @@
 # make_any_blind_raster
+
 ## Prototype
 ```cpp
 template<class Function>
@@ -8,13 +9,15 @@ auto blind_raster(Function function, any_blind_raster raster) ->decltype(functio
 Apply a function on the raster wrapped by any_blind_raster.
 
 ## Definition
-[<pronto/raster/blind_function.h>](./../../include/pronto/raster/blind_function.h)
+<pronto/raster/blind_function.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/blind_function.h)
+
 
 ## Requirements on types
 Function must be `Callable` with with `any_raster<T>` as the input argument, whereby `T` must be a supported type((`bool`, `short`, `unsigned int`, `int`, `unsigned short`, `unsigned char`, `float`, `double`). The return type of the `Function` Callable must be independent of `T`.
 
 ## Preconditions
 The input raster must be initialized, i.e. not be in the default-constructed state.
+
 ## Complexity
 The complexity is that of `function(any_raster<T>)` 
 
