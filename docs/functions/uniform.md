@@ -1,4 +1,5 @@
 # uniform
+
 ## Prototype
 ```cpp
 template<class T>
@@ -8,7 +9,7 @@ uniform_raster<T> uniform(int rows, int cols, const T& value)
 Creates a uniform raster view of given dimensions and value. The raster is non-mutable. The results raster implements the RasterView concept.
 
 ## Definition
-[<pronto/raster/uniform_raster_view.h>](./../../include/pronto/raster/uniform_raster_view.h)
+<pronto/raster/uniform_raster_view.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/uniform_raster_view.h)
 
 ## Requirements on types
 T must be copy constructible.

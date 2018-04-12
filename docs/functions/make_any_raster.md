@@ -1,4 +1,5 @@
 # make_any_raster
+
 ## Prototype
 ```cpptemplate
 template<class Raster> 
@@ -8,7 +9,7 @@ any_raster<typename traits<Raster>::value_type> make_any_raster(Raster raster);
 Create a type erased any_raster for a a given `Raster`. 
 
 ## Definition
-[<pronto/raster/any_blind_raster.h>](./../../include/pronto/raster/any_blind_raster.h)
+<pronto/raster/any_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/any_raster.h)
 
 ## Requirements on types
 `Raster` must implement the `RasterView` concept.
@@ -69,7 +70,6 @@ int main()
   return 0;
 }
 ```
-
 Output:
 ```
 Rows: 5, Cols: 4, Value type: int

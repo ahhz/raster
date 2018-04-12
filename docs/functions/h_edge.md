@@ -1,4 +1,5 @@
 # h_edge
+
 ## Prototype
 ```cpp
 template<class Raster>
@@ -10,7 +11,7 @@ Create a view of the input raster that iterates over all horizontal edges in the
 h_edge_view<Raster> is a typedef for a class that implements the RasterView concept. If the iterator of Raster is a RandomAccessibleRasterIterator then that of h_edge_view<Raster> is too.
 
 ## Definition
-[<pronto/raster/io.h>](./../../include/pronto/raster/edge_raster.h)
+<pronto/raster/edge_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/edge_raster.h)
 
 ## Requirements on types
 Raster must implement [RasterView](.\..\concepts\raster_view.md)
@@ -59,5 +60,6 @@ Rows: 2, Cols: 4.
 {1, 6}  {4, 2}  {0, 5}  {3, 1}
 ```
 ## Notes
+
 ## See also
 [v_edge](./v_edge.md)

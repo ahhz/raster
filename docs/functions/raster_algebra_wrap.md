@@ -1,4 +1,5 @@
 # raster_algebra_wrap
+
 ## Prototype
 ```cpp
 template<class Raster>
@@ -8,7 +9,7 @@ raster_algebra_wrapper<Raster> raster_algebra_wrap(Raster raster);
 Wraps a raster in a raster_algebra_wrapper, so it can be used in raster algebra operations. 
 
 ## Definition
-[<pronto/raster/raster_algebra_wrapper.h>](./../../include/pronto/raster/raster_algebra_wrapper.h)
+<pronto/raster/raster_algebra_wrapper.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/raster_algebra_wrapper.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept.
@@ -55,6 +56,7 @@ Rows: 3, Cols: 4, Value type: int
 1001    1004    1000    1003
 1006    1002    1005    1001
 ```
+
 ## Notes
 
 ## See also

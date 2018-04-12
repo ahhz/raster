@@ -1,4 +1,5 @@
 # moving_window_indicator
+
 ## Prototype
 ```cpp
 template<class Raster, class IndicatorGenerator>
@@ -20,7 +21,7 @@ Creates an alternate view of the input raster Raster that for each element retur
 These are simple structs that are constructed using a single argument (radius).
 
 ## Definition
-[<pronto/raster/moving_window_indicator.h>](./../../include/pronto/raster/moving_window_indicator.h)
+<pronto/raster/moving_window_indicator.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/moving_window_indicator.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept. IndicatorGenerator must implement the IndicatorGenerator concept.
