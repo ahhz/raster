@@ -303,4 +303,3 @@ defaults:
       layout: single
       sidebar: 
         nav: "docs"
-related: true
