@@ -260,16 +260,17 @@ titles_from_headings:
 
 # Defaults
 defaults:
-  # _posts
+ # _posts
   - scope:
       path: ""
       type: posts
     values:
       layout: single
       author_profile: true
-      read_time: true
-      comments: # true
+      read_time: false
+      comments: true
       share: true
+      related: true
   # _docs
   - scope:
       path: ""
