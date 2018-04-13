@@ -13,7 +13,7 @@ where value_type is shorthand for typename traits<Raster>::value_type
 Creates a new raster view that wraps the values of the input raster as optional. The optional value of each element is initialized with the corresponding value in the input raster, except values equal to the nodata_value that are left uninitialized.
 
 ## Definition
-[<pronto/raster/nodata_transform.h>](./../../include/pronto/raster/nodata_transform.h)
+<pronto/raster/nodata_transform.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/nodata_transform.h)
 
 ## Requirements on types
 `Raster` must implement the RasterView concept.
@@ -57,7 +57,6 @@ int main()
   return 0;
 }
 ```
-
 Output: 
 ```
 Rows: 4, Cols: 5, Value type: int

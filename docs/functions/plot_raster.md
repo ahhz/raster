@@ -1,4 +1,5 @@
-# pad
+# plot_raster
+
 ## Prototype
 ```cpp
 template<Raster> void plot_raster(Raster raster);
@@ -9,7 +10,7 @@ void plot_raster(any_blind_raster raster);
 Takes a raster and sends the contents to std::cout. 
 
 ## Definition
-[<blink/raster/plot_raster.h>](./../../include/blink/raster/plot_raster.h)
+<pronto/raster/plot_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/plot_raster.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept
@@ -43,7 +44,6 @@ int main()
   return 0;
 }
 ```
-
 Output (will vary due to random number generator):
 ```
 Rows: 10, Cols: 5, Value type: int

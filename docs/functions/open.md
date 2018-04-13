@@ -1,4 +1,5 @@
 # open 
+
 ## Prototype
 ```cpp
 template<class T> 
@@ -14,7 +15,7 @@ The template parameter `T` is the value_type to which values of cells in the `GD
 `band_index` specifies which band from the dataset to open. The index is 1-based, so the first raster band has index 1.
 
 ## Definition
-[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
+<pronto/raster/io.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/io.h)
 
 ## Requirements on types
 The type of the raster dataset must be castable to `T` 
@@ -49,7 +50,6 @@ int main()
   return 0;
 }
 ```
-
 Output:
 ```
 

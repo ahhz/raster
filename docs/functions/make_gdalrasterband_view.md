@@ -1,4 +1,5 @@
 # make_gdalrasterband_view
+
 ## Prototype
 ```cpp
 template<T>
@@ -21,7 +22,7 @@ std::shared_ptr<GDALDataset> detail::open_dataset(filesystem::path path, access 
 std::shared_ptr<GDALRasterBand> detail::open_band(std::shared_ptr<GDALDataset> dataset, int band_index);
 ```
 ## Definition
-[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
+<pronto/raster/io.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/io.h)
 
 ## Requirements on types
 The native value type of the GDALRasterBand must be castable to T. 

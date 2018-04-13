@@ -14,7 +14,7 @@ recursive_optional_value_type<typename traits<Raster>::value_type > >;
 Creates a new raster view that removes the nodata wrapper of the input values and replaces any uninitialized values with the nodata_value.The optional wrapper is removed recursively, so values of optional<optional<T> > are transformed to values of type T.
 
 ## Definition
-[<pronto/raster/nodata_transform.h>](./../../include/pronto/raster/nodata_transform.h)
+<pronto/raster/nodata_transform.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/nodata_transform.h)
 
 ## Requirements on types
 `Raster` must implement the RasterView concept.
@@ -58,7 +58,6 @@ int main()
   return 0;
 }
 ```
-
 Output: 
 ```
 Rows: 4, Cols: 5, Value type: int

@@ -13,7 +13,7 @@ auto transform(std::reference_wrapper<F> f, R... rasters)
 Create a non-mutable `RasterView` that applies the `Callable` `f` cell-by-cell to the corresponding elements in rasters.  The `Callable` cannot modify its input variables. The first prototype copies `f` by value, the second takes a reference. 
 
 ## Definition
-[<pronto/raster/transform_raster_view.h>](./../../include/pronto/raster/transform_raster_view.h)
+<pronto/raster/transform_raster_view.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/transform_raster_view.h)
 
 ## Requirements on types
 `F` is a callable that takes as many input arguments as the are input rasters. The type of the input arguments must correspond to the value_type of the respective rasters.  F must be copy-constructible, or be wrapped in a std::reference_wrapper. 

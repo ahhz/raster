@@ -1,4 +1,5 @@
 # optionalize
+
 ## Prototype
 ```cpp
 template<class Raster>
@@ -6,8 +7,9 @@ optional_raster_view<Raster> optionalize(Raster raster)
 ```
 ## Description
 Takes a raster view with value_type input_value_type as input and returns a raster view of to the same values but wrapped as an optional<input_value_type>. The resulting raster is non-mutable, even if the input raster is. 
+
 ## Definition
-[<pronto/raster/optional_raster_view.h>](./../../include/pronto/raster/optional_raster_view.h)
+<pronto/raster/optional_raster_view.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/optional_raster_view.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept. 

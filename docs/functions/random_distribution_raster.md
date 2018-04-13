@@ -1,4 +1,5 @@
-# make_any_raster
+# random_distribution_raster
+
 ## Prototype
 ```cpp
 template<class Distribution, class Generator = std::mt19937_64
@@ -12,7 +13,7 @@ template<class Distribution, class Generator = std::mt19937_64
 Create a raster of random distributed values using a specific random number generator (by default std::mt19937_64), and using buffered values (by default in blocks of 512 rows by 512 columns). The return type is a model of RasterView.
 
 ## Definition
-[<pronto/raster/random_distribution_raster.h>](./../../include/pronto/raster/random_distribution_raster.h)
+<pronto/raster/random_distribution_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/random_distribution_raster.h)
 
 ## Requirements on types
 `Distribution` must be a model of [RandomNumberDistribution](http://en.cppreference.com/w/cpp/concept/RandomNumberDistribution)
@@ -26,7 +27,6 @@ Create a raster of random distributed values using a specific random number gene
 The raster of random values makes use of a buffer of blockwise precomputed random values. In the construction a random seed is calculated for each block and hence the complexity is O(n) where n is the number of blocks (and hence logically it is also O(m) where m is the number of cells). However there are many fewer blocks than cells (by default by a factor of 512 x 512 = 262144), so in many situations this cost of construction can be neglected.
 
 ## Example of use
-
 ```cpp
 //example_10.cpp
 
@@ -61,9 +61,7 @@ int main()
   return 0;
 }
 ```
-
 Output: (the exact output will vary due to the use of the random_device)
-
 ```
 Rows: 16, Cols: 8, Value type: short
 4       5       2       4       6       1       4       3

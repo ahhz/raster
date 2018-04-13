@@ -1,4 +1,5 @@
 # pad
+
 ## Prototype
 ```cpp
 template<Raster>
@@ -12,7 +13,7 @@ padded_raster_view<Raster> pad(Raster raster
 Takes an input raster and return the same raster augmented with trailing rows and columns. The added rows and columns are not mutable, even when the input raster is. 
 
 ## Definition
-[<pronto/raster/padded_raster_view.h>](./../../include/pronto/raster/padded_raster_view.h)
+<pronto/raster/padded_raster_view.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/padded_raster_view.h)
 
 ## Requirements on types
 Raster must implement the RasterView concept
@@ -48,7 +49,6 @@ int main()
   return 0;
 }
 ```
-
 Output:
 ```
 Rows: 8, Cols: 9, Value type: int

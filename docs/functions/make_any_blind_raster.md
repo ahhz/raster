@@ -1,4 +1,5 @@
 # make_any_blind_raster
+
 ## Prototype
 ```cpp
 template<class Raster>
@@ -8,7 +9,7 @@ any_blind_raster make_any_blind_raster(Raster raster)
 Creates an any_blind_raster that wraps around a raster. This is a form of type_erasure as the value_type of a RasterView is known at compile time, but the value_type of an any_blind_raster is only known at run-time.
 
 ## Definition
-[<pronto/raster/any_blind_raster.h>](./../../include/pronto/raster/any_blind_raster.h)
+<pronto/raster/any_blind_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/any_blind_raster.h)
 
 ## Requirements on types
 Raster implements the RasterView concept.

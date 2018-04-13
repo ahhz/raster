@@ -19,7 +19,7 @@ Uses GDAL to create a single-band raster dataset of given dimensions at a file l
 - the interleave option is set to band   
   
 ## Definition
-[<pronto/raster/io.h>](./../../include/pronto/raster/io.h)
+<pronto/raster/io.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/io.h)
 
 ## Requirements on types
 If the data_type parameter is not used, T must be one of the [supported data types](./../types/gdal_data_type.md) ( unsigned char, unsigned int, int, float, double).
