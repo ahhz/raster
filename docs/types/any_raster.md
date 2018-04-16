@@ -9,7 +9,7 @@ any_raster<T>
 See documentation of the [make_any_raster](./../functions/make_any_raster.md) function.
 
 ## Definition
-[<pronto/raster/any_raster.h>](./../../include/pronto/raster/any_raster.h)
+<pronto/raster/any_raster.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/any_raster.h)
 
 ## Template parameters
 |Parameter|Description|Default|
