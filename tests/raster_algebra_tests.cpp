@@ -138,7 +138,7 @@ bool test_constant_plus_any_blind_raster()
 	auto a_blind = pr::make_any_blind_raster(a);
 	auto c_blind = constant + pr::raster_algebra_wrap(a_blind);
 
-	auto c = c_blind.unwrap().get_by_type<int>();
+	auto c = c_blind.unwrap().get<int>();
 	static_assert(
 		std::is_same<decltype(c), pr::any_raster<int> >::value,
 		"checking logic of any_blind_raster");
@@ -172,7 +172,7 @@ bool test_any_blind_raster_plus_any_blind_raster()
 
 	auto c_blind = pr::raster_algebra_wrap(a_blind) + 
 		pr::raster_algebra_wrap(b_blind);
-	auto c = c_blind.unwrap().get_by_type<int>();
+	auto c = c_blind.unwrap().get<int>();
 	int check = 0;
 	for (auto&& i : c) {
 		check += 101;

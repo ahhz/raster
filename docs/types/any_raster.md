@@ -2,6 +2,7 @@
 ```cpp 
 any_raster<T> 
 ```
+
 ## Description
  Type erasing wrapper around any RasterView with value type `T`
 

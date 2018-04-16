@@ -31,7 +31,7 @@ namespace pronto {
     blind_function_return_type<F>
       blind_function_typed(F f, any_blind_raster r)
     {
-      return f(r.get_by_type<T>());
+      return f(r.get<T>());
     }
 
     template<class, class>  struct make_functions;
