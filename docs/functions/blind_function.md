@@ -1,9 +1,9 @@
-# make_any_blind_raster
+# blind_function
 
 ## Prototype
 ```cpp
 template<class Function>
-auto blind_raster(Function function, any_blind_raster raster) ->decltype(function(any_raster<int>));
+auto blind_function(Function function, any_blind_raster raster);
 ```
 ## Description
 Apply a function on the raster wrapped by any_blind_raster.

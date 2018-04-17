@@ -1,13 +1,14 @@
 # create
+
 ## Prototype
 There are two prototypes for this function. The first lets the user specify the `GDALDataType` for the created dataset. The second uses a `GDALDatatype` that matches template parameter `T`.
 
 ```cpp
 template<class T>
-gdal_raster_view<T> create(const filesystem::path& path, int rows, int cols, GDALDataType data_type)
+gdal_raster_view<T> create(const filesystem::path& path, int rows, int cols, GDALDataType data_type);
   
 template<class T>
-gdal_raster_view<T> create(const filesystem::path& path, int rows, int cols)
+gdal_raster_view<T> create(const filesystem::path& path, int rows, int cols);
 ```
 
 ## Description
@@ -22,7 +23,7 @@ Uses GDAL to create a single-band raster dataset of given dimensions at a file l
 <pronto/raster/io.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/io.h)
 
 ## Requirements on types
-If the data_type parameter is not used, T must be one of the [supported data types](./../types/gdal_data_type.md) ( unsigned char, unsigned int, int, float, double).
+If the data_type parameter is not used, `T` must be one of the [supported data types](./../types/gdal_data_type.md) ( unsigned char, unsigned int, int, float, double).
 If the data_type parameter is used it must be corresponding to one of the supported data types, AND the associated data type must be castable to T.
 
 ## Preconditions
