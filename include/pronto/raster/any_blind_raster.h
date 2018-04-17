@@ -1,6 +1,6 @@
 //
 //=======================================================================
-// Copyright 2017
+// Copyright 2017-18
 // Author: Alex Hagen-Zanker
 // University of Surrey
 //
@@ -14,32 +14,17 @@
 #include <pronto/raster/any_raster.h>
 
 #include <functional>
-#include <vector>
- 
-#pragma warning( push )  
-#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
-#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
 
 namespace pronto {
   namespace raster {
 
-    using blind_data_types = std::tuple
-      < bool
-      , uint8_t
-      , int16_t
-      , uint16_t
-      , int32_t
-      , uint32_t
-      , float
-      , double>;
-    
     class any_blind_raster
     {
     public:
       any_blind_raster() = default;
 
       template<typename T>
-      any_blind_raster(any_raster<T> data) 
+      any_blind_raster(any_raster<T> data)
         : m_data(data)
       {
         m_get_rows = [&]() {return get<T>().rows(); };
@@ -51,61 +36,17 @@ namespace pronto {
       }
 
       template<class T>
-      any_raster<T> get()  // will throw if you specify the wrong T
+      any_raster<T> get() const // throws bad_any_cast for the wrong T
       {
-        return any_cast<any_raster<T> >(m_data);
+        return any_cast<any_raster<T>>(m_data);
       }
-	
-	private:
-	  template<class T> bool check()
-	  {
-		  try
-		  {
-			  get<T>();
-		  }
-		  catch (const bad_any_cast&)
-		  {
-			  return false;
-		  }
-		  return true;
-	  }
-	
-	  template<std::size_t I> int index_in_list_helper()
-	  {
-		  return -1;
-	  }
-	  
-	  template<std::size_t I, class T, class... Rest>
-	  int index_in_list_helper()
-	  {
-		  if (check<T>()) return I;
-		  return index_in_list_helper<I + 1, Rest...>();
-	  }
-	  
-	  template<class... T>
-	  int index_in_list()
-	  {
-		  return index_in_list_helper<0, T...>();
-	  }
 
-	  template< template<class...> class Pack, class...T>
-	  int index_in_packed_list(const Pack<T...>&)
-	  {
-		  return index_in_list<T...>();
-	  }
-
-	public:
-	  int index()
-	  {
-		  return index_in_packed_list(blind_data_types{}); 
-	  }
-
-      int rows() const 
-      { 
+      int rows() const
+      {
         return m_get_rows();
       }
 
-      int cols() const 
+      int cols() const
       {
         return m_get_cols();
       }
@@ -117,12 +58,11 @@ namespace pronto {
 
       any_blind_raster sub_raster(int r, int c, int rs, int cs) const
       {
-        return m_get_sub_raster(r,c,rs,cs);
+        return m_get_sub_raster(r, c, rs, cs);
       }
 
     private:
-      any m_data; 
-
+      any m_data;
       std::function<int()> m_get_rows;
       std::function<int()> m_get_cols;
       std::function<int()> m_get_size;
@@ -136,4 +76,3 @@ namespace pronto {
     }
   }
 }
-#pragma warning( pop )

@@ -11,11 +11,10 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
+#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/blind_function.h>
 #include <pronto/raster/io.h>
-#include <pronto/raster/raster_algebra_wrapper.h>
-#include <pronto/raster/raster_algebra_operators.h>
 
-#include <vector>
 
 namespace pr = pronto::raster;
 
@@ -33,7 +32,7 @@ bool test_get_any_blind_raster()
 	pr::any_raster<int> any_a(a);
 	pr::any_blind_raster blind_a(any_a);
 	
-	int index = blind_a.index();
+  int index = pr::detail::index_in_packed_list(blind_a, pr::blind_data_types{});
 	return index == 4;
 }
 
