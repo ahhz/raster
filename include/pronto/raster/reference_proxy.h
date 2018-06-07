@@ -156,10 +156,10 @@ template<class T> const reference_proxy& operator op(const T& v) \
       reference_proxy_vector() = default;
 
       template<class... Args>
-      reference_proxy_vector(Args&&... args)
+      reference_proxy_vector(Args&&... args) : m_vector(std::forward<Args>(args)...)
       {
-        m_vector.operator=(std::forward<Args>(args)...);
-        return *this;
+ //       m_vector.operator=(std::forward<Args>(args)...);
+  //      return *this;
       }
 
       reference_proxy_vector(reference_proxy_vector&& that)
