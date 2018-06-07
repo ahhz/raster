@@ -104,8 +104,13 @@ namespace pronto {
 
       reference operator*() const
       {
-        reference r;
-        for (auto&& i : m_iters) r.emplace_back(*i);
+        reference r(m_iters.size());
+        auto i = m_iters.begin();
+        auto j = r.begin();
+        for (;i != m_iters.end(); ++i, ++j)
+        {
+          *j = **i;
+        }
         return r;
       }
 
