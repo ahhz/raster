@@ -2,7 +2,7 @@
 
 ## Description
 
-Traits class to inspect properties of a `Range`.
+Traits class to inspect properties of a `Raster`.
 
 ## Example of use
 
