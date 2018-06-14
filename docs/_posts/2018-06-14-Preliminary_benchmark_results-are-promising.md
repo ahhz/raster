@@ -1,6 +1,6 @@
 ---
 title:  "Preliminary benchmark results are promising"
-date:   2018-14-06 12:00:00 -0000
+date:   2018-06-14 12:00:00 -0000
 ---
 Benchmarking of the Pronto Raster library is still very informal, as the focus has been on producing an easy-to-use library for raster calculations, rather than an ultra fast one. However, some of the early results, and performance tweaks, are promising and worth sharing. So, what are we comparing against? Pronto Raster is built on top of GDAL, so it cannot reasonably be expected to outperform a sensible and idiomatic way of using GDAL. Moreover, a typical application of Pronto Raster is Map Algebra. So a good benchmark case would be a cell-by-cell operation on three matrices, say OUT = 3 * A + B * C, where A, B and C are input rasters and OUT is the output raster. 
 
