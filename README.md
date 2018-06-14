@@ -10,7 +10,7 @@ The library requires one of the following:
 - GDAL, Boost (for Boost.Any, Boost.Filesystem and Boost.Optional) and C++11
 - GDAL, C++17 (for std\::any, std\::filesystem and std\::optional)
 
-See the [full documentation](./docs/raster.md) for details.
+See the [full documentation](./docs/raster.md) for details. Or try the new [website](http://ahhz.github.io/raster/) (still maturing)
 
 Prefer a PowerPoint introduction? Check  out the FOSS4G UK 2018 presentation on [Slideshare](https://www.slideshare.net/AlexHagenZanker/pronto-raster-v3)
 

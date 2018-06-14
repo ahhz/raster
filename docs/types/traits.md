@@ -1,14 +1,22 @@
 # traits<Raster>
+
 ## Description
+
 Traits class to inspect properties of a `Range`.
+
 ## Example of use
+
 ## Definition
+<pronto/raster/traits.h> [(open in Github)](https://github.com/ahhz/raster/blob/master/include/pronto/raster/traits.h)
+
 ## Template parameters
 |Parameter|Description|Default|
 |----------|--------|---------|
 |Raster|The raster type of which to inspect properties|n.a.|
+
 ## Model of
 N.A.
+
 ## Type requirements
 |Parameter|Requires|
 |----------|--------|---------|
@@ -16,9 +24,9 @@ N.A.
 
 ## Public base classes
 N.A.
+
 ## Members
 The following traits are supported.
-
 
 |trait|corresponds to|
 |`traits<Raster>::sub_raster`|decltype(r.sub_raster(int(), int(), int(),int())|
@@ -26,7 +34,9 @@ The following traits are supported.
 |`traits<Raster>::const_iterator`|decltype(std::cbegin(r))|
 |`traits<Raster>::value_type`|std::iterator_traits<traits<Raster>::iterator>::value_type|
 |`traits<Raster>::reference`|std::iterator_traits<traits<Raster>::iterator>::reference|
+
 ## New Members
+
 ## Notes 
 
 ```cpp

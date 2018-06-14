@@ -23,6 +23,60 @@
 namespace pronto {
   namespace raster {
 
+    using blind_data_types = std::tuple
+      < bool
+      , uint8_t
+      , int16_t
+      , uint16_t
+      , int32_t
+      , uint32_t
+      , float
+      , double>;
+
+    namespace detail
+    {
+      template<class T>
+      bool check_value_type(const any_blind_raster& r)
+      {
+        try
+        {
+          r.get<T>();
+        }
+        catch (const bad_any_cast&)
+        {
+          return false;
+        }
+        return true;
+      }
+
+      template<std::size_t I> 
+      std::size_t  index_in_list_helper(const any_blind_raster& r)
+      {
+        throw bad_any_cast{}; // none of the types in the list is the value_type
+        return 0;
+      }
+
+      template<std::size_t I, class T, class... Rest>
+      std::size_t  index_in_list_helper(const any_blind_raster& r)
+      {
+        if (check_value_type<T>(r)) return I;
+        return index_in_list_helper<I + 1, Rest...>(r);
+      }
+
+      template<class... T>
+      std::size_t  index_in_list(const any_blind_raster& r)
+      {
+        return index_in_list_helper<0, T...>(r);
+      }
+
+      template< template<class...> class Pack, class...T>
+      std::size_t  index_in_packed_list(const any_blind_raster& r, const Pack<T...>&)
+      {
+        return index_in_list<T...>(r);
+      }
+    }
+
+
     template<class F>
     using blind_function_return_type =
       decltype(std::declval<F>()(any_raster<int>{}));
@@ -31,7 +85,7 @@ namespace pronto {
     blind_function_return_type<F>
       blind_function_typed(F f, any_blind_raster r)
     {
-      return f(r.get_by_type<T>());
+      return f(r.get<T>());
     }
 
     template<class, class>  struct make_functions;
@@ -57,7 +111,8 @@ namespace pronto {
       using function_type = std::function<return_type(F, any_blind_raster)>;
       using function_maker = make_functions<F, blind_data_types>;
       std::vector<function_type> functions = function_maker{}(f, r);
-      return functions[r.index()](f, r);
+      std::size_t index = detail::index_in_packed_list(r, blind_data_types{});
+      return functions[index](f, r);
     }
 
     // Must use the applicator pattern, because the return types of the 
