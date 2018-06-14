@@ -2,9 +2,9 @@
 title:  "Preliminary benchmark results are promising"
 date:   2018-06-14 12:00:00 -0000
 ---
-Benchmarking of the Pronto Raster library is still very informal, as the focus has been on producing an easy-to-use library for raster calculations, rather than an ultra fast one. However, some of the early results, and performance tweaks, are promising and worth sharing. So, what are we comparing against? Pronto Raster is built on top of GDAL, so it cannot reasonably be expected to outperform a sensible and idiomatic way of using GDAL. Moreover, a typical application of Pronto Raster is Map Algebra. So a good benchmark case would be a cell-by-cell operation on three matrices, say OUT = 3 * A + B * C, where A, B and C are input rasters and OUT is the output raster. 
+Benchmarking of the Pronto Raster library is still very informal, as the focus has been on producing an easy-to-use library for raster calculations, rather than an ultra-fast one. However, some of the early results, and performance tweaks, are promising and worth sharing. So, what are we comparing against? Pronto Raster is built on top of GDAL, so it cannot reasonably be expected to outperform a sensible and idiomatic way of using GDAL. Moreover, a typical application of Pronto Raster is Map Algebra. So a good benchmark case would be a cell-by-cell operation on three matrices, say OUT = 3 * A + B * C, where A, B and C are input rasters and OUT is the output raster. 
 
-This lead to the reference code shown below, i.e. this NOT using Pronto Raster, but directly using GDAL. The code is efficient by reading in a block at the time of all the raster layers, and by reusing the memory of the previous block when the next one is read. 
+This led to the reference code shown below, i.e. this is NOT using Pronto Raster, but directly using GDAL. The code is efficient by reading in a block at the time of all the raster layers, and by reusing the memory of the previous block when the next one is read. 
 
 ```cpp
 int benchmark_3_rasters_reference()
@@ -107,7 +107,6 @@ int benchmark_3_rasters()
   auto raster_c = pr::open<unsigned char>("random_c.tiff", pr::access::read_only);
   auto raster_out = pr::open<unsigned char>("output.tiff", pr::access::read_write);
 
- 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
     + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 	
@@ -127,7 +126,6 @@ int benchmark_3_rasters_forward_only()
   auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
   auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
 
-
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
     + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 
@@ -137,7 +135,7 @@ int benchmark_3_rasters_forward_only()
 }
 ```
 
-The previous Pronto Raster based solutions iterate over the raster row-by-row and within rows column-by-column. The reference solution however has the benefit of iterating block-by-block, within each block row-by-row, and within rows column-by-column. This reduces memory usage. For this Pronto Raster has the assign_blocked function. Giving us the final Pronto Raster based benchmark.
+The previous Pronto Raster based solutions iterate over the raster row-by-row and within rows column-by-column. The reference solution however, has the benefit of iterating block-by-block, which reduces the number of blocks in memory. For this Pronto Raster has the `assign_blocked` function. Giving us the final Pronto Raster based benchmark.
 
 ```cpp
 int benchmark_3_rasters_forward_only_in_blocks()
@@ -146,7 +144,6 @@ int benchmark_3_rasters_forward_only_in_blocks()
   auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
   auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
   auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
-
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
     + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
@@ -157,7 +154,7 @@ int benchmark_3_rasters_forward_only_in_blocks()
 }
 ```
 
-How do the results stack up? When applied to 1000 x 1000 rasters in 256 x 256 blocks. 
+How do the results stack up? When applied to 1000 x 1000 rasters that are organised in 256 x 256 blocks, we get the following results:
 
 |function|time required (s)|
 |----|----|
@@ -167,7 +164,7 @@ How do the results stack up? When applied to 1000 x 1000 rasters in 256 x 256 bl
 |benchmark_3_rasters_forward_only|0.136|
 |benchmark_3_rasters_forward_only_in_blocks|0.096|
 
-It thus seems that Pronto Raster is able to approximate the performance of using GDAL directly very closely, when using all the bells and whistles (and some functions that still need to be documented). The different generalizations do come at a cost. Forward only iteration may be too limited for implementing some algorithms; iterating row-by-row is more generic than iterating column-by-column and may be preferred for some more complex operations (e.g. moving windows); and not having to specify the value type of rasters at compile time clearly is a privilege that comes at a cost.
+It thus seems that Pronto Raster is able to approximate the performance of using GDAL directly very closely and incur practically no overhead, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations (random access iteration, run-time data types, row-by_row iterations) are privileges that do come at a cost.
 
 All the functions can be found in [benchmark.cpp](https://github.com/ahhz/raster/blob/master/benchmarks/benchmark.cpp). It is obvious that this benchmarking can benefit from a more systematic treatment, e.g. using Google Benchmark as a framework. If you feel inclined to contribute, please do!
 
