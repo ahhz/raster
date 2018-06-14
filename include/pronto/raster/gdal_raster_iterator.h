@@ -23,19 +23,23 @@ namespace pronto
 {
   namespace raster
   {
-    template<class T> class gdal_raster_view; // forward declaration
+    class forward_only_iteration {};
+    class random_access_iteration {};
 
-    template<class T, class AccessType>
+    template<class, class> class gdal_raster_view; // forward declaration
+
+    template<class T, class AccessType, class IterationType = random_access_iteration>
     class gdal_raster_iterator
     {
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
-      using view_type = gdal_raster_view<T>;
+      using view_type = gdal_raster_view<T, IterationType>;
       
-      // For strictly forward iteration we could use the following and be twice 
-      // as efficient 
-      //using proxy_ref = reference_proxy<const gdal_raster_iterator&>;
-      using proxy_ref = reference_proxy<gdal_raster_iterator>;
+      // For strictly forward iteration we could use the following and be more efficient 
+      static const bool is_forward_only = std::is_same<forward_only_iteration, IterationType>::value;
+      using proxy_ref = typename std::conditional<is_forward_only
+        , reference_proxy<const gdal_raster_iterator&>
+        , reference_proxy<gdal_raster_iterator> >::type;
 
  
     public:
@@ -168,7 +172,8 @@ namespace pronto
       }
 
     private: 
-      friend class proxy_ref;
+      friend class reference_proxy<const gdal_raster_iterator&>;
+      friend class reference_proxy<gdal_raster_iterator>;
 
       inline T get() const
       {
@@ -184,7 +189,7 @@ namespace pronto
       }
 
     private: 
-      friend class gdal_raster_view<T>;
+      friend class gdal_raster_view<T, IterationType>;
 
       void find_begin(const view_type* view)
       {

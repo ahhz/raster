@@ -1,7 +1,7 @@
 # IndicatorGenerator
 
 ## Summary
-The `IndicatorGenerator` concept is introduced to be able to work with indicators that do not have a default constructor, or for which the default constructor needs to be bypassed. It is an object can be used to spawn initialized indicators. Objects of `IndicatorGenerator` models are passed as function arguments by value and therefore are required to be trivially copiable.
+The `IndicatorGenerator` concept is introduced to be able to work with indicators that do not have a default constructor, or for which the default constructor needs to be bypassed. It is an object can be used to spawn initialized indicators. Objects of `IndicatorGenerator` models are passed as function arguments by value and therefore are required to be trivially copyable.
 
 ## Refinement of
 `CopyAssignable`, `Destructible` 
@@ -28,7 +28,7 @@ other = indicator_generator;
 |----------|--------|
 |`indicator_type i = indicator_generator();|generate an initialized indicator`|
 |`indicator_generator_type ig = indicator_generator;`| copy-construct the generator. This must be a small cost operation.|
-|`other = indicator_generator;`| copy-assign the generator. This must be a small cost operation.|
+|`other = indicator_generator;`| copy-assign the generator. This must be a small-cost operation.|
 
 ## Complexity guarantees
 n.a.
