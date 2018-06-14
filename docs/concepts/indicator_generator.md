@@ -29,7 +29,7 @@ other = indicator_generator;
 |----------|--------|
 |`indicator_type i = indicator_generator();|generate an initialized indicator`|
 |`indicator_generator_type ig = indicator_generator;`| copy-construct the generator. This must be a small cost operation.|
-|`other = indicator_generator;`| copy-assign the generator. This must be a small cost operation.|
+|`other = indicator_generator;`| copy-assign the generator. This must be a small-cost operation.|
 
 ## Complexity guarantees
 n.a.

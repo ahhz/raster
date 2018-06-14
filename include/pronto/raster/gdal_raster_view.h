@@ -27,7 +27,9 @@ namespace pronto
 {
   namespace raster
   {
-    template<class T>
+ 
+
+    template<class T, class IterationType = random_access_iteration>
     class gdal_raster_view
     {
     private:
@@ -75,9 +77,9 @@ namespace pronto
       {};
          
       using iterator = gdal_raster_iterator<value_type
-        , access_type::read_write_t>;
+        , access_type::read_write_t, IterationType>;
       using const_iterator = gdal_raster_iterator<value_type
-        , access_type::read_only_t>;
+        , access_type::read_only_t, IterationType>;
 
       std::shared_ptr<GDALRasterBand> get_band() const 
       {
@@ -176,8 +178,8 @@ namespace pronto
       template<typename U>
       static void put_special(const value_type& value, void* const target)
       {
-        U* target_cast = static_cast<U*>(target);
-        *target_cast = static_cast<U>(value);
+        //U* target_cast = static_cast<U*>(target);
+        *(static_cast<U*>(target)) = static_cast<U>(value);
       }
 
       static void put_nothing(const value_type& value, void* const target)
@@ -189,8 +191,9 @@ namespace pronto
       template<typename U>
       static value_type get_special(const void* const source)
       {
-        const U* source_cast = static_cast<const U*>(source);
-        return static_cast<value_type>(*source_cast);
+        //const U* source_cast = static_cast<const U*>(source);
+        //return static_cast<value_type>(*source_cast);
+        return static_cast<value_type>(*static_cast<const U*>(source));
       }
 
       template<typename U> void set_accessors()
@@ -202,6 +205,10 @@ namespace pronto
       // function pointers for "runtime polymorphism" based on file datatype. 
       void(*put)(const value_type&, void* const);
       value_type(*get)(const void* const);
+
+      // Using std::function is just a bit less efficient
+      //std::function<void(const value_type&, void* const)> put;
+      //std::function<value_type(const void* const)> get;
 
       unsigned char m_stride; // todo: make static constant?
 

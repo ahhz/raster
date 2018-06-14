@@ -54,7 +54,7 @@ using result_type = typename indicator_traits<indicator_type>::result_type;
 n.a.
 
 ## Invariants
-Conceptually, operations must be retractable (subtracting an earlier added sample is equivalent to not having added the observation at all) and communicative (the order of subtracting and adding does not affect results). However, differences may occur due to rounding. Samples should not be retracted that have not been added before.
+Conceptually, operations must be retractable (subtracting an earlier added sample is equivalent to not having added the observation at all) and communicative (the order of subtracting and adding does not affect results). However, differences may occur due to rounding when floating point numbers are involved. Samples should not be retracted that have not been added before.
 
 ## Models
 The Pronto Raster library includes a number of classes that model `Indicator` in the include/pronto/raster/indicator/ directory. However, these have not been documented yet. 
