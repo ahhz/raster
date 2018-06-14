@@ -51,10 +51,10 @@ void create_data_for_benchmark(int rows, int cols)
 
 int benchmark_3_rasters()
 {
-  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open<int>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open<int>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open<unsigned char>("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open<unsigned char>("random_b.tiff", pr::access::read_only);
+  auto raster_c = pr::open<unsigned char>("random_c.tiff", pr::access::read_only);
+  auto raster_out = pr::open<unsigned char>("output.tiff", pr::access::read_write);
 
  
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
@@ -92,6 +92,22 @@ int benchmark_3_rasters_blind()
     + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 
   pr::assign(raster_out, raster_sum.unwrap());
+
+  return 0;
+}
+
+int benchmark_3_rasters_forward_only_in_blocks()
+{
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+
+
+  auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+    + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+
+  pr::assign_blocked(raster_out, raster_sum);
 
   return 0;
 }
@@ -349,15 +365,16 @@ int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  // create_data_for_benchmark(1000, 1000);
+  //create_data_for_benchmark(1000, 1000);
   // benchmark_2_rasters();
-  // benchmark_2_rasters_blind();
+  //benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
   
   //benchmark_3_rasters();
-  benchmark_3_rasters_forward_only();
+  //benchmark_3_rasters_forward_only();
+  benchmark_3_rasters_forward_only_in_blocks();
   // benchmark_3_rasters_blind();
-  // benchmark_3_rasters_reference();
+  //benchmark_3_rasters_reference();
 
   //benchmark_assign();
   //benchmark_assign_blind();
