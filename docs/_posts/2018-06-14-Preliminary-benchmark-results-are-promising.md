@@ -21,7 +21,6 @@ int benchmark_3_rasters_reference()
   GDALRasterBand* band_c = dataset_c->GetRasterBand(1);
   GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
 
-  CPLAssert(poBand->GetRasterDataType() == GDT_Byte);
   int nXBlockSize, nYBlockSize;
 
   band_a->GetBlockSize(&nXBlockSize, &nYBlockSize);
@@ -97,7 +96,7 @@ int benchmark_3_rasters_blind()
   return 0;
 }
 ```
-Alternatively if we do specify the data type at compile time(or to be more precise the data type to which cell values will be cast) then the code looks as follows:
+Alternatively if we do specify the data type at compile time (or to be more precise the data type to which cell values will be cast) then the code looks as follows:
 
 ```cpp
 int benchmark_3_rasters()
@@ -135,7 +134,7 @@ int benchmark_3_rasters_forward_only()
 }
 ```
 
-The previous Pronto Raster based solutions iterate over the raster row-by-row and within rows column-by-column. The reference solution however, has the benefit of iterating block-by-block, which reduces the number of blocks in memory. For this Pronto Raster has the `assign_blocked` function. Giving us the final Pronto Raster based benchmark.
+The previous Pronto Raster based solutions iterate over the raster row-by-row and, within each row, column-by-column. The reference solution however, has the benefit of iterating block-by-block, which reduces the number of blocks in memory. For this Pronto Raster has the `assign_blocked` function. Giving us the final Pronto Raster based benchmark.
 
 ```cpp
 int benchmark_3_rasters_forward_only_in_blocks()
@@ -154,7 +153,7 @@ int benchmark_3_rasters_forward_only_in_blocks()
 }
 ```
 
-How do the results stack up? When applied to 1000 x 1000 rasters that are organised in 256 x 256 blocks, we get the following results:
+How do the results stack up? When applied to 1000 x 1000 rasters that are organized in 256 x 256 blocks, we get the following results:
 
 |function|time required (s)|
 |----|----|
@@ -164,7 +163,7 @@ How do the results stack up? When applied to 1000 x 1000 rasters that are organi
 |benchmark_3_rasters_forward_only|0.136|
 |benchmark_3_rasters_forward_only_in_blocks|0.096|
 
-It thus seems that Pronto Raster is able to approximate the performance of using GDAL directly very closely and incur practically no overhead, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations (random access iteration, run-time data types, row-by_row iterations) are privileges that do come at a cost.
+It thus seems that Pronto Raster is able to approximate the performance of directly using GDAL very closely and incur practically no overhead, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations (random access iteration, run-time data types, row-by_row iterations) are privileges that do come at a cost.
 
 All the functions can be found in [benchmark.cpp](https://github.com/ahhz/raster/blob/master/benchmarks/benchmark.cpp). It is obvious that this benchmarking can benefit from a more systematic treatment, e.g. using Google Benchmark as a framework. If you feel inclined to contribute, please do!
 
