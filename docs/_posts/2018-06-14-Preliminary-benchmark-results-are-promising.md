@@ -53,12 +53,13 @@ int benchmark_3_rasters_reference()
       band_out->WriteBlock(iXBlock, iYBlock, data_out);
     }
   }
-  double min, max, mean, stddev;
-  CPLErr try_statistics = band_out->GetStatistics(FALSE,
-    FALSE,
-    &min, &max, &mean, &stddev);
   // Only update statistics if rasterband thinks that they are up 
   // to date
+  
+  double min, max, mean, stddev;
+  CPLErr try_statistics = band_out->GetStatistics(FALSE, FALSE
+    , &min, &max, &mean, &stddev);
+  
   if (try_statistics != CE_Warning) {
     band_out->ComputeStatistics(FALSE, &min, &max, &mean, &stddev, NULL, NULL);
     band_out->SetStatistics(min, max, mean, stddev);
