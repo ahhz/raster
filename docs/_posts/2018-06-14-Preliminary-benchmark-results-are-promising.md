@@ -23,10 +23,16 @@ int benchmark_3_rasters_reference()
 
   int nXBlockSize, nYBlockSize;
 
+  // This code is assuming that the block size of all datasets is the same
+  // If not, it will fail.
+  
   band_a->GetBlockSize(&nXBlockSize, &nYBlockSize);
   int nXBlocks = (band_a->GetXSize() + nXBlockSize - 1) / nXBlockSize;
   int nYBlocks = (band_a->GetYSize() + nYBlockSize - 1) / nYBlockSize;
 
+  // This code is assuming that the data type of the data is Byte
+  // If not, it will fail.
+  
   GByte *data_a = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
   GByte *data_b = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
   GByte *data_c = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
@@ -156,7 +162,7 @@ int benchmark_3_rasters_forward_only_in_blocks()
 
 How do the results stack up? When applied to 1000 x 1000 and 1000 x 1000000 rasters that are organized in 256 x 256 blocks, we get the following results:
 
-|function|time required for 1000 x 10000 (s)| time required for 1000 * 100000
+|function|time required for 1000 x 10000 (s)| time required for 1000 x 100000 (s)
 |----|----|----|
 |benchmark_3_rasters_reference|0.095|7.8|
 |benchmark_3_rasters_blind|0.313|30.0|
