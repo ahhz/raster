@@ -164,7 +164,7 @@ How do the results stack up? When applied to 1000 x 1000 and 1000 x 1000000 rast
 |benchmark_3_rasters_forward_only|0.136|11.8|
 |benchmark_3_rasters_forward_only_in_blocks|0.134|11.4|
 
-It thus seems that Pronto Raster is still 50% off the performance of directly using GDAL directly, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations are privileges that do come at a cost, in particular the "blind" variation that does not require specification of the data type at compile-time..
+It thus seems that Pronto Raster is still 50% off the performance of directly using GDAL directly, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations are privileges  do come at a cost, in particular the "blind" variation that does not require specification of the data type at compile-time.
 
 All the functions can be found in [benchmark.cpp](https://github.com/ahhz/raster/blob/master/benchmarks/benchmark.cpp). It is obvious that this benchmarking can benefit from a more systematic treatment, e.g. using Google Benchmark as a framework. If you feel inclined to contribute, please do!
 
