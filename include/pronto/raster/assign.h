@@ -116,7 +116,7 @@ namespace pronto {
           const int rows = std::min<int>(in.rows() - first_row, block_row_size);
           const int cols = std::min<int>(in.cols() - first_col, block_col_size);
           auto sub_out = out.sub_raster(first_row, first_col, rows, cols);
-          auto sub_in = out.sub_raster(first_row, first_col, rows, cols);
+          auto sub_in = in.sub_raster(first_row, first_col, rows, cols);
 
           assign(sub_out, sub_in);
           // };

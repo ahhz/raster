@@ -154,17 +154,17 @@ int benchmark_3_rasters_forward_only_in_blocks()
 }
 ```
 
-How do the results stack up? When applied to 1000 x 1000 rasters that are organized in 256 x 256 blocks, we get the following results:
+How do the results stack up? When applied to 1000 x 1000 and 1000 x 1000000 rasters that are organized in 256 x 256 blocks, we get the following results:
 
-|function|time required (s)|
-|----|----|
-|benchmark_3_rasters_reference|0.095|
-|benchmark_3_rasters_blind|0.313|
-|benchmark_3_rasters|0.162|
-|benchmark_3_rasters_forward_only|0.136|
-|benchmark_3_rasters_forward_only_in_blocks|0.096|
+|function|time required for 1000 x 10000 (s)| time required for 1000 * 100000
+|----|----|----|
+|benchmark_3_rasters_reference|0.095|7.8|
+|benchmark_3_rasters_blind|0.313|30.0|
+|benchmark_3_rasters|0.162|14.7|
+|benchmark_3_rasters_forward_only|0.136|11.8|
+|benchmark_3_rasters_forward_only_in_blocks|0.134|11.4|
 
-It thus seems that Pronto Raster is able to approximate the performance of directly using GDAL very closely and incur practically no overhead, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations (random access iteration, run-time data types, row-by_row iterations) are privileges that do come at a cost.
+It thus seems that Pronto Raster is still 50% off the performance of directly using GDAL directly, when using all the bells and whistles (including some functions that still need to be documented). The different generalizations are privileges that do come at a cost, in particular the "blind" variation that does not require specification of the data type at compile-time..
 
 All the functions can be found in [benchmark.cpp](https://github.com/ahhz/raster/blob/master/benchmarks/benchmark.cpp). It is obvious that this benchmarking can benefit from a more systematic treatment, e.g. using Google Benchmark as a framework. If you feel inclined to contribute, please do!
 
