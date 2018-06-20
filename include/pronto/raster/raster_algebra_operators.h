@@ -215,7 +215,7 @@ namespace pronto {
             blind_transforming_function_struct(function), t.unwrap()
           ));
     }
-
+  
     template<template<typename>class F, class T1, class T2 >
     struct filtered_binary_operator
     {
@@ -244,7 +244,7 @@ namespace pronto {
     template<template<typename>class F, class T1, class T2 >
     struct unfiltered_binary_operator
     {
-      using common_type = typename std::common_type<T1, T1>::type;
+      using common_type = typename std::common_type<T1, T2>::type;
       using function_type = F<common_type>;
       using return_type = decltype(std::declval<function_type>()
         (std::declval<common_type>(), std::declval<common_type>()));
@@ -253,6 +253,11 @@ namespace pronto {
       {
         return  function_type{}(v1,v2);
       }
+      static return_type eval(T1&& v1, T2&& v2)
+      {
+        return  function_type{}(std::move(v1), std::move(v2));
+      }
+
     };
 
     template<template<typename>class F, class T1, class T2 >
@@ -269,17 +274,19 @@ namespace pronto {
     template<template<typename>class F, class T1, class T2 >
     using  optional_filtered_binary_operator =
       typename optional_filtered_binary_operator_helper<F, T1, T2>::type;
-
+   
+    
     template<template<typename> class F >
     struct filtered_binary_f
     {
       template<class T1, class T2>
-      typename optional_filtered_binary_operator<F, T1, T2>::return_type
-        operator()(const T1& v1, const T2& v2) const
+      typename optional_filtered_binary_operator<F, std::decay_t<T1>, std::decay_t<T2> >::return_type
+        operator()(T1&& v1, T2&& v2) const
       {
-        return optional_filtered_binary_operator<F, T1, T2>::eval(v1, v2); 
+        return optional_filtered_binary_operator<F, std::decay_t<T1>, std::decay_t<T2> >::eval(std::forward<T1>(v1), std::forward<T2>(v2));
       }
     };
+    
     
     template<template<class> class F >
     struct filtered_unary_f
@@ -321,9 +328,84 @@ namespace pronto {
   }
 }
 
-#define BLINK_raster_RA_BINARY_OP(op, func)                        \
-  namespace pronto {                                                   \
-    namespace raster {                                             \
+/*
+template<class template<class> Func, class T1, class T2>
+class binary_function_getter
+{
+  class unknown_type {};
+
+  template<class T>
+  struct type_or_value_type
+  {
+    using type = T;
+  };
+
+  template<class R>
+  struct type_or_value_type<raster_algebra_wrapper<R> >
+  {
+    using type = typename traits<R>::value_type;
+  };
+
+  template<>
+  struct type_or_value_type<raster_algebra_wrapper<any_blind_raster> >
+  {
+    using type = unknown_type;
+  };
+
+  template<class T1, class T2>
+  struct common_type
+  {
+    using type = typename std::common_type<T1, T2>::type;
+  };
+
+  template<class T1>
+  struct common_type<T1, unknown_type>
+  {
+    using type = unknown_type;
+  };
+ 
+  template<class T2>
+  struct common_type<unknown_type, T2>
+  {
+    using type = unknown_type;
+  };
+
+  template<>
+  struct common_type<unknown_type, unknown_type>
+  {
+    using type = unknown_type;
+  };
+
+  using value_type_1 = typename type_or_value_type<T1>::type;
+  using value_type_2 = typename type_or_value_type<T2>::type;
+
+  using common_value_type = typename common_type<value_type_1, value_type_2>::type;
+
+  template<class CommonType>
+  struct function_type_helper
+  {
+    using type = Func<CommonType>;
+  };
+
+  template<>
+  struct function_type_helper<unknown_type>
+  {
+    using type = filtered_binary_f<Func>;
+  };
+
+  using function_type = typename function_type_helper<commpon_value_type>::type;
+
+
+  function_type get()
+  {
+    return function_type{};
+  }
+};
+*/
+
+#define BLINK_raster_RA_BINARY_OP(op, func)                           \
+  namespace pronto {                                                  \
+    namespace raster {                                                \
                                                                       \
       template<class R, class T>                                      \
       auto operator op(raster_algebra_wrapper<R> r, const T& v)       \
