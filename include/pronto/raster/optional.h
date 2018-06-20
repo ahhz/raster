@@ -131,7 +131,7 @@ namespace pronto {
     template<class F>
     struct optional_filtered_function
     {
-      optional_filtered_function(F f) : m_f(f)
+      optional_filtered_function(F f = F{}) : m_f(f)
       {}
 
       optional_filtered_function() = default;
