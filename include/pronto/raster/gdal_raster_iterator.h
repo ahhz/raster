@@ -65,31 +65,31 @@ namespace pronto
       gdal_raster_iterator& operator=(gdal_raster_iterator&& other) = default;
       ~gdal_raster_iterator() = default;
 
-      friend inline bool operator==(const gdal_raster_iterator& a
+      friend bool operator==(const gdal_raster_iterator& a
         , const gdal_raster_iterator& b)
       {
         return a.m_pos == b.m_pos;
       }
 
-      friend inline bool operator!=(const gdal_raster_iterator& a
+      friend bool operator!=(const gdal_raster_iterator& a
         , const gdal_raster_iterator& b)
       {
         return a.m_pos != b.m_pos;
       }
 
-      inline gdal_raster_iterator& operator+=(std::ptrdiff_t distance)
+      gdal_raster_iterator& operator+=(std::ptrdiff_t distance)
       {
         goto_index(get_index() + static_cast<int>(distance));
         return *this;
       }
 
-      inline gdal_raster_iterator& operator-=(std::ptrdiff_t distance)
+      gdal_raster_iterator& operator-=(std::ptrdiff_t distance)
       {
         goto_index(get_index() - static_cast<int>(distance));
         return *this;
       }
 
-      inline gdal_raster_iterator& operator--()
+      gdal_raster_iterator& operator--()
       {
         auto d = std::distance(m_block.get_iterator(0, 0, m_view->m_stride), m_pos);
         if ( d % m_block.block_cols() > 0) {
@@ -102,58 +102,58 @@ namespace pronto
         }
       }
 
-      inline gdal_raster_iterator& operator--(int)
+      gdal_raster_iterator& operator--(int)
       {
         gdal_raster_iterator temp(*this);
         --(*this);
         return temp;
       }
 
-      inline gdal_raster_iterator operator+(std::ptrdiff_t distance) const
+      gdal_raster_iterator operator+(std::ptrdiff_t distance) const
       {
         gdal_raster_iterator temp(*this);
         temp += distance;
         return temp;
       }
 
-      inline gdal_raster_iterator operator-(std::ptrdiff_t distance) const
+      gdal_raster_iterator operator-(std::ptrdiff_t distance) const
       {
         gdal_raster_iterator temp(*this);
         temp -= distance;
         return temp;
       }
 
-      inline reference operator[](std::ptrdiff_t distance) const
+      reference operator[](std::ptrdiff_t distance) const
       {
          return *(operator+(distance));
       }
 
-      inline bool operator<(const gdal_raster_iterator& that) const
+      bool operator<(const gdal_raster_iterator& that) const
       {
         return get_index() < that.get_index();
       }
 
-      inline bool operator>(const gdal_raster_iterator& that) const
+      bool operator>(const gdal_raster_iterator& that) const
       {
         return get_index() > that.get_index();
       }
 
-      inline bool operator<=(const gdal_raster_iterator& that) const
+      bool operator<=(const gdal_raster_iterator& that) const
       {
         return get_index() <= that.get_index();
       }
 
-      inline bool operator>=(const gdal_raster_iterator& that) const
+      bool operator>=(const gdal_raster_iterator& that) const
       {
         return get_index() >= that.get_index();
       }
 
-      inline gdal_raster_iterator& operator++()
+      gdal_raster_iterator& operator++()
       {
-        m_pos += m_view->m_stride;
+        m_pos += m_stride;
 
         if (m_pos == m_end_of_stretch) {
-          m_pos -= m_view->m_stride;
+          m_pos -= m_stride;
           return goto_index(get_index() + 1);
         }
         return *this;
@@ -166,7 +166,7 @@ namespace pronto
         return temp;
       }
 
-      inline reference operator*() const
+       reference operator*() const
       {
         return get_reference(is_mutable{});
       }
@@ -194,12 +194,14 @@ namespace pronto
       void find_begin(const view_type* view)
       {
         m_view = view;
+        m_stride = view->m_stride;
         goto_index(0);
       }
 
       void find_end(const view_type* view)
       {
         m_view = view;
+        m_stride = view->m_stride;
         goto_index(m_view->rows() * m_view->cols());
       }
 
@@ -300,7 +302,7 @@ namespace pronto
       }
 
       const view_type* m_view;
-
+      unsigned char m_stride;
       block_type m_block;
       block_iterator_type m_end_of_stretch;
       block_iterator_type m_pos;
