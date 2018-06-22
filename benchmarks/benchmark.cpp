@@ -600,9 +600,7 @@ int benchmark_3_rasters_pixel_function()
   GDALRasterBand* band_abc = dataset_abc->GetRasterBand(1);
   GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
 
-
   CPLAssert(band_abc->GetRasterDataType() == GDT_Byte);
-  std::cout << " Check raster type: " << (band_abc->GetRasterDataType() == GDT_Byte) << std::endl;
   int nXBlockSize, nYBlockSize;
 
   band_out->GetBlockSize(&nXBlockSize, &nYBlockSize);
@@ -614,11 +612,13 @@ int benchmark_3_rasters_pixel_function()
   for (int iYBlock = 0; iYBlock < nYBlocks; iYBlock++) {
     for (int iXBlock = 0; iXBlock < nXBlocks; iXBlock++) {
 
-      int nXValid = std::min(nXBlockSize, dataset_abc->GetRasterXSize() - iXBlock * nXBlockSize);
-      int nYValid = std::min(nYBlockSize, dataset_abc->GetRasterYSize() - iYBlock * nYBlockSize);
+      int nXValid = std::min(nXBlockSize, dataset_abc->GetRasterXSize() - 
+        iXBlock * nXBlockSize);
+      int nYValid = std::min(nYBlockSize, dataset_abc->GetRasterYSize() - 
+        iYBlock * nYBlockSize);
 
-      band_abc->RasterIO(GF_Read, iXBlock * nXBlockSize, iYBlock * nYBlockSize, nXValid, nYValid, data_abc, nXBlockSize, nYBlockSize, GDT_Byte, 0, 0);
-//    band_abc->ReadBlock(iXBlock, iYBlock, data_abc);
+      band_abc->RasterIO(GF_Read, iXBlock * nXBlockSize, iYBlock * nYBlockSize
+        , nXValid, nYValid, data_abc, nXBlockSize, nYBlockSize, GDT_Byte, 0, 0);
       band_out->WriteBlock(iXBlock, iYBlock, data_abc);
     }
   }
@@ -626,6 +626,57 @@ int benchmark_3_rasters_pixel_function()
   CPLErr try_statistics = band_out->GetStatistics(FALSE,
     FALSE,
     &min, &max, &mean, &stddev);
+
+  // Only update statistics if rasterband thinks that they are up 
+  // to date
+  if (try_statistics != CE_Warning) {
+    band_out->ComputeStatistics(FALSE, &min, &max, &mean, &stddev, NULL, NULL);
+    band_out->SetStatistics(min, max, mean, stddev);
+  }
+
+  CPLFree(data_abc);
+  GDALClose(dataset_out);
+
+  return 0;
+}
+
+int benchmark_3_rasters_python_pixel_function()
+{
+  GDALAllRegister();
+  CPLSetConfigOption("GDAL_VRT_ENABLE_PYTHON", "YES");
+  GDALDataset* dataset_abc = (GDALDataset*)GDALOpen("abc_python.vrt", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+
+  GDALRasterBand* band_abc = dataset_abc->GetRasterBand(1);
+  GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
+
+  CPLAssert(band_abc->GetRasterDataType() == GDT_Byte);
+  int nXBlockSize, nYBlockSize;
+
+  band_out->GetBlockSize(&nXBlockSize, &nYBlockSize);
+  int nXBlocks = (band_abc->GetXSize() + nXBlockSize - 1) / nXBlockSize;
+  int nYBlocks = (band_abc->GetYSize() + nYBlockSize - 1) / nYBlockSize;
+
+  GByte *data_abc = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+
+  for (int iYBlock = 0; iYBlock < nYBlocks; iYBlock++) {
+    for (int iXBlock = 0; iXBlock < nXBlocks; iXBlock++) {
+
+      int nXValid = std::min(nXBlockSize, dataset_abc->GetRasterXSize() -
+        iXBlock * nXBlockSize);
+      int nYValid = std::min(nYBlockSize, dataset_abc->GetRasterYSize() -
+        iYBlock * nYBlockSize);
+
+      band_abc->RasterIO(GF_Read, iXBlock * nXBlockSize, iYBlock * nYBlockSize
+        , nXValid, nYValid, data_abc, nXBlockSize, nYBlockSize, GDT_Byte, 0, 0);
+      band_out->WriteBlock(iXBlock, iYBlock, data_abc);
+    }
+  }
+  double min, max, mean, stddev;
+  CPLErr try_statistics = band_out->GetStatistics(FALSE,
+    FALSE,
+    &min, &max, &mean, &stddev);
+
   // Only update statistics if rasterband thinks that they are up 
   // to date
   if (try_statistics != CE_Warning) {
@@ -657,7 +708,7 @@ int main()
   //benchmark_3_rasters_forward_only_in_blocks_transform();
   
   benchmark_3_rasters_pixel_function();
-  
+//  benchmark_3_rasters_python_pixel_function();
   //benchmark_3_rasters_forward_only_in_blocks_iterate();
   //benchmark_3_rasters_blind();
   //benchmark_3_rasters_reference();
