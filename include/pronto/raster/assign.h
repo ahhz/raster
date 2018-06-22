@@ -27,7 +27,14 @@ namespace pronto {
     template<class RasterTo, class RasterFrom> // only needs to be a range
     void assign(RasterTo& to, const RasterFrom& from)
     {
-      std::copy(from.begin(), from.end(), to.begin());
+      auto i = from.begin();
+      auto i_end = from.end();
+      auto j = to.begin();
+      for (; i != i_end; ++i, ++j)
+      {
+        *j = *i;
+      }
+       //std::copy(from.begin(), from.end(), to.begin());
     }
 
 
