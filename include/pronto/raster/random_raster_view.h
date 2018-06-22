@@ -339,7 +339,7 @@ namespace pronto
           m_major_row = full_row / block_rows;
           m_major_col = full_col / block_cols;
 
-          int blocks_per_row = m_view->m_full_cols / block_cols;
+          int blocks_per_row = 1 + (m_view->m_full_cols-1) / block_cols;
 
           int major_index = m_major_row * blocks_per_row + m_major_col;
 
@@ -349,6 +349,10 @@ namespace pronto
           int index_in_block = row_in_block * block_cols + col_in_block;
 
           //m_block.drop_lock();
+          if (major_index == 7)
+          {
+            bool stop_here = true;
+          }
           auto lock_dropper = [](block_type* b) {b->drop_lock(); delete b;  };
           m_block.reset(new block_type(m_view->get_block(major_index)), lock_dropper);
           m_block->add_lock();
@@ -380,7 +384,8 @@ namespace pronto
         , Distribution distribution
         , Generator generator)
         :  m_rows(rows), m_cols(cols), m_distribution(distribution)
-        , m_max_blocks_in_memory(num_blocks)
+        , m_max_blocks_in_memory(num_blocks), m_full_cols(cols)
+        , m_full_rows(rows)
       {
         int block_rows = (RowsInBlock + m_rows - 1) / RowsInBlock;
         int block_cols = (ColsInBlock + m_cols - 1) / ColsInBlock;
@@ -416,11 +421,11 @@ namespace pronto
         for (auto i = m_lru.begin(); i != m_lru.end(); ++i) {
           int index = i->m_block_index;
           block& bl = m_blocks[index];
-          bl.m_cached_block = none;
-
+  
           if (!(i->m_lock_count > 0))
           {
-             m_lru.splice(m_lru.end(), m_lru, i);
+            bl.m_cached_block = none;
+            m_lru.splice(m_lru.end(), m_lru, i);
             return i;
           }
         }
@@ -469,7 +474,7 @@ namespace pronto
         return i;
       }
 	  
-      cached_random_blocks sub_raster(int first_row, int first_col, int rows, int cols)
+      cached_random_blocks sub_raster(int first_row, int first_col, int rows, int cols) const
       {
         cached_random_blocks copy = *this;
         for (auto&& i : copy.m_blocks)
@@ -521,12 +526,16 @@ namespace pronto
     cached_random_blocks<Distribution, Generator, BlockRows, BlockCols>
       random_distribution_raster(int rows, int cols
         , Distribution dist
-        , Generator gen = Generator(std::random_device()()))
+        , Generator gen = Generator(std::random_device()())
+        , int num_blocks = -1 )
     {
-      int two_rows_of_blocks = 2 * (BlockCols + cols - 1) / BlockCols;
+      // value of -1 is used as flag for default
+      // default is two rows of blocks
+      if(num_blocks == -1) num_blocks = 2 * (BlockCols + cols - 1) / BlockCols;
+      
       return cached_random_blocks<Distribution, Generator
         , BlockRows, BlockCols>
-        (rows, cols, two_rows_of_blocks, dist, gen);
+        (rows, cols, num_blocks, dist, gen);
     }
   }
 }
