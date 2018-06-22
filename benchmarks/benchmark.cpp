@@ -130,6 +130,28 @@ int benchmark_3_rasters_forward_only_in_blocks_transform()
   return 0;
 }
 
+int benchmark_3_rasters_forward_only_in_blocks_iterate()
+{
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+
+  auto ia = raster_a.begin();
+  auto ib = raster_b.begin();
+  auto ic = raster_c.begin();
+  auto iout = raster_out.begin();
+
+  const auto ia_end = raster_a.end();
+  for (; ia != ia_end; ++ia, ++ib, ++ic, ++iout)
+  {
+    *iout = 3 * (*ia) + (*ib) * (*ic);
+  }
+  
+  return 0;
+}
+
+
 int benchmark_3_rasters_reference()
 {
   GDALAllRegister();
@@ -537,6 +559,85 @@ int benchmark_assign_reference()
   return 0;
 }
 
+CPLErr TestABCFunction(void **papoSources, int nSources, void *pData,
+  int nXSize, int nYSize,
+  GDALDataType eSrcType, GDALDataType eBufType,
+  int nPixelSpace, int nLineSpace)
+{
+  int ii, iLine, iCol;
+  double pix_val;
+  double a, b, c;
+  // ---- Init ----
+  if (nSources != 3) return CE_Failure;
+  // ---- Set pixels ----
+  for (iLine = 0; iLine < nYSize; iLine++)
+  {
+    for (iCol = 0; iCol < nXSize; iCol++)
+    {
+      ii = iLine * nXSize + iCol;
+      /* Source raster pixels may be obtained with SRCVAL macro */
+      a = SRCVAL(papoSources[0], eSrcType, ii);
+      b = SRCVAL(papoSources[1], eSrcType, ii);
+      c = SRCVAL(papoSources[2], eSrcType, ii);
+      pix_val = 3 * a + b * c;
+      GDALCopyWords(&pix_val, GDT_Float64, 0,
+        ((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
+        eBufType, nPixelSpace, 1);
+    }
+  }
+  // ---- Return success ----
+  return CE_None;
+}
+
+int benchmark_3_rasters_pixel_function()
+{
+  GDALAllRegister();
+  GDALAddDerivedBandPixelFunc("MyABCFunction", TestABCFunction);
+
+  GDALDataset* dataset_abc = (GDALDataset*)GDALOpen("abc.vrt", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+
+  GDALRasterBand* band_abc = dataset_abc->GetRasterBand(1);
+  GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
+
+
+  CPLAssert(band_abc->GetRasterDataType() == GDT_Byte);
+  std::cout << " Check raster type: " << (band_abc->GetRasterDataType() == GDT_Byte) << std::endl;
+  int nXBlockSize, nYBlockSize;
+
+  band_out->GetBlockSize(&nXBlockSize, &nYBlockSize);
+  int nXBlocks = (band_abc->GetXSize() + nXBlockSize - 1) / nXBlockSize;
+  int nYBlocks = (band_abc->GetYSize() + nYBlockSize - 1) / nYBlockSize;
+
+  GByte *data_abc = (GByte *)CPLMalloc(nXBlockSize * nYBlockSize);
+  
+  for (int iYBlock = 0; iYBlock < nYBlocks; iYBlock++) {
+    for (int iXBlock = 0; iXBlock < nXBlocks; iXBlock++) {
+
+      int nXValid = std::min(nXBlockSize, dataset_abc->GetRasterXSize() - iXBlock * nXBlockSize);
+      int nYValid = std::min(nYBlockSize, dataset_abc->GetRasterYSize() - iYBlock * nYBlockSize);
+
+      band_abc->RasterIO(GF_Read, iXBlock * nXBlockSize, iYBlock * nYBlockSize, nXValid, nYValid, data_abc, nXBlockSize, nYBlockSize, GDT_Byte, 0, 0);
+//    band_abc->ReadBlock(iXBlock, iYBlock, data_abc);
+      band_out->WriteBlock(iXBlock, iYBlock, data_abc);
+    }
+  }
+  double min, max, mean, stddev;
+  CPLErr try_statistics = band_out->GetStatistics(FALSE,
+    FALSE,
+    &min, &max, &mean, &stddev);
+  // Only update statistics if rasterband thinks that they are up 
+  // to date
+  if (try_statistics != CE_Warning) {
+    band_out->ComputeStatistics(FALSE, &min, &max, &mean, &stddev, NULL, NULL);
+    band_out->SetStatistics(min, max, mean, stddev);
+  }
+
+  CPLFree(data_abc);
+  GDALClose(dataset_out);
+
+  return 0;
+}
 
 
 
@@ -545,7 +646,7 @@ int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  //create_data_for_benchmark(100000, 1000);
+  //create_data_for_benchmark(10000, 10000);
   // benchmark_2_rasters();
   //benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
@@ -553,10 +654,14 @@ int main()
   //benchmark_3_rasters();
   //benchmark_3_rasters_forward_only();
   //benchmark_3_rasters_forward_only_in_blocks();
- // benchmark_3_rasters_forward_only_in_blocks_transform();
+  //benchmark_3_rasters_forward_only_in_blocks_transform();
+  
+  benchmark_3_rasters_pixel_function();
+  
+  //benchmark_3_rasters_forward_only_in_blocks_iterate();
   //benchmark_3_rasters_blind();
   //benchmark_3_rasters_reference();
-  benchmark_3_rasters_reference_cached();
+  //benchmark_3_rasters_reference_cached();
   //benchmark_3_rasters_reference_cached_no_copy();
   //benchmark_assign();
   //benchmark_assign_blind();
