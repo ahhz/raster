@@ -115,7 +115,7 @@ namespace pronto
         //papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
         papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
         //papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
-        papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "DEFLATE");
+        papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "LZW");
 
         GDALDataset* dataset = driver->Create(path.string().c_str(), cols, rows
           , nBands, datatype, papszOptions);
