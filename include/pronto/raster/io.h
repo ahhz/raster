@@ -109,10 +109,12 @@ namespace pronto
         GDALDriver* driver = m->GetDriverByName("GTiff");
 
         char **papszOptions = NULL;
-        papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
-        papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
+        // Commented out settings that are default anyway
+       
+        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
+        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
         papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
-        papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
+        //papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
         papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "DEFLATE");
 
         GDALDataset* dataset = driver->Create(path.string().c_str(), cols, rows
