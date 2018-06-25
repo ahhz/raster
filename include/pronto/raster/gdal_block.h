@@ -26,6 +26,11 @@ namespace pronto
      
       void reset(GDALRasterBand* band, int major_row, int major_col)
       {
+        // Avoid rereading same block
+        if (m_block && m_block->GetBand() == band 
+          && major_row == this->major_row() && major_col == this->major_col()) 
+          return;
+
         GDALRasterBlock* block = band->GetLockedBlockRef(major_col, major_row);
         if (block == nullptr) {
           assert(false);

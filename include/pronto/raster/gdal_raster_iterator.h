@@ -175,7 +175,7 @@ namespace pronto
       friend class reference_proxy<const gdal_raster_iterator&>;
       friend class reference_proxy<gdal_raster_iterator>;
 
-      inline T get() const
+      T get() const
       {
         return m_view->get(static_cast<void*>(m_pos));
       }
@@ -184,8 +184,7 @@ namespace pronto
       {
         static_assert(AccessType::value == read_write
           , "only allow writing in mutable iterators");
-        m_block.mark_dirty();
-        m_view->put(value, static_cast<void*>(m_pos));
+         m_view->put(value, static_cast<void*>(m_pos));
       }
 
     private: 
@@ -206,12 +205,12 @@ namespace pronto
       }
 
     private:
-      inline reference get_reference(std::true_type) const // mutable
+      reference get_reference(std::true_type) const // mutable
       {
         return reference(*this);
       }
 
-      inline reference get_reference(std::false_type) const // not mutable
+      reference get_reference(std::false_type) const // not mutable
       {
         return m_view->get(static_cast<void*>(m_pos));
       }
@@ -287,6 +286,10 @@ namespace pronto
         int index_in_block = row_in_block * block_cols + col_in_block;
 
         m_block.reset(m_view->m_band.get(), block_row, block_col);
+        if (is_mutable::value) 
+        { 
+          m_block.mark_dirty(); 
+        }
 
         m_pos = m_block.get_iterator(row_in_block, col_in_block, m_view->m_stride);
 
