@@ -25,10 +25,10 @@ namespace pr = pronto::raster;
 
 void create_data_for_benchmark(int rows, int cols)
 {
-	auto raster_a = pr::create<int>("random_a.tiff", rows, cols, GDT_Byte);
-	auto raster_b = pr::create<int>("random_b.tiff", rows, cols, GDT_Byte);
-	auto raster_c = pr::create<int>("random_c.tiff", rows, cols, GDT_Byte);
-	auto raster_d = pr::create<int>("output.tiff", rows, cols, GDT_Byte);
+	auto raster_a = pr::create<int>("random_a.tif", rows, cols, GDT_Byte);
+	auto raster_b = pr::create<int>("random_b.tif", rows, cols, GDT_Byte);
+	auto raster_c = pr::create<int>("random_c.tif", rows, cols, GDT_Byte);
+	auto raster_d = pr::create<int>("output.tif", rows, cols, GDT_Byte);
 	
 	
 	 // Choose a distribution to use, here the fair dice distribution
@@ -51,10 +51,10 @@ void create_data_for_benchmark(int rows, int cols)
 
 int benchmark_3_rasters()
 {
-  auto raster_a = pr::open<unsigned char>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open<unsigned char>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open<unsigned char>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open<unsigned char>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open<unsigned char>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open<unsigned char>("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open<unsigned char>("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open<unsigned char>("output.tif", pr::access::read_write);
 
  
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
@@ -67,10 +67,10 @@ int benchmark_3_rasters()
 
 int benchmark_3_rasters_forward_only()
 {
-  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
 
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -83,10 +83,10 @@ int benchmark_3_rasters_forward_only()
 
 int benchmark_3_rasters_blind()
 {
-  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_any("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open_any("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_any("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open_any("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tif", pr::access::read_write);
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a) 
     + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
@@ -98,10 +98,10 @@ int benchmark_3_rasters_blind()
 
 int benchmark_3_rasters_forward_only_in_blocks()
 {
-  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
 
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -114,10 +114,10 @@ int benchmark_3_rasters_forward_only_in_blocks()
 
 int benchmark_3_rasters_forward_only_in_blocks_transform()
 {
-  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
 
   auto func = [](const unsigned char& a, const unsigned char& b, const unsigned char& c)
   {
@@ -130,19 +130,19 @@ int benchmark_3_rasters_forward_only_in_blocks_transform()
   return 0;
 }
 
-int benchmark_3_rasters_forward_only_in_blocks_iterate()
+int benchmark_3_rasters_forward_only_no_blocks_iterate()
 {
-  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tiff", pr::access::read_only);
-  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tiff", pr::access::read_only);
-  auto raster_out = pr::open_forward_only<unsigned char>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
+  auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
+  auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
 
-  auto ia = raster_a.begin();
-  auto ib = raster_b.begin();
-  auto ic = raster_c.begin();
+  auto ia = std::as_const(raster_a).begin();
+  auto ib = std::as_const(raster_b).begin();
+  auto ic = std::as_const(raster_c).begin();
   auto iout = raster_out.begin();
 
-  const auto ia_end = raster_a.end();
+  const auto ia_end = std::as_const(raster_a).end();
   for (; ia != ia_end; ++ia, ++ib, ++ic, ++iout)
   {
     *iout = 3 * (*ia) + (*ib) * (*ic);
@@ -155,10 +155,10 @@ int benchmark_3_rasters_forward_only_in_blocks_iterate()
 int benchmark_3_rasters_reference()
 {
   GDALAllRegister();
-  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
-  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tiff", GA_ReadOnly);
-  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tiff", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tif", GA_ReadOnly);
+  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tif", GA_ReadOnly);
+  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tif", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
   GDALRasterBand* band_b = dataset_b->GetRasterBand(1);
@@ -230,10 +230,10 @@ int benchmark_3_rasters_reference()
 int benchmark_3_rasters_reference_cached()
 {
   GDALAllRegister();
-  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
-  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tiff", GA_ReadOnly);
-  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tiff", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tif", GA_ReadOnly);
+  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tif", GA_ReadOnly);
+  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tif", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
   GDALRasterBand* band_b = dataset_b->GetRasterBand(1);
@@ -306,10 +306,10 @@ int benchmark_3_rasters_reference_cached()
 int benchmark_3_rasters_reference_cached_no_copy()
 {
   GDALAllRegister();
-  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
-  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tiff", GA_ReadOnly);
-  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tiff", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tif", GA_ReadOnly);
+  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tif", GA_ReadOnly);
+  GDALDataset* dataset_c = (GDALDataset*)GDALOpen("random_c.tif", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
   GDALRasterBand* band_b = dataset_b->GetRasterBand(1);
@@ -390,9 +390,9 @@ int benchmark_3_rasters_reference_cached_no_copy()
 
 int benchmark_2_rasters()
 {
-  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open<int>("random_b.tiff", pr::access::read_only);
-  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open<int>("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open<int>("random_b.tif", pr::access::read_only);
+  auto raster_out = pr::open<int>("output.tif", pr::access::read_write);
 
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -406,9 +406,9 @@ int benchmark_2_rasters()
 
 int benchmark_2_rasters_blind()
 {
-  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
-  auto raster_b = pr::open_any("random_b.tiff", pr::access::read_only);
-  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
+  auto raster_b = pr::open_any("random_b.tif", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tif", pr::access::read_write);
 
   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
     + pr::raster_algebra_wrap(raster_b);
@@ -421,9 +421,9 @@ int benchmark_2_rasters_blind()
 int benchmark_2_rasters_reference()
 {
   GDALAllRegister();
-  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
-  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tiff", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tif", GA_ReadOnly);
+  GDALDataset* dataset_b = (GDALDataset*)GDALOpen("random_b.tif", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
   GDALRasterBand* band_b = dataset_b->GetRasterBand(1);
@@ -485,16 +485,16 @@ int benchmark_2_rasters_reference()
 
 int benchmark_assign()
 {
-  auto raster_a = pr::open<int>("random_a.tiff", pr::access::read_only);
-  auto raster_out = pr::open<int>("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open<int>("random_a.tif", pr::access::read_only);
+  auto raster_out = pr::open<int>("output.tif", pr::access::read_write);
   pr::assign(raster_out, raster_a);
   return 0;
 }
 
 int benchmark_assign_blind()
 {
-  auto raster_a = pr::open_any("random_a.tiff", pr::access::read_only);
-  auto raster_out = pr::open_any("output.tiff", pr::access::read_write);
+  auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
+  auto raster_out = pr::open_any("output.tif", pr::access::read_write);
   pr::assign(raster_out, raster_a);
   return 0;
 }
@@ -502,8 +502,8 @@ int benchmark_assign_blind()
 int benchmark_assign_reference()
 {
   GDALAllRegister();
-  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tiff", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_a = (GDALDataset*)GDALOpen("random_a.tif", GA_ReadOnly);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_a = dataset_a->GetRasterBand(1);
   GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
@@ -595,7 +595,7 @@ int benchmark_3_rasters_pixel_function()
   GDALAddDerivedBandPixelFunc("MyABCFunction", TestABCFunction);
 
   GDALDataset* dataset_abc = (GDALDataset*)GDALOpen("abc.vrt", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_abc = dataset_abc->GetRasterBand(1);
   GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
@@ -645,7 +645,7 @@ int benchmark_3_rasters_python_pixel_function()
   GDALAllRegister();
   CPLSetConfigOption("GDAL_VRT_ENABLE_PYTHON", "YES");
   GDALDataset* dataset_abc = (GDALDataset*)GDALOpen("abc_python.vrt", GA_ReadOnly);
-  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tiff", GA_Update);
+  GDALDataset* dataset_out = (GDALDataset*)GDALOpen("output.tif", GA_Update);
 
   GDALRasterBand* band_abc = dataset_abc->GetRasterBand(1);
   GDALRasterBand* band_out = dataset_out->GetRasterBand(1);
@@ -705,15 +705,15 @@ int main()
   //benchmark_3_rasters();
   //benchmark_3_rasters_forward_only();
   //benchmark_3_rasters_forward_only_in_blocks();
-  //benchmark_3_rasters_forward_only_in_blocks_transform();
+ // benchmark_3_rasters_forward_only_in_blocks_transform();
   
-  benchmark_3_rasters_pixel_function();
-//  benchmark_3_rasters_python_pixel_function();
-  //benchmark_3_rasters_forward_only_in_blocks_iterate();
+//  benchmark_3_rasters_pixel_function();
+  //benchmark_3_rasters_python_pixel_function();
+ // benchmark_3_rasters_forward_only_no_blocks_iterate();
   //benchmark_3_rasters_blind();
   //benchmark_3_rasters_reference();
-  //benchmark_3_rasters_reference_cached();
-  //benchmark_3_rasters_reference_cached_no_copy();
+ // benchmark_3_rasters_reference_cached();
+  benchmark_3_rasters_reference_cached_no_copy();
   //benchmark_assign();
   //benchmark_assign_blind();
   //benchmark_assign_reference();
