@@ -20,11 +20,6 @@ a = Raster(a_file)
 b = Raster(b_file)
 c = Raster(c_file)
 
-# Like this is would be slower due to temporaries
-# out1 = 3 * a
-# out2 = b * c
-# out = out1 + out2
-
 out = 3 * a + b * c
 
 out.save(out_file)

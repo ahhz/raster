@@ -23,7 +23,7 @@ with rasterio.Env():
     profile.update(
        dtype=rasterio.uint8,
        count=1,
-       compress='deflate',
+       compress='lzw',
        tiled=True,
        blockxsize=256,
        blockysize=256
