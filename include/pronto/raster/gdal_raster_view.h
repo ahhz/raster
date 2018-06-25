@@ -178,7 +178,6 @@ namespace pronto
       template<typename U>
       static void put_special(const value_type& value, void* const target)
       {
-        //U* target_cast = static_cast<U*>(target);
         *(static_cast<U*>(target)) = static_cast<U>(value);
       }
 
@@ -191,8 +190,6 @@ namespace pronto
       template<typename U>
       static value_type get_special(const void* const source)
       {
-        //const U* source_cast = static_cast<const U*>(source);
-        //return static_cast<value_type>(*source_cast);
         return static_cast<value_type>(*static_cast<const U*>(source));
       }
 
@@ -210,7 +207,7 @@ namespace pronto
       //std::function<void(const value_type&, void* const)> put;
       //std::function<value_type(const void* const)> get;
 
-      unsigned char m_stride; // todo: make static constant?
+      unsigned char m_stride; 
 
       std::shared_ptr<GDALRasterBand> m_band;
       int m_rows;
