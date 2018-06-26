@@ -565,7 +565,7 @@ CPLErr TestABCFunction(void **papoSources, int nSources, void *pData,
   int nPixelSpace, int nLineSpace)
 {
   int ii, iLine, iCol;
-  double pix_val;
+  unsigned char pix_val;
   double a, b, c;
   // ---- Init ----
   if (nSources != 3) return CE_Failure;
@@ -579,8 +579,8 @@ CPLErr TestABCFunction(void **papoSources, int nSources, void *pData,
       a = SRCVAL(papoSources[0], eSrcType, ii);
       b = SRCVAL(papoSources[1], eSrcType, ii);
       c = SRCVAL(papoSources[2], eSrcType, ii);
-      pix_val = 3 * a + b * c;
-      GDALCopyWords(&pix_val, GDT_Float64, 0,
+      pix_val = static_cast<unsigned char>(3 * a + b * c);
+      GDALCopyWords(&pix_val, GDT_Byte, 0,
         ((GByte *)pData) + nLineSpace * iLine + iCol * nPixelSpace,
         eBufType, nPixelSpace, 1);
     }
@@ -697,23 +697,23 @@ int main()
 {
   auto start = std::chrono::system_clock::now();
   
-  //create_data_for_benchmark(10000, 10000);
+  create_data_for_benchmark(10000, 10000);
   // benchmark_2_rasters();
   //benchmark_2_rasters_blind();
   // benchmark_2_rasters_reference();
   
   //benchmark_3_rasters();
   //benchmark_3_rasters_forward_only();
-  //benchmark_3_rasters_forward_only_in_blocks();
- // benchmark_3_rasters_forward_only_in_blocks_transform();
+ // benchmark_3_rasters_forward_only_in_blocks();
+ //benchmark_3_rasters_forward_only_in_blocks_transform();
   
 //  benchmark_3_rasters_pixel_function();
-  //benchmark_3_rasters_python_pixel_function();
+ benchmark_3_rasters_python_pixel_function();
  // benchmark_3_rasters_forward_only_no_blocks_iterate();
   //benchmark_3_rasters_blind();
-  //benchmark_3_rasters_reference();
+ // benchmark_3_rasters_reference();
  // benchmark_3_rasters_reference_cached();
-  benchmark_3_rasters_reference_cached_no_copy();
+ // benchmark_3_rasters_reference_cached_no_copy();
   //benchmark_assign();
   //benchmark_assign_blind();
   //benchmark_assign_reference();
