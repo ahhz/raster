@@ -66,7 +66,7 @@ bool test_open()
   {
     auto r = pronto::raster::open<int>("temp.tif", pr::access::read_only);
     std::vector<int> check_vector;
-    for (auto&& i : r) {
+    for (auto&& i : std::as_const(r)) {
       check_vector.push_back(i);
     }
     check_contents =  check_vector == std::vector<int>
@@ -95,7 +95,7 @@ bool test_create_open_large()
     auto view = pr::open<int>("temp.tif", pr::access::read_only);
 
     std::vector<int> check_vector;
-    for (auto&& i : view) {
+    for (auto&& i : std::as_const(view)) {
       check_vector.push_back(i);
     }
     int check_last = check_vector.back() == (rows * cols - 1);

@@ -93,10 +93,9 @@ namespace pronto
       void drop_lock(block& b)
       {
         m_lru.drop_lock(*b.m_id);
-
       }
 
-      block get_block(int index) 
+      block* get_block(int index) 
       {
         block& b = m_blocks[index];
         if (b.m_id) {
@@ -118,13 +117,13 @@ namespace pronto
             j = m_distribution(rng);
           }
         }
-        return b;
+        return &b;
       }
 
       Distribution m_distribution;
       Generator m_generator;
       std::vector<block> m_blocks;
-       lru& m_lru;
+      lru& m_lru;
       int m_rows;
       int m_cols;
     };
@@ -136,7 +135,7 @@ namespace pronto
     public:
       using value_type = typename Distribution::result_type;
       using seed_type = typename Generator::result_type;
-
+      using block_provider = random_block_provider<Distribution, Generator, RowsInBlock, ColsInBlock>;
       int block_rows() const
       {
         return RowsInBlock;
@@ -366,13 +365,12 @@ namespace pronto
           int col_in_block = full_col % block_cols;
 
           int index_in_block = row_in_block * block_cols + col_in_block;
-
-          auto lock_dropper = [&](block_type* b) {
-            m_view->m_block_provider->drop_lock(*b);
-            delete b;  
+          auto provider = m_view->m_block_provider;
+          auto lock_dropper = [provider](block_type* b) {
+            provider->drop_lock(*b);
           };
 
-          m_block.reset(new block_type(m_view->m_block_provider->get_block(major_index)), lock_dropper);
+          m_block.reset(m_view->m_block_provider->get_block(major_index), lock_dropper);
           m_view->m_block_provider->add_lock(*m_block);
           
           m_pos = m_block->begin() + index_in_block;
@@ -397,11 +395,10 @@ namespace pronto
         block_iterator_type m_pos;
       };
 
-      cached_random_blocks(int rows, int cols, int num_blocks
-        , Distribution distribution
+      cached_random_blocks(int rows, int cols, Distribution distribution
         , Generator generator)
         :  m_rows(rows), m_cols(cols), m_distribution(distribution),
-         m_full_cols(cols), m_full_rows(rows)
+         m_full_cols(cols), m_full_rows(rows), m_block_provider(new block_provider(rows, cols, distribution, generator))
       { }
 
       cached_random_blocks() = default;
@@ -470,22 +467,15 @@ namespace pronto
 
     // Default block size is 128 x 128
     // Default generator is mersenne twister, seeded by time
-    // Default memory allowance is enough for two rows of blocks
-    template<class Distribution, class Generator = std::mt19937_64
-      , int BlockRows = 128, int BlockCols = 128>
+    template<int BlockRows = 128, int BlockCols = 128, class Distribution, class Generator = std::mt19937_64>
     cached_random_blocks<Distribution, Generator, BlockRows, BlockCols>
       random_distribution_raster(int rows, int cols
         , Distribution dist
-        , Generator gen = Generator(std::random_device()())
-        , int num_blocks = -1 )
+        , Generator gen = Generator(std::random_device()()))
     {
-      // value of -1 is used as flag for default
-      // default is two rows of blocks
-      if(num_blocks == -1) num_blocks = 2 * (BlockCols + cols - 1) / BlockCols;
-      
-      return cached_random_blocks<Distribution, Generator
+          return cached_random_blocks<Distribution, Generator
         , BlockRows, BlockCols>
-        (rows, cols, num_blocks, dist, gen);
+        (rows, cols, dist, gen);
     }
   }
 }

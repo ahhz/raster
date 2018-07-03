@@ -57,6 +57,10 @@ namespace pronto {
       lru() :m_capacity(static_cast<std::size_t>(1e8)), m_total_size(0)
       {}
 
+      ~lru()
+      {
+        assert(m_all.empty() && m_unlocked.empty());
+      }
       using id = typename std::list<element>::iterator;
     
     private:
@@ -108,7 +112,7 @@ namespace pronto {
       {
         bool was_locked = element->is_locked();
         element->add_lock();
-        if(was_locked) {
+        if(!was_locked) {
           // Just became locked, remove from unlocked list
           //
           m_unlocked.erase( element->get_iter_in_unlocked_list() );
@@ -130,7 +134,7 @@ namespace pronto {
      
           // find first unlocked element that is more recently used
           auto is_unlocked = [](lru::element& elem) {return !elem.is_locked(); };
-          id next_elem = std::find_if(++element, m_all.end(), is_unlocked);
+          id next_elem = std::find_if(std::next(element), m_all.end(), is_unlocked);
 
           // find corresponding in m_unlocked
           id2 next_elem2 = m_unlocked.end();
@@ -139,8 +143,8 @@ namespace pronto {
           }
 
           // put directly before this in unlocked list
-          m_unlocked.insert(next_elem2, element);
-          element->set_iter_in_unlocked_list(std::prev(next_elem2));
+          auto new_elem = m_unlocked.insert(next_elem2, element);
+          element->set_iter_in_unlocked_list(new_elem);
          }
       }
       inline void remove(id element)
