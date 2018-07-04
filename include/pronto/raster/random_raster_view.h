@@ -426,11 +426,7 @@ namespace pronto
       cached_random_blocks sub_raster(int first_row, int first_col, int rows, int cols) const
       {
         cached_random_blocks copy = *this;
-        for (auto&& i : copy.m_blocks)
-        {
-          i.m_cached_block = none;
-        }
-        copy.m_lru.clear();
+       
         copy.m_first_row = m_first_row + first_row;
         copy.m_first_col = m_first_col + first_col;
         copy.m_rows = rows;
@@ -456,7 +452,7 @@ namespace pronto
     private:
       mutable Distribution m_distribution;
       std::shared_ptr<random_block_provider<Distribution, Generator, RowsInBlock, ColsInBlock> > m_block_provider;
-       int m_rows; // only the subset rows
+      int m_rows; // only the subset rows
       int m_cols; // only the subset rows
       int m_first_row; // first row in subset
       int m_first_col; // first col in subset
