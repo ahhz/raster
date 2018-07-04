@@ -54,11 +54,18 @@ namespace pronto {
       };
     public:
 
-      lru() :m_capacity(static_cast<std::size_t>(1e8)), m_total_size(0)
+      lru(std::size_t capacity = static_cast<std::size_t>(1e8)) : m_capacity(capacity), m_total_size(0)
       {}
 
       ~lru()
       {
+        auto i = m_all.begin();
+        while (i != m_all.end())
+        {
+          auto j = i;
+          ++i;
+          remove(j);
+        }
         assert(m_all.empty() && m_unlocked.empty());
       }
       using id = typename std::list<element>::iterator;
@@ -150,6 +157,7 @@ namespace pronto {
       inline void remove(id element)
       {
         // removes regardless of locks
+        assert(!element->is_locked());
         element->close();
         if (!element->is_locked())
         {
