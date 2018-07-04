@@ -34,22 +34,56 @@ namespace pronto
 
       struct block
       {
-        block() : m_seed(0), m_data(nullptr), m_id(none)
+        block() : m_seed(0)
         {};
 
         using iterator = typename std::vector<value_type>::iterator;
+        using const_iterator = typename std::vector<value_type>::const_iterator;
 
         seed_type m_seed;
-        optional<typename lru::id> m_id;
-        std::vector<value_type>* m_data;
+        struct handle_and_data
+        {
+          lru::id m_handle;
+          std::vector<value_type> m_data;
+        };
+        optional<handle_and_data> m_handle_and_data;
 
-        iterator begin() const  {
-          return m_data->begin();
+        const_iterator begin() const  {
+          return (*m_handle_and_data).m_data.begin();
         }
 
-        iterator end() const {
-          return m_data->end();
+        const_iterator end() const {
+          return (*m_handle_and_data).m_data.end();
         }
+        lru::id get_handle() const
+        {
+          return (*m_handle_and_data).m_handle;
+        }
+        bool has_data() const
+        {
+          return m_handle_and_data.has_value();
+        }
+        void clear_data()
+        {
+          m_handle_and_data = none;
+        }
+
+        void set_id(lru::id handle, std::vector<value_type> data)
+        {
+          handle_and_data hd;
+          hd.m_handle = handle;
+          hd.m_data = data;
+          m_handle_and_data = hd;
+        }
+
+        iterator begin() {
+          return (*m_handle_and_data).m_data.begin();
+        }
+
+        iterator end() {
+          return (*m_handle_and_data).m_data.end();
+        }
+
       };
 
     public:
@@ -69,8 +103,8 @@ namespace pronto
       ~random_block_provider()
       {
         for (auto&& b : m_blocks) {
-          if (b.m_id) {
-            m_lru.remove(*b.m_id); // will cause the deletion of any m_data
+          if (b.has_data()) {
+            m_lru.remove(b.get_handle()); // will cause the deletion of any m_data
           }
         }
       }
@@ -87,30 +121,27 @@ namespace pronto
 
       void add_lock(block& b)
       {
-        m_lru.add_lock(*b.m_id);
+        m_lru.add_lock(b.get_handle());
       }
 
       void drop_lock(block& b)
       {
-        m_lru.drop_lock(*b.m_id);
+        m_lru.drop_lock(b.get_handle());
       }
 
       block* get_block(int index) 
       {
         block& b = m_blocks[index];
-        if (b.m_id) {
-          m_lru.touch(*b.m_id);
+        if (b.has_data()) {
+          m_lru.touch(b.get_handle());
         }
         else {
           auto closer = [&b]() {
-            b.m_id = none;
-            delete b.m_data;
-            b.m_data = nullptr;
+            b.clear_data();
           };
           std::size_t block_size = sizeof(value_type) * RowsInBlock * ColsInBlock;
 
-          b.m_id = m_lru.add(block_size, closer);
-          b.m_data = new std::vector<value_type>(RowsInBlock * ColsInBlock);
+          b.set_id(m_lru.add(block_size, closer), std::vector<value_type>(RowsInBlock * ColsInBlock) );
 
           Generator rng(b.m_seed);
           for (auto&& j : b) {
