@@ -33,13 +33,13 @@ namespace pronto {
     };
 
     template<class Raster>
-    std::string get_value_type(const Raster& raster)
+     std::string get_value_type(const Raster& raster)
     {
       using value_type = typename traits<Raster>::value_type;
       return std::string(typeid(value_type).name());
 
     }
-    std::string get_value_type(const any_blind_raster& raster)
+    inline std::string get_value_type(const any_blind_raster& raster)
     {
       return blind_function(value_type_getter{}, raster);
     }
@@ -115,12 +115,12 @@ namespace pronto {
       raster_plotter{}(raster);
     }
 
-    void plot_raster(any_blind_raster raster)
+    inline void plot_raster(any_blind_raster raster)
     {
       blind_function(raster_plotter{}, raster);
     }
 
-    void plot_raster(raster_algebra_wrapper<any_blind_raster> raster)
+    inline void plot_raster(raster_algebra_wrapper<any_blind_raster> raster)
     {
       blind_function(raster_plotter{}, raster.unwrap());
     }
