@@ -24,6 +24,69 @@ namespace pronto
 {
   namespace raster
   {
+    template<class T>
+    class data_block
+    {
+    public:
+      using handle_type = typename lru::id;
+      using value_type = T;
+      using iterator = typename std::vector<value_type>::iterator;
+      using const_iterator = typename std::vector<value_type>::const_iterator;
+    
+
+      const_iterator begin() const 
+      {
+        assert(has_data());
+        return m_data.begin();
+      }
+
+      const_iterator end() const 
+      {
+        assert(has_data());
+        return m_data.end();
+      }
+
+      iterator begin()
+      {
+        assert(has_data());
+        return m_data.begin();
+      }
+
+      iterator end()
+      {
+        assert(has_data());
+        return m_data.end();
+      }
+
+      handle_type get_handle() const
+      {
+        return *m_handle;
+      }
+
+      bool has_data() const
+      {
+        return m_handle.has_value();
+      }
+
+      void clear()
+      {
+        m_handle = none;
+        m_data.clear();
+        m_data.shrink_to_fit();
+      }
+
+      void set_handle_and_resize(handle_type handle, std::size_t size)
+      {
+        m_handle = handle;
+        m_data.resize(size);
+      }
+
+    private:
+      optional<handle_type> m_handle;
+      std::vector<value_type> m_data;
+    };
+
+
     template<class Distribution, class Generator,
       int RowsInBlock, int ColsInBlock>
       class random_block_provider
@@ -31,60 +94,9 @@ namespace pronto
     public:
       using value_type = typename Distribution::result_type;
       using seed_type = typename Generator::result_type;
-
-      struct block
-      {
-        block() : m_seed(0)
-        {};
-
-        using iterator = typename std::vector<value_type>::iterator;
-        using const_iterator = typename std::vector<value_type>::const_iterator;
-
-        seed_type m_seed;
-        struct handle_and_data
-        {
-          lru::id m_handle;
-          std::vector<value_type> m_data;
-        };
-        optional<handle_and_data> m_handle_and_data;
-
-        const_iterator begin() const  {
-          return (*m_handle_and_data).m_data.begin();
-        }
-
-        const_iterator end() const {
-          return (*m_handle_and_data).m_data.end();
-        }
-        lru::id get_handle() const
-        {
-          return (*m_handle_and_data).m_handle;
-        }
-        bool has_data() const
-        {
-          return m_handle_and_data.has_value();
-        }
-        void clear_data()
-        {
-          m_handle_and_data = none;
-        }
-
-        void set_id(lru::id handle, std::vector<value_type> data)
-        {
-          handle_and_data hd;
-          hd.m_handle = handle;
-          hd.m_data = data;
-          m_handle_and_data = hd;
-        }
-
-        iterator begin() {
-          return (*m_handle_and_data).m_data.begin();
-        }
-
-        iterator end() {
-          return (*m_handle_and_data).m_data.end();
-        }
-
-      };
+      using block = data_block<value_type>;
+      using seed_and_block = std::pair<seed_type, block>;
+     
 
     public:
       random_block_provider(int rows, int cols, Distribution distribution
@@ -96,15 +108,24 @@ namespace pronto
         int num_blocks = num_block_rows * num_block_cols;
         m_blocks.resize(num_blocks);
         for (auto&& b : m_blocks) {
-          b.m_seed = m_generator();
+          b.first = m_generator(); //first: seed
         }
+      }
+      int rows() const
+      {
+        return m_rows;
+      }
+
+      int cols() const
+      {
+        return m_cols;
       }
 
       ~random_block_provider()
       {
         for (auto&& b : m_blocks) {
-          if (b.has_data()) {
-            m_lru.remove(b.get_handle()); // will cause the deletion of any m_data
+          if (b.second.has_data()) { // second: block
+            m_lru.remove(b.second.get_handle()); // will cause the deletion of any m_data
           }
         }
       }
@@ -118,70 +139,68 @@ namespace pronto
       {
         return ColsInBlock;
       }
-
-      void add_lock(block& b)
+      
+      void add_lock(block* b)
       {
-        m_lru.add_lock(b.get_handle());
+        m_lru.add_lock(b->get_handle());
       }
 
-      void drop_lock(block& b)
+      void drop_lock(block* b)
       {
-        m_lru.drop_lock(b.get_handle());
+        m_lru.drop_lock(b->get_handle());
       }
-
+      
       block* get_block(int index) 
       {
-        block& b = m_blocks[index];
-        if (b.has_data()) {
-          m_lru.touch(b.get_handle());
+        seed_and_block& b = m_blocks[index];
+        if (b.second.has_data()) {
+          m_lru.touch(b.second.get_handle());
         }
         else {
-          auto closer = [&b]() {
-            b.clear_data();
-          };
-          std::size_t block_size = sizeof(value_type) * RowsInBlock * ColsInBlock;
+          auto closer = [&b]() { b.second.clear(); } ;
+          std::size_t n = RowsInBlock * ColsInBlock;
+          std::size_t block_size = sizeof(value_type) * n;
 
-          b.set_id(m_lru.add(block_size, closer), std::vector<value_type>(RowsInBlock * ColsInBlock) );
+          lru::id handle = m_lru.add(block_size, closer);
+          b.second.set_handle_and_resize(handle, n);
 
-          Generator rng(b.m_seed);
-          for (auto&& j : b) {
+          Generator rng(b.first); //first: seed
+          for (auto&& j : b.second) { //second: block
             j = m_distribution(rng);
           }
         }
-        return &b;
+        return &(b.second);
       }
 
+      lru& m_lru = g_lru;
       Distribution m_distribution;
       Generator m_generator;
-      std::vector<block> m_blocks;
-      lru& m_lru;
+      std::vector<seed_and_block> m_blocks;
       int m_rows;
       int m_cols;
     };
     
-    template<class Distribution, class Generator
-      , int RowsInBlock, int ColsInBlock>
-      class cached_random_blocks
+    template<class BlockProvider>
+      class cached_data_blocks
     {
     public:
-      using value_type = typename Distribution::result_type;
-      using seed_type = typename Generator::result_type;
-      using block_provider = random_block_provider<Distribution, Generator, RowsInBlock, ColsInBlock>;
+      using value_type = typename BlockProvider::value_type;
+      
       int block_rows() const
       {
-        return RowsInBlock;
+        return m_block_provider->block_rows();
       }
       int block_cols() const
       {
-        return ColsInBlock;
+        return m_block_provider->block_cols();
       }
 
     public:
 
       class iterator
       {
-        using view_type = cached_random_blocks;
-        using block_type = typename random_block_provider<Distribution, Generator, RowsInBlock, ColsInBlock>::block;
+        using view_type = cached_data_blocks;
+        using block_type = typename BlockProvider::block;
         using block_iterator_type = typename block_type::iterator;
 
       public:
@@ -398,11 +417,11 @@ namespace pronto
           int index_in_block = row_in_block * block_cols + col_in_block;
           auto provider = m_view->m_block_provider;
           auto lock_dropper = [provider](block_type* b) {
-            provider->drop_lock(*b);
+            provider->drop_lock(b);
           };
 
           m_block.reset(m_view->m_block_provider->get_block(major_index), lock_dropper);
-          m_view->m_block_provider->add_lock(*m_block);
+          m_view->m_block_provider->add_lock(&*m_block);
           
           m_pos = m_block->begin() + index_in_block;
 
@@ -426,17 +445,16 @@ namespace pronto
         block_iterator_type m_pos;
       };
 
-      cached_random_blocks(int rows, int cols, Distribution distribution
-        , Generator generator)
-        :  m_rows(rows), m_cols(cols), m_distribution(distribution),
-         m_full_cols(cols), m_full_rows(rows), m_block_provider(new block_provider(rows, cols, distribution, generator))
+      cached_data_blocks(std::shared_ptr<BlockProvider> bp) 
+        : m_block_provider(bp), m_rows(bp->rows()), m_cols(bp->cols())
+        , m_full_cols(bp->cols()), m_full_rows(bp->rows())
       { }
 
-      cached_random_blocks() = default;
-      cached_random_blocks(const cached_random_blocks&) = default;
-      cached_random_blocks(cached_random_blocks&&) = default;
-      cached_random_blocks& operator=(const cached_random_blocks&) = default;
-      cached_random_blocks& operator=(cached_random_blocks&&) = default;
+      cached_data_blocks() = default;
+      cached_data_blocks(const cached_data_blocks&) = default;
+      cached_data_blocks(cached_data_blocks&&) = default;
+      cached_data_blocks& operator=(const cached_data_blocks&) = default;
+      cached_data_blocks& operator=(cached_data_blocks&&) = default;
 
     public:
 
@@ -454,10 +472,9 @@ namespace pronto
         return i;
       }
 	  
-      cached_random_blocks sub_raster(int first_row, int first_col, int rows, int cols) const
+      cached_data_blocks sub_raster(int first_row, int first_col, int rows, int cols) const
       {
-        cached_random_blocks copy = *this;
-       
+        cached_data_blocks copy = *this;
         copy.m_first_row = m_first_row + first_row;
         copy.m_first_col = m_first_col + first_col;
         copy.m_rows = rows;
@@ -481,8 +498,7 @@ namespace pronto
       }
 	  
     private:
-      mutable Distribution m_distribution;
-      std::shared_ptr<random_block_provider<Distribution, Generator, RowsInBlock, ColsInBlock> > m_block_provider;
+      std::shared_ptr<BlockProvider> m_block_provider;
       int m_rows; // only the subset rows
       int m_cols; // only the subset rows
       int m_first_row; // first row in subset
@@ -495,14 +511,15 @@ namespace pronto
     // Default block size is 128 x 128
     // Default generator is mersenne twister, seeded by time
     template<int BlockRows = 128, int BlockCols = 128, class Distribution, class Generator = std::mt19937_64>
-    cached_random_blocks<Distribution, Generator, BlockRows, BlockCols>
+    cached_data_blocks< random_block_provider<Distribution, Generator, BlockRows, BlockCols > >
       random_distribution_raster(int rows, int cols
         , Distribution dist
         , Generator gen = Generator(std::random_device()()))
     {
-          return cached_random_blocks<Distribution, Generator
-        , BlockRows, BlockCols>
-        (rows, cols, dist, gen);
+      using provider = random_block_provider<Distribution, Generator,
+        BlockRows, BlockCols >;
+      std::shared_ptr<provider> rbp(new provider(rows, cols, dist, gen));
+      return cached_data_blocks<provider>(rbp);
     }
   }
 }
