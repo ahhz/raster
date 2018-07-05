@@ -33,6 +33,12 @@ namespace pronto
       using iterator = typename std::vector<value_type>::iterator;
       using const_iterator = typename std::vector<value_type>::const_iterator;
     
+      ~data_block()
+      {
+        // when a data block is deleted and it still is in the lru, remove it
+        // this will also cause the vector to clear and shrink
+        if (has_data()) remove_from_lru();
+      }
 
       const_iterator begin() const 
       {
@@ -57,17 +63,36 @@ namespace pronto
         assert(has_data());
         return m_data.end();
       }
-
-      handle_type get_handle() const
-      {
-        return *m_handle;
-      }
-
+           
       bool has_data() const
       {
         return m_handle.has_value();
       }
+         
+      void drop_lock()
+      {
+        m_lru.drop_lock(*m_handle);
+      }
 
+      void add_lock()
+      {
+        m_lru.add_lock(*m_handle);
+      }
+
+      void touch()
+      {
+        m_lru.touch(*m_handle);
+      }
+    
+      void create_data(std::size_t size)
+      {
+        assert(!m_handle);
+        auto closer = [this]() { clear(); };
+        m_handle = m_lru.add(size * sizeof(T), closer);
+        m_data.resize(size);
+      }
+
+    private:
       void clear()
       {
         m_handle = none;
@@ -75,15 +100,13 @@ namespace pronto
         m_data.shrink_to_fit();
       }
 
-      void set_handle_and_resize(handle_type handle, std::size_t size)
+      void remove_from_lru()
       {
-        m_handle = handle;
-        m_data.resize(size);
+        m_lru.remove(*m_handle);// will cause clear() through closer()
       }
-
-    private:
       optional<handle_type> m_handle;
       std::vector<value_type> m_data;
+      lru& m_lru = g_lru;
     };
 
 
@@ -101,7 +124,8 @@ namespace pronto
     public:
       random_block_provider(int rows, int cols, Distribution distribution
         , Generator generator)
-        : m_rows(rows), m_cols(cols), m_distribution(distribution), m_lru(g_lru), m_generator(generator)
+        : m_rows(rows), m_cols(cols), m_distribution(distribution)
+        , m_generator(generator)
       {
         int num_block_rows = 1 + (rows - 1) / RowsInBlock;
         int num_block_cols = 1 + (cols - 1) / ColsInBlock;
@@ -120,16 +144,7 @@ namespace pronto
       {
         return m_cols;
       }
-
-      ~random_block_provider()
-      {
-        for (auto&& b : m_blocks) {
-          if (b.second.has_data()) { // second: block
-            m_lru.remove(b.second.get_handle()); // will cause the deletion of any m_data
-          }
-        }
-      }
-      
+              
       int block_rows() const
       {
         return RowsInBlock;
@@ -140,39 +155,27 @@ namespace pronto
         return ColsInBlock;
       }
       
-      void add_lock(block* b)
-      {
-        m_lru.add_lock(b->get_handle());
-      }
-
-      void drop_lock(block* b)
-      {
-        m_lru.drop_lock(b->get_handle());
-      }
-      
       block* get_block(int index) 
       {
         seed_and_block& b = m_blocks[index];
+
         if (b.second.has_data()) {
-          m_lru.touch(b.second.get_handle());
+
+          b.second.touch();
         }
         else {
-          auto closer = [&b]() { b.second.clear(); } ;
-          std::size_t n = RowsInBlock * ColsInBlock;
-          std::size_t block_size = sizeof(value_type) * n;
+         
+          b.second.create_data(RowsInBlock * ColsInBlock);
 
-          lru::id handle = m_lru.add(block_size, closer);
-          b.second.set_handle_and_resize(handle, n);
-
-          Generator rng(b.first); //first: seed
-          for (auto&& j : b.second) { //second: block
+          Generator rng(b.first);   //first: seed
+          for (auto&& j : b.second) //second: data
+          {
             j = m_distribution(rng);
           }
         }
         return &(b.second);
       }
 
-      lru& m_lru = g_lru;
       Distribution m_distribution;
       Generator m_generator;
       std::vector<seed_and_block> m_blocks;
@@ -407,7 +410,7 @@ namespace pronto
           m_major_row = full_row / block_rows;
           m_major_col = full_col / block_cols;
 
-          int blocks_per_row = 1 + (m_view->m_full_cols-1) / block_cols;
+          int blocks_per_row = 1 + (m_view->m_block_provider->cols()-1) / block_cols;
 
           int major_index = m_major_row * blocks_per_row + m_major_col;
 
@@ -416,12 +419,12 @@ namespace pronto
 
           int index_in_block = row_in_block * block_cols + col_in_block;
           auto provider = m_view->m_block_provider;
-          auto lock_dropper = [provider](block_type* b) {
-            provider->drop_lock(b);
+          auto lock_dropper = [](block_type* b) {
+            b->drop_lock();
           };
 
           m_block.reset(m_view->m_block_provider->get_block(major_index), lock_dropper);
-          m_view->m_block_provider->add_lock(&*m_block);
+          m_block->add_lock();
           
           m_pos = m_block->begin() + index_in_block;
 
@@ -447,7 +450,7 @@ namespace pronto
 
       cached_data_blocks(std::shared_ptr<BlockProvider> bp) 
         : m_block_provider(bp), m_rows(bp->rows()), m_cols(bp->cols())
-        , m_full_cols(bp->cols()), m_full_rows(bp->rows())
+     //   , m_full_cols(bp->cols()), m_full_rows(bp->rows())
       { }
 
       cached_data_blocks() = default;
@@ -503,8 +506,8 @@ namespace pronto
       int m_cols; // only the subset rows
       int m_first_row; // first row in subset
       int m_first_col; // first col in subset
-      int m_full_rows; // full number of rows, before taking subset
-      int m_full_cols; // full number of rows, before taking subset
+ //     int m_full_rows; // full number of rows, before taking subset
+//      int m_full_cols; // full number of rows, before taking subset
     };
 
 
