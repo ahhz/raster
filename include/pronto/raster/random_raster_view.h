@@ -9,16 +9,11 @@
 
 #pragma once
 #include <pronto/raster/cached_block_raster_view.h>
-#include <pronto/raster/optional.h>
-#include <pronto/raster/traits.h>
 #include <pronto/raster/lru.h>
-#include <pronto/raster/reference_proxy.h>
-#include <array>
-#include <cassert>
-#include <iterator>
-#include <list>
+
 #include <memory>
 #include <random> 
+#include <utility> 
 #include <vector> 
 
 namespace pronto
