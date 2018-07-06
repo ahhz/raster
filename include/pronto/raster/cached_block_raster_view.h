@@ -254,21 +254,21 @@ namespace pronto
 
       inline this_type& operator--(int)
       {
-        iterator temp(*this);
+        this_type temp(*this);
         --(*this);
         return temp;
       }
 
       inline this_type operator+(std::ptrdiff_t distance) const
       {
-        iterator temp(*this);
+        this_type temp(*this);
         temp += distance;
         return temp;
       }
 
       inline this_type operator-(std::ptrdiff_t distance) const
       {
-        iterator temp(*this);
+        this_type temp(*this);
         temp += distance;
         return temp;
       }
