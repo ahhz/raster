@@ -54,7 +54,7 @@ namespace pronto {
       };
     public:
 
-      lru(std::size_t capacity = static_cast<std::size_t>(1e8)) : m_capacity(capacity), m_total_size(0)
+      lru(std::size_t capacity = static_cast<std::size_t>(1e6)) : m_capacity(capacity), m_total_size(0)
       {}
 
       ~lru()
@@ -186,7 +186,7 @@ namespace pronto {
       std::size_t m_capacity;
     };
 
-    static lru g_lru;
+    static lru g_lru; 
 
   }
 }

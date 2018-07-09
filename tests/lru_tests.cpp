@@ -44,13 +44,13 @@ bool lru_test()
 }
 bool cached_gdal_raster_test()
 {
-  auto raster = pr::open_cached<int, false, false>("random_a.tif");
+  auto raster = pr::open_v2<int, false, false>("random_a.tif");
   return true;
 }
 
 bool create_cached_gdal_raster_test()
 {
-  auto raster = pr::create_cached<unsigned char>("test.tif", 10, 5);
+  auto raster = pr::create_v2<unsigned char>("test.tif", 10, 5);
   int i = 3;
   for (auto&& v : raster)
   {
@@ -62,8 +62,56 @@ bool create_cached_gdal_raster_test()
 }
 
 
+bool larger_create_cached_gdal_raster_test()
+{
+  int rows =300 ;
+  int cols = 300;
+  auto a = pr::create_v2<unsigned char,true>("a.tif", rows, cols);
+  auto b = pr::create_v2<unsigned char, true>("b.tif", rows, cols);
+  auto c = pr::create_v2<unsigned char, true>("c.tif", rows, cols);
+  
+  auto ia = a.begin();
+  auto ib = b.begin();
+  auto ic = c.begin();
+  int i = 0;
+  for (; ia != a.end(); ++ia, ++ib,++ic)
+  {
+    i = i + 3;
+    *ia = i % 23;
+    *ib = i % 7;
+    *ic = *ia + *ib;
+  }
+
+  return true;
+}
+
+int main()
+{
+  int rows = 600;
+  int cols = 600;
+  auto a = pr::create_v2<unsigned char, true>("a.tif", rows, cols);
+  auto b = pr::create_v2<unsigned char, true>("b.tif", rows, cols);
+  auto c = pr::create_v2<unsigned char, true>("c.tif", rows, cols);
+
+  auto ia = a.begin();
+  auto ib = b.begin();
+  auto ic = c.begin();
+  int i = 0;
+  for (; ia != a.end(); ++ia, ++ib, ++ic)
+  {
+    i = i + 3;
+    *ia = i % 23;
+    *ib = i % 7;
+    *ic = *ia + *ib;
+  }
+
+  return 0;
+}
+
+
 TEST(RasterTest, Lru) {
 	EXPECT_TRUE(lru_test());
  // EXPECT_TRUE(cached_gdal_raster_test());
   EXPECT_TRUE(create_cached_gdal_raster_test());
+  EXPECT_TRUE(larger_create_cached_gdal_raster_test());
 }

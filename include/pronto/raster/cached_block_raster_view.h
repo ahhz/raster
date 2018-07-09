@@ -222,7 +222,7 @@ namespace pronto
       friend inline bool operator==(const this_type& a
         , const this_type& b)
       {
-        return a.m_pos == b.m_pos;
+        return a.m_block == b.m_block && a.m_pos == b.m_pos;
       }
 
       friend inline bool operator!=(const this_type& a

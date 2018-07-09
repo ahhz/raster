@@ -15,6 +15,7 @@
 #include <pronto/raster/raster_algebra_operators.h>
 #include <pronto/raster/raster_algebra_wrapper.h>
 #include <pronto/raster/filesystem.h>
+#include <pronto/raster/self_cached_gdal_raster_view.h>
 
 #include <benchmark/benchmark.h>
 
@@ -152,6 +153,30 @@ int benchmark_3_rasters_pronto_forward_only_in_blocks()
 static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) {
   for (auto _ : state)
     benchmark_3_rasters_pronto_forward_only_in_blocks();
+}
+
+
+int benchmark_3_rasters_pronto_v2()
+{
+  {
+    auto raster_a = pr::open_v2<unsigned char, true, false>("random_a.tif");
+    auto raster_b = pr::open_v2<unsigned char, true, false>("random_b.tif");
+    auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
+    auto raster_out = pr::open_v2<unsigned char, true, true>("output.tif");
+  
+    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+      + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+    pr::assign(raster_out, raster_sum);
+    //pr::assign_blocked(raster_out, raster_sum,256,256);
+  }
+  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+
+  return 0;
+}
+
+static void BM_3_rasters_pronto_v2(benchmark::State& state) {
+  for (auto _ : state)
+    benchmark_3_rasters_pronto_v2();
 }
 
 int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
@@ -723,6 +748,7 @@ BENCHMARK(BM_3_rasters_pronto_forward_only)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_no_blocks_iterate)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks_transform)->Unit(benchmark::kMillisecond);
+//BENCHMARK(BM_3_rasters_pronto_v2)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_readblock)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_rasterio)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_getlockedblockref)->Unit(benchmark::kMillisecond);

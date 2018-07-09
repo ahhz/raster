@@ -18,6 +18,7 @@
 
 #include <pronto/raster/optional.h>
 #include <pronto/raster/io.h>
+#include <pronto/raster/transform_raster_view.h>
 
 #include <deque>
 #include <memory>

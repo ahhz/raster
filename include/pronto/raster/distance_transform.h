@@ -179,8 +179,8 @@
       const typename traits<InRaster>::value_type& target,
       const Method&)
     {
-      using in_type = traits<InRaster>::value_type;
-      using out_type = traits<OutRaster>::value_type;
+      using in_type = typename traits<InRaster>::value_type;
+      using out_type = typename traits<OutRaster>::value_type;
       const int rows = in.rows();
       const int cols = in.cols();
       assert(rows == out.rows());

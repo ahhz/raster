@@ -164,29 +164,31 @@ namespace pronto
     };
 
 
+
     template<class ValueType, bool IsForwardOnly, bool IsMutable>
-      using cached_gdal_view = cached_block_raster_view<
+      using gdal_raster_view_v2 = cached_block_raster_view<
         gdal_block_provider<ValueType, IsMutable>
-      , IsMutable // not mutable
+      , IsMutable 
       , IsForwardOnly
       >;
 
     
      template<class ValueType, bool IsForwardOnly, bool IsMutable>
-     cached_gdal_view<ValueType, IsForwardOnly, IsMutable>
-      open_cached(const filesystem::path& path)
+     gdal_raster_view_v2<ValueType, IsForwardOnly, IsMutable>
+      open_v2(const filesystem::path& path)
     {
        access elem_access = IsMutable ? access::read_write : access::read_only;
        auto dataset = detail::open_dataset(path, elem_access);
        auto band = detail::open_band(dataset, 1);
        using provider = gdal_block_provider<ValueType, IsMutable>;
        std::shared_ptr<provider> gbp(new provider(band));
-       return cached_gdal_view<ValueType, IsForwardOnly, IsMutable>(gbp);
+       return gdal_raster_view_v2<ValueType, IsForwardOnly, IsMutable>
+         (gbp);
     }
 
      template<class ValueType, bool IsForwardOnly = false>
-     cached_gdal_view<ValueType, IsForwardOnly, true>
-       create_cached(
+     gdal_raster_view_v2<ValueType, IsForwardOnly, true>
+       create_v2(
        const filesystem::path& path, int rows, int cols
        , GDALDataType data_type = detail::native_gdal_data_type<ValueType>::value)
      {
@@ -200,7 +202,7 @@ namespace pronto
        static const bool is_mutable = true;
        using provider = gdal_block_provider<ValueType, is_mutable>;
        std::shared_ptr<provider> gbp(new provider(band));
-       return cached_gdal_view<ValueType, IsForwardOnly, is_mutable>(gbp);
+       return gdal_raster_view_v2<ValueType, IsForwardOnly, is_mutable>(gbp);
      }
   }
 }
