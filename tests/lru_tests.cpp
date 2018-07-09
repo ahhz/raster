@@ -4,6 +4,7 @@
 
 #include <pronto/raster/random_raster_view.h>
 #include <pronto/raster/plot_raster.h>
+#include <pronto/raster/self_cached_gdal_raster_view.h>
 #include <random>
 #include <vector>
 #include <map>
@@ -41,8 +42,28 @@ bool lru_test()
   if (removed != check) return false;
   return true;
 }
+bool cached_gdal_raster_test()
+{
+  auto raster = pr::open_cached<int, false, false>("random_a.tif");
+  return true;
+}
+
+bool create_cached_gdal_raster_test()
+{
+  auto raster = pr::create_cached<unsigned char>("test.tif", 10, 5);
+  int i = 3;
+  for (auto&& v : raster)
+  {
+    v = i;
+    i = (i + 6) % 7;
+  }
+  pr::plot_raster(raster);
+  return true;
+}
 
 
 TEST(RasterTest, Lru) {
 	EXPECT_TRUE(lru_test());
+ // EXPECT_TRUE(cached_gdal_raster_test());
+  EXPECT_TRUE(create_cached_gdal_raster_test());
 }

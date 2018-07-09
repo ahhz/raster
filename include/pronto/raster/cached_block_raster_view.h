@@ -84,6 +84,10 @@ namespace pronto
       {
         m_lru.touch(*m_handle);
       }
+      std::vector<T>& get_vector()
+      {
+        return m_data;
+      }
     
       void create_data(std::size_t size)
       {

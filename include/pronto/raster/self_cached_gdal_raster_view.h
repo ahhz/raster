@@ -9,8 +9,8 @@
 
 #pragma once
 #include <pronto/raster/cached_block_raster_view.h>
+#include <pronto/raster/io.h>
 #include <pronto/raster/lru.h>
-
 #include <pronto/raster/gdal_includes.h>
 
 #include <memory>
@@ -38,11 +38,12 @@ namespace pronto
        
         std::vector<DataT> original(rows_per_block * cols_per_block);
         int blocks_per_row = 1 + (cols - 1) / cols_per_block;
-        int major_row = index / blocks_per_row;
-        int major_col = index % blocks_per_row;
+        int major_row = block_index / blocks_per_row;
+        int major_col = block_index % blocks_per_row;
 
-        band->ReadBlock(major_col, major_row, static_cast<void*>(&original));
+        band->ReadBlock(major_col, major_row, static_cast<void*>(&original[0]));
         target.assign(original.begin(), original.end());
+
       }
 
       static void write(GDALRasterBand* band, const std::vector<T>& target, int block_index)
@@ -56,13 +57,14 @@ namespace pronto
         int cols = band->GetXSize();
 
         std::vector<DataT> original;
-        original.assign(target.begin(), target.end());
-        
-        int blocks_per_row = 1 + (cols - 1) / cols_per_block;
-        int major_row = index / blocks_per_row;
-        int major_col = index % blocks_per_row;
 
-        band->WriteBlock(major_col, major_row, static_cast<void*>(&original));
+        original.assign(target.begin(), target.end());
+
+        int blocks_per_row = 1 + (cols - 1) / cols_per_block;
+        int major_row = block_index / blocks_per_row;
+        int major_col = block_index % blocks_per_row;
+
+        band->WriteBlock(major_col, major_row, static_cast<void*>(&original[0]));
       }
     };
 
@@ -77,8 +79,8 @@ namespace pronto
         : m_rows(band->GetYSize()), m_cols(band->GetXSize()), m_band(band)
       {
         band->GetBlockSize(&m_block_cols, &m_block_rows);
-        int number_of_blocks_per_row = m_rows / m_block_rows;
-        int number_of_blocks_per_col = m_cols / m_block_cols;
+        int number_of_blocks_per_row = 1 + (m_rows -1) / m_block_rows;
+        int number_of_blocks_per_col = 1 + (m_cols - 1)/ m_block_cols;
         int number_of_blocks = number_of_blocks_per_row * 
           number_of_blocks_per_col;
         m_blocks.resize(number_of_blocks);
@@ -153,6 +155,7 @@ namespace pronto
     private:
       std::function<void(GDALRasterBand*, std::vector<T>&, int)> m_read_block;
       std::function<void(GDALRasterBand*, const std::vector<T>&, int)> m_write_block;
+      std::shared_ptr<GDALRasterBand> m_band;
       std::vector< data_block<T> > m_blocks;
       int m_rows;
       int m_cols;
@@ -160,6 +163,44 @@ namespace pronto
       int m_block_cols;
     };
 
-   
+
+    template<class ValueType, bool IsForwardOnly, bool IsMutable>
+      using cached_gdal_view = cached_block_raster_view<
+        gdal_block_provider<ValueType, IsMutable>
+      , IsMutable // not mutable
+      , IsForwardOnly
+      >;
+
+    
+     template<class ValueType, bool IsForwardOnly, bool IsMutable>
+     cached_gdal_view<ValueType, IsForwardOnly, IsMutable>
+      open_cached(const filesystem::path& path)
+    {
+       access elem_access = IsMutable ? access::read_write : access::read_only;
+       auto dataset = detail::open_dataset(path, elem_access);
+       auto band = detail::open_band(dataset, 1);
+       using provider = gdal_block_provider<ValueType, IsMutable>;
+       std::shared_ptr<provider> gbp(new provider(band));
+       return cached_gdal_view<ValueType, IsForwardOnly, IsMutable>(gbp);
+    }
+
+     template<class ValueType, bool IsForwardOnly = false>
+     cached_gdal_view<ValueType, IsForwardOnly, true>
+       create_cached(
+       const filesystem::path& path, int rows, int cols
+       , GDALDataType data_type = detail::native_gdal_data_type<ValueType>::value)
+     {
+       if (data_type == GDT_Unknown)
+       {
+         throw(creating_a_raster_failed{});
+       }
+
+       std::shared_ptr<GDALRasterBand> band = detail::create_band
+       (path, rows, cols, data_type, is_temporary::no);
+       static const bool is_mutable = true;
+       using provider = gdal_block_provider<ValueType, is_mutable>;
+       std::shared_ptr<provider> gbp(new provider(band));
+       return cached_gdal_view<ValueType, IsForwardOnly, is_mutable>(gbp);
+     }
   }
 }
