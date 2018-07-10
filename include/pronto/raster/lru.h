@@ -59,6 +59,8 @@ namespace pronto {
 
       ~lru()
       {
+        assert(m_all.empty() == (m_total_size == 0));
+
         auto i = m_all.begin();
         while (i != m_all.end())
         {
@@ -66,6 +68,7 @@ namespace pronto {
           ++i;
           remove(j);
         }
+        assert(m_all.empty() == (m_total_size == 0));
         assert(m_all.empty() && m_unlocked.empty());
       }
       using id = typename std::list<element>::iterator;
@@ -158,6 +161,7 @@ namespace pronto {
       {
         // removes regardless of locks
         assert(!element->is_locked());
+        m_total_size -= element->size();
         element->close();
         if (!element->is_locked())
         {
@@ -165,6 +169,12 @@ namespace pronto {
           m_unlocked.erase(elem2);
         }
         m_all.erase(element);
+      }
+
+      bool empty()
+      {
+        assert(m_all.empty() == (m_total_size == 0));
+        return m_all.empty();
       }
 
       inline void touch(id element)
@@ -186,7 +196,6 @@ namespace pronto {
       std::size_t m_capacity;
     };
 
-    static lru g_lru; 
-
+    extern lru g_lru;
   }
 }

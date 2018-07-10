@@ -5,6 +5,9 @@
 #include <pronto/raster/random_raster_view.h>
 #include <pronto/raster/plot_raster.h>
 #include <pronto/raster/self_cached_gdal_raster_view.h>
+#include <pronto/raster/lru.h>
+
+#include <cassert>
 #include <random>
 #include <vector>
 #include <map>
@@ -64,27 +67,33 @@ bool create_cached_gdal_raster_test()
 
 bool larger_create_cached_gdal_raster_test()
 {
-  int rows =300 ;
-  int cols = 300;
-  auto a = pr::create_v2<unsigned char,true>("a.tif", rows, cols);
-  auto b = pr::create_v2<unsigned char, true>("b.tif", rows, cols);
-  auto c = pr::create_v2<unsigned char, true>("c.tif", rows, cols);
-  
-  auto ia = a.begin();
-  auto ib = b.begin();
-  auto ic = c.begin();
-  int i = 0;
-  for (; ia != a.end(); ++ia, ++ib,++ic)
+  assert(pr::g_lru.empty());
+
   {
-    i = i + 3;
-    *ia = i % 23;
-    *ib = i % 7;
-    *ic = *ia + *ib;
+    int rows = 300;
+    int cols = 300;
+    auto a = pr::create_v2<unsigned char, true>("a.tif", rows, cols);
+    auto b = pr::create_v2<unsigned char, true>("b.tif", rows, cols);
+    auto c = pr::create_v2<unsigned char, true>("c.tif", rows, cols);
+
+    auto ia = a.begin();
+    auto ib = b.begin();
+    auto ic = c.begin();
+    int i = 0;
+    for (; ia != a.end(); ++ia, ++ib, ++ic)
+    {
+      i = i + 3;
+      *ia = i % 23;
+      *ib = i % 7;
+      *ic = *ia + *ib;
+    }
+  
+    return true;
   }
+  assert(pr::g_lru.empty());
 
-  return true;
 }
-
+/*
 int main()
 {
   int rows = 600;
@@ -107,7 +116,7 @@ int main()
 
   return 0;
 }
-
+*/
 
 TEST(RasterTest, Lru) {
 	EXPECT_TRUE(lru_test());

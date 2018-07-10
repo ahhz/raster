@@ -25,6 +25,8 @@ namespace pronto
 {
   namespace raster
   {
+    extern lru g_lru;
+    
     template<class T>
     class data_block
     {
@@ -101,9 +103,8 @@ namespace pronto
         m_pre_clear = f;
       }
 
-
-    private:
-      void clear()
+ 
+       void clear()
       {
         if(m_pre_clear) (*m_pre_clear)();
         m_pre_clear = none;
@@ -111,6 +112,7 @@ namespace pronto
         m_data.clear();
         m_data.shrink_to_fit();
       }
+    private:
 
       void remove_from_lru()
       {
@@ -129,13 +131,14 @@ namespace pronto
       using value_type = T;
       blocked_reference(T& ref, Block* block) : m_reference(ref), m_block(block)
       {
+        assert(block);
         block->add_lock();
       }
       blocked_reference(const blocked_reference& that) 
         : m_reference(that.m_reference)
         , m_block(that.m_block)
       {
-        m_block->add_lock();
+        if(m_block) m_block->add_lock();
       }
 
       blocked_reference(blocked_reference&& that)
@@ -434,8 +437,11 @@ namespace pronto
 
         int index_in_block = row_in_block * block_cols + col_in_block;
 
-        auto dropper = [](block_type* b) { b->drop_lock(); };
-        m_block.reset(m_view->m_block_provider->get_block(major_index), dropper);
+        auto dropper = [](block_type* b) { 
+          b->drop_lock(); 
+        };
+        auto block = m_view->m_block_provider->get_block(major_index);
+        m_block.reset(block, dropper);
         m_block->add_lock();
 
         m_pos = m_block->begin() + index_in_block;

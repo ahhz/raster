@@ -10,6 +10,14 @@
 
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
+#include <pronto/raster/lru.h>
+
+namespace pronto
+{
+  namespace raster {
+    lru g_lru;
+  }
+}
 
 namespace {
 

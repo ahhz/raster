@@ -109,6 +109,7 @@ namespace pronto
          
         }
       }
+
       template<class DataT>
       void set_io()
       {
