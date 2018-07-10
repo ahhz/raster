@@ -15,6 +15,15 @@
 namespace pronto {
   namespace raster {
 
+    struct lru_full : public std::exception
+    {
+      const char *what() const noexcept {
+        return
+          "least recent used cache has no capacity";
+      }
+    };
+
+
     struct unsupported_gdal_datatype : public std::exception
     {
       const char *what() const noexcept {

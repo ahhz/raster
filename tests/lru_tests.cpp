@@ -45,11 +45,6 @@ bool lru_test()
   if (removed != check) return false;
   return true;
 }
-bool cached_gdal_raster_test()
-{
-  auto raster = pr::open_v2<int, false, false>("random_a.tif");
-  return true;
-}
 
 bool create_cached_gdal_raster_test()
 {
@@ -60,8 +55,7 @@ bool create_cached_gdal_raster_test()
     v = i;
     i = (i + 6) % 7;
   }
-  pr::plot_raster(raster);
-  return true;
+   return true;
 }
 
 
@@ -120,7 +114,6 @@ int main()
 
 TEST(RasterTest, Lru) {
 	EXPECT_TRUE(lru_test());
- // EXPECT_TRUE(cached_gdal_raster_test());
   EXPECT_TRUE(create_cached_gdal_raster_test());
   EXPECT_TRUE(larger_create_cached_gdal_raster_test());
 }

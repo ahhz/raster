@@ -346,9 +346,7 @@ namespace pronto
       {
         return *m_pos;
       }
-
-
-
+      
       inline reference operator*() const
       {
         return get_reference(is_mutable{}, is_forward_only{});

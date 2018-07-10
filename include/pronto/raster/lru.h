@@ -11,6 +11,7 @@
 #pragma once
 
 #include <pronto/raster/optional.h>
+#include <pronto/raster/exceptions.h>
 
 #include <list>
 #include <functional>
@@ -73,8 +74,24 @@ namespace pronto {
       }
       using id = typename std::list<element>::iterator;
     
+      inline int get_capacity() const
+      {
+        return m_capacity;
+      }
+      inline void set_capacity(int cap)
+      {
+        m_capacity = cap;
+      }
+      inline std::size_t get_size() const
+      {
+        return m_total_size;
+      }
+  
+
     private:
       using id2 = typename std::list<id>::iterator;
+
+
 
       inline void make_space(std::size_t size)
       {
@@ -85,7 +102,8 @@ namespace pronto {
 
           if (m_unlocked.empty())
           {
-            throw("cannot free enough space in lru");
+
+            throw(lru_full{});
 
           }
           m_total_size -= m_unlocked.front()->size();
