@@ -74,11 +74,11 @@ namespace pronto {
       }
       using id = typename std::list<element>::iterator;
     
-      inline int get_capacity() const
+      inline std::size_t get_capacity() const
       {
         return m_capacity;
       }
-      inline void set_capacity(int cap)
+      inline void set_capacity(std::size_t  cap)
       {
         m_capacity = cap;
       }

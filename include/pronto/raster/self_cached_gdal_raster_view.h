@@ -22,11 +22,12 @@ namespace pronto
 {
   namespace raster
   {
+   
 
     template<class T, class DataT> // todo overload special case where T == DataT
     struct gdal_read_write
     {
-      static void read(GDALRasterBand* band, std::vector<T>& target, int block_index)
+      static void read(GDALRasterBand* band, T* target, int block_index)
       {
         int rows_per_block;
         int cols_per_block;
@@ -36,17 +37,17 @@ namespace pronto
         int rows = band->GetYSize();
         int cols = band->GetXSize();
        
-        std::vector<DataT> original(rows_per_block * cols_per_block);
+        cache_vector_type<DataT> original(rows_per_block * cols_per_block);
         int blocks_per_row = 1 + (cols - 1) / cols_per_block;
         int major_row = block_index / blocks_per_row;
         int major_col = block_index % blocks_per_row;
 
-        band->ReadBlock(major_col, major_row, static_cast<void*>(&original[0]));
-        target.assign(original.begin(), original.end());
-
+        band->ReadBlock(major_col, major_row, static_cast<void*>(get_data_ptr(original)));
+        std::copy(original.begin(), original.end(), target);
+        
       }
 
-      static void write(GDALRasterBand* band, const std::vector<T>& target, int block_index)
+      static void write(GDALRasterBand* band, const T* target, int block_index)
       {
         int rows_per_block;
         int cols_per_block;
@@ -56,18 +57,55 @@ namespace pronto
         int rows = band->GetYSize();
         int cols = band->GetXSize();
 
-        std::vector<DataT> original;
-
-        original.assign(target.begin(), target.end());
+        cache_vector_type<DataT> original(target, target+rows_per_block * cols_per_block);
 
         int blocks_per_row = 1 + (cols - 1) / cols_per_block;
         int major_row = block_index / blocks_per_row;
         int major_col = block_index % blocks_per_row;
 
-        band->WriteBlock(major_col, major_row, static_cast<void*>(&original[0]));
+        band->WriteBlock(major_col, major_row, get_data_ptr(original));
       }
     };
 
+
+    template<class T> // overload special case where T == DataT
+    struct gdal_read_write<T, T>
+    {
+      static void read(GDALRasterBand* band, T* target, int block_index)
+      {
+        int rows_per_block;
+        int cols_per_block;
+
+        band->GetBlockSize(&cols_per_block, &rows_per_block);
+
+        int rows = band->GetYSize();
+        int cols = band->GetXSize();
+
+        //target.resize(rows_per_block * cols_per_block);
+        int blocks_per_row = 1 + (cols - 1) / cols_per_block;
+        int major_row = block_index / blocks_per_row;
+        int major_col = block_index % blocks_per_row;
+
+        band->ReadBlock(major_col, major_row, target);
+     }
+
+      static void write(GDALRasterBand* band, const T* target, int block_index)
+      {
+        int rows_per_block;
+        int cols_per_block;
+
+        band->GetBlockSize(&cols_per_block, &rows_per_block);
+
+        int cols = band->GetXSize();
+
+        int blocks_per_row = 1 + (cols - 1) / cols_per_block;
+        int major_row = block_index / blocks_per_row;
+        int major_col = block_index % blocks_per_row;
+
+        band->WriteBlock(major_col, major_row, const_cast<void*>(static_cast<const void*>(target)));
+      }
+    };
+    
     template<class T, bool IsMutable>
     class gdal_block_provider
     {
@@ -114,7 +152,8 @@ namespace pronto
       void set_io()
       {
         m_read_block = gdal_read_write<T, DataT>::read;
-        m_write_block = gdal_read_write<T, DataT>::write;
+        if(IsMutable)  m_write_block = gdal_read_write<T, DataT>::write;
+        else m_write_block = [](GDALRasterBand*, const T*, int) {};
       }
 
       int rows() const
@@ -147,15 +186,15 @@ namespace pronto
         else {
 
           b.create_data(m_block_rows * m_block_cols);
-          m_read_block(m_band.get(), b.get_vector(), index);
-          auto writer = [index, &b, this]() {m_write_block(m_band.get(), b.get_vector(), index); };
+          m_read_block(m_band.get(), b.get_data(), index);
+          auto writer = [index, &b, this]() {m_write_block(m_band.get(), b.get_data(), index); };
           b.set_pre_clear(writer);
         }
         return &(b);
       }
     private:
-      std::function<void(GDALRasterBand*, std::vector<T>&, int)> m_read_block;
-      std::function<void(GDALRasterBand*, const std::vector<T>&, int)> m_write_block;
+      std::function<void(GDALRasterBand*, T*, int)> m_read_block;
+      std::function<void(GDALRasterBand*, const T*, int)> m_write_block;
       std::shared_ptr<GDALRasterBand> m_band;
       std::vector< data_block<T> > m_blocks;
       int m_rows;

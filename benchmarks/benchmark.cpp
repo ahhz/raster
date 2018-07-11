@@ -35,7 +35,8 @@ namespace pr = pronto::raster;
 
 void create_data_for_benchmark(int rows, int cols)
 {
-	auto raster_a = pr::create<int>("random_a.tif", rows, cols, GDT_Byte);
+
+  auto raster_a = pr::create<int>("random_a.tif", rows, cols, GDT_Byte);
 	auto raster_b = pr::create<int>("random_b.tif", rows, cols, GDT_Byte);
 	auto raster_c = pr::create<int>("random_c.tif", rows, cols, GDT_Byte);
 	auto raster_out = pr::create<int>("output.tif", rows, cols, GDT_Byte);
@@ -54,10 +55,10 @@ void create_data_for_benchmark(int rows, int cols)
     auto random_b = pr::random_distribution_raster(rows, cols, dist, gen_b);
     auto random_c = pr::random_distribution_raster(rows, cols, dist, gen_c);
     auto zeros = pr::uniform(rows, cols, static_cast<unsigned char>(0));
-    pr::assign(raster_a, random_a);
-    pr::assign(raster_b, random_b);
-    pr::assign(raster_c, random_c);
-    pr::assign(raster_out, zeros);
+    pr::assign_blocked(raster_a, random_a, 256, 256);
+    pr::assign_blocked(raster_b, random_b, 256, 256);
+    pr::assign_blocked(raster_c, random_c, 256, 256);
+    pr::assign_blocked(raster_out, zeros, 256, 256);
   }
 }
 
@@ -156,6 +157,8 @@ static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) 
 int benchmark_3_rasters_pronto_v2()
 {
   {
+   
+    //pr::g_lru.set_capacity(5000000);
     auto raster_a = pr::open_v2<unsigned char, true, false>("random_a.tif");
     auto raster_b = pr::open_v2<unsigned char, true, false>("random_b.tif");
     auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
@@ -163,7 +166,7 @@ int benchmark_3_rasters_pronto_v2()
   
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
       + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
-    pr::assign(raster_out, raster_sum);
+    pr::assign_blocked(raster_out, raster_sum, 256, 256);
     //pr::assign_blocked(raster_out, raster_sum,256,256);
   }
    return 0;
@@ -728,7 +731,7 @@ BENCHMARK(BM_3_rasters_pronto_forward_only)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_no_blocks_iterate)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks_transform)->Unit(benchmark::kMillisecond);
-//BENCHMARK(BM_3_rasters_pronto_v2)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_v2)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_readblock)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_rasterio)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_getlockedblockref)->Unit(benchmark::kMillisecond);

@@ -26,15 +26,114 @@ namespace pronto
   namespace raster
   {
     extern lru g_lru;
+
+    template<class T> 
+    class pod_vector
+    {
+    public:
+      using iterator = T* ;
+      using const_iterator = const T* ;
+
+      
+
+      pod_vector(std::size_t size = 0) : m_data(nullptr), m_size(size)
+      {
+        m_data = new T[size];
+      }
+      
+      template<class Iterator>
+      pod_vector(Iterator a, Iterator b) : m_data(nullptr), m_size(0)
+      {
+        m_size = b - a;
+        m_data = new T[m_size];
+        std::copy(a, b, m_data);
+      }
+
+      void resize(std::size_t size)
+      {
+        delete[] m_data;
+        m_size = size;
+        m_data = new T[m_size];
+      }
+
+      void clear()
+      {
+        resize(0);
+      }
+
+      ~pod_vector()
+      {
+        delete[] m_data;
+      }
+
+      iterator begin()
+      {
+        return m_data;
+      }
+
+      iterator end()
+      {
+        return &m_data[m_size];
+      }
+
+      const_iterator begin() const
+      {
+        return m_data;
+      }
+
+      const_iterator end() const
+      {
+        return &m_data[m_size];
+      }
+
+      T* get_data_()
+      {
+        return m_data;
+      }
+
+      const T* get_data_() const
+      {
+        return m_data;
+      }
+    private: 
+      T* m_data;
+      std::size_t m_size;
+    };
     
+    template<class T>
+    using cache_vector_type = std::vector<T>;
+
+    template<class T>
+    T* get_data_ptr(pod_vector<T>& v)
+    {
+      return v.get_data_();
+    }
+    template<class T>
+    const T* get_data_ptr(const pod_vector<T>& v)
+    {
+      return v.get_data_();
+    }
+
+    template<class T>
+    T* get_data_ptr(std::vector<T>& v)
+    {
+      return &v[0];
+    }
+   
+    template<class T>
+    const T* get_data_ptr(const std::vector<T>& v)
+    {
+      return &v[0];
+    }
     template<class T>
     class data_block
     {
     public:
       using handle_type = typename lru::id;
       using value_type = T;
-      using iterator = typename std::vector<value_type>::iterator;
-      using const_iterator = typename std::vector<value_type>::const_iterator;
+      using vector_type = cache_vector_type<value_type> ;
+      using iterator = typename vector_type::iterator;
+      using const_iterator = typename vector_type::const_iterator;
     
       ~data_block()
       {
@@ -86,9 +185,9 @@ namespace pronto
       {
         m_lru.touch(*m_handle);
       }
-      std::vector<T>& get_vector()
+      T* get_data()
       {
-        return m_data;
+        return get_data_ptr(m_data);
       }
     
       void create_data(std::size_t size)
@@ -98,6 +197,15 @@ namespace pronto
         m_handle = m_lru.add(size * sizeof(T), closer);
         m_data.resize(size);
       }
+/*
+      void reserve_data(std::size_t size)
+      {
+        assert(!m_handle);
+        auto closer = [this]() { clear(); };
+        m_handle = m_lru.add(size * sizeof(T), closer);
+        m_data.reserve(size);
+      }
+*/
       void set_pre_clear(std::function<void()> f)
       {
         m_pre_clear = f;
@@ -110,7 +218,7 @@ namespace pronto
         m_pre_clear = none;
         m_handle = none;
         m_data.clear();
-        m_data.shrink_to_fit();
+     //   m_data.shrink_to_fit();
       }
     private:
 
@@ -119,7 +227,7 @@ namespace pronto
         m_lru.remove(*m_handle);// will cause clear() through closer()
       }
       optional<handle_type> m_handle;
-      std::vector<value_type> m_data;
+      cache_vector_type<value_type> m_data;
       optional<std::function<void()> > m_pre_clear;
       lru& m_lru = g_lru; // still using the global lru but set up to use any
     };
@@ -310,8 +418,14 @@ namespace pronto
         ++m_pos;
 
         if (m_pos == m_end_of_stretch) {
+           
           --m_pos;
-          return goto_index(get_index() + 1);
+          int index = get_index();
+
+          // if(m_pos == end_of_block && IsForwardOnly)
+          // block_drop_soft_lock;
+          //
+          return goto_index(index + 1);
         }
         return *this;
       }
@@ -434,7 +548,8 @@ namespace pronto
         int col_in_block = full_col % block_cols;
 
         int index_in_block = row_in_block * block_cols + col_in_block;
-
+        // if m_pos is first in block
+        // block add soft lock
         auto dropper = [](block_type* b) { 
           b->drop_lock(); 
         };
