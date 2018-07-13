@@ -27,91 +27,172 @@ namespace pronto
   {
     extern lru g_lru;
 
+    class block_of_memory
+    {
+    public:
+      block_of_memory() : m_data(nullptr), m_size(0)
+      {}
+      
+      block_of_memory(std::size_t size) : m_data(nullptr), m_size(size)
+      {
+        resize(m_size);
+      }
+      
+      block_of_memory(const block_of_memory& that)
+      {
+        m_size = that.m_size;
+        resize(m_size);
+        memcpy(m_data, that.m_data, m_size);
+      }
+
+      block_of_memory(block_of_memory&& that)
+      {
+        m_data = that.m_data;
+        that.m_data = nullptr;
+      }
+
+      block_of_memory& operator=(const block_of_memory& that)
+      {
+        if (this != &that)
+        {
+          m_size = that.m_size;
+          resize(m_size);
+          memcpy(m_data, that.m_data, m_size);
+        }
+        return *this;
+      };
+     
+      block_of_memory& operator=(block_of_memory&& that)
+      {
+        if (this != &that) {
+          m_data = that.m_data;
+          that.m_data = nullptr;
+        }
+        return *this;
+      }
+      ~block_of_memory()
+      {
+        clear();
+      }
+     
+      void resize(std::size_t size)
+      {
+        if (m_data)
+          m_data = realloc(m_data, size);
+        else
+          m_data = malloc(size);
+      }
+
+      void clear()
+      {
+        free(m_data);
+        m_data = nullptr;
+      }
+
+      template<class T>
+      T* get()
+      {
+        return static_cast<T*>(m_data);
+      }
+
+      template<class T>
+      const T* get() const
+      {
+        return static_cast<const T*>(m_data);
+      }
+      
+    private:
+      void* m_data;
+      std::size_t m_size;
+    };
+
     template<class T> 
     class pod_vector
     {
     public:
       using iterator = T* ;
       using const_iterator = const T* ;
-
-      
-
-      pod_vector(std::size_t size = 0) : m_data(nullptr), m_size(size)
+          
+    
+      pod_vector() : m_size(0)
       {
-        m_data = new T[size];
+      }
+
+      pod_vector(std::size_t size) : m_data(size * sizeof(T)), m_size(size)
+      {
       }
       
       template<class Iterator>
-      pod_vector(Iterator a, Iterator b) : m_data(nullptr), m_size(0)
+      pod_vector(Iterator a, Iterator b) :  m_size(0)
       {
         m_size = b - a;
-        m_data = new T[m_size];
-        std::copy(a, b, m_data);
+        m_data.resize(m_size * sizeof(T));
+        std::copy(a, b, m_data.get<T>());
       }
 
       void resize(std::size_t size)
       {
-        delete[] m_data;
         m_size = size;
-        m_data = new T[m_size];
+        m_data.resize(m_size * sizeof(T));
       }
 
       void clear()
       {
-        resize(0);
+        m_data.clear();
       }
 
       ~pod_vector()
       {
-        delete[] m_data;
+        //m_data.clear() // automatic
       }
 
       iterator begin()
       {
-        return m_data;
+        return m_data.get<T>();
       }
 
       iterator end()
       {
-        return &m_data[m_size];
+        return  &m_data.get<T>()[m_size];
       }
 
       const_iterator begin() const
       {
-        return m_data;
+        return m_data.get<T>();
       }
 
       const_iterator end() const
       {
-        return &m_data[m_size];
+        return  &m_data.get<T>()[m_size];
       }
 
-      T* get_data_()
+      T* get_data()
       {
-        return m_data;
+        return m_data.get<T>();
       }
 
-      const T* get_data_() const
+      const T* get_data() const
       {
-        return m_data;
+        return m_data.get<T>();
       }
     private: 
-      T* m_data;
+      block_of_memory m_data;
       std::size_t m_size;
     };
     
     template<class T>
-    using cache_vector_type = std::vector<T>;
+    //using cache_vector_type = std::vector<T>;
+    using cache_vector_type = pod_vector<T>;
 
     template<class T>
     T* get_data_ptr(pod_vector<T>& v)
     {
-      return v.get_data_();
+      return v.get_data();
     }
     template<class T>
     const T* get_data_ptr(const pod_vector<T>& v)
     {
-      return v.get_data_();
+      return v.get_data();
     }
 
     template<class T>
