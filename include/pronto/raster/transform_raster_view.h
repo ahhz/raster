@@ -180,8 +180,7 @@ namespace pronto {
         // #pragma warning( push )
         // #pragma warning( disable : 4244 ) // suppressing warnings due to casts
         // #pragma warning( disable : 4800 ) // suppressing warnings due to casts
-        auto& f = *(m_view->m_function);
-        return f(
+        return m_view->m_function(
           static_cast<typename
           std::iterator_traits<typename std::tuple_element<S, std::tuple<I...>>::type>::value_type>
           (*std::get<S>(m_iters))...);
@@ -277,7 +276,7 @@ namespace pronto {
       {
         assert(start_row >= 0 && start_col >= 0 && rows + start_row <= this->rows() && cols + start_col <= this->cols());
         return sub_raster_type
-        (*m_function, std::get<S>(m_rasters).sub_raster
+        (m_function, std::get<S>(m_rasters).sub_raster
         (start_row, start_col, rows, cols)...);
       }
 
@@ -285,46 +284,79 @@ namespace pronto {
     private:
       friend class const_iterator;
      
-      mutable optional<function_type> m_function;
+      mutable function_type m_function;
     };
-    
-
-    template<class T>
-    using decay_t = typename std::decay<T>::type;
-
-    template<class F>
-    class reference_function
+ 
+    template<class Callable>
+    struct optional_wrapped_callable
     {
-    public:
-      reference_function(F& f) : m_f(f)
+      optional_wrapped_callable()
       {}
+      
 
-      reference_function(const reference_function& f) = default;
+      optional_wrapped_callable(const optional_wrapped_callable& c) = default;
+      optional_wrapped_callable( optional_wrapped_callable&& c) = default;
+
+      //template<typename CC, typename = std::enable_if<!std::is_same<CC, optional_wrapped_callable>::value>>
+      optional_wrapped_callable(Callable& c) : m_c(c)
+      {}
       
       template<class...Args>
-      auto operator()(Args&&... args)->decltype(std::declval<F>()(std::forward<Args>(args)...))
+      auto operator()(Args&&...args)
+        ->decltype(std::declval<Callable>()(std::forward<Args>(args)...))
       {
-        return m_f(std::forward<Args>(args)...);
+         return m_c.value()(std::forward<Args>(args)...);
       }
-    private:
-      F& m_f;
-   };
-    
-    template<class F, class... R> // requires these to be RasterViews
-    transform_raster_view<typename std::decay<F>::type, R...>
-      transform(F&& f, R... r)
-    {
-      return transform_raster_view<typename std::decay<F>::type, R...>
-        (std::forward<F>(f), r...);
-    }
+      optional<Callable> m_c;
+    };
 
-    // if the function is to be treated as a reference, wrap it.
-    template<class F, class... R> // requires these to be RasterViews
-    transform_raster_view<reference_function<F>, R...>
-      transform(std::reference_wrapper<F> f, R... r)
+    template<class Callable>
+    struct reference_wrapped_callable
     {
-      return transform_raster_view<reference_function<F>, R...>
-        (reference_function<F>(f), r...);
+      reference_wrapped_callable(std::reference_wrapper<Callable> c) : m_c(c)
+      {}
+
+      template<class...Args>
+      auto operator()(Args&&...args)
+      {
+        return m_c.get()(std::forward<Args>(args)...);
+      }
+
+      std::reference_wrapper<Callable> m_c;
+    };
+
+    template<class Callable>
+    struct conform_callable_helper
+    {
+      static const bool is_default_constructible = std::is_default_constructible<Callable>::value;
+      static const bool is_copy_assignable = std::is_copy_assignable<Callable>::value;
+      static const bool is_conform = is_default_constructible && is_copy_assignable;
+      using type = typename std::conditional < is_conform, Callable, optional_wrapped_callable < Callable> >::type;
+    };
+
+    template<class Callable>
+    struct conform_callable_helper<std::reference_wrapper<Callable> >
+    {
+      using type = reference_wrapped_callable< Callable>;
+    };
+
+    template<class Callable>
+    using conform_callable = typename conform_callable_helper<Callable>::type;
+
+    template<class Callable>
+    auto make_conform_callable(Callable&& c)
+      ->conform_callable<typename std::decay<Callable>::type>
+    {
+      return conform_callable<typename std::decay<Callable>::type>
+        (std::forward<Callable>(c));
+    }
+        
+    template<class Callable, class... R> // requires these to be RasterViews
+    transform_raster_view<conform_callable<typename std::decay<Callable>::type>, R...>
+      transform(Callable&& c, R... r)
+    {
+      return transform_raster_view<conform_callable<typename std::decay<Callable>::type>, R...>
+        (make_conform_callable(std::forward<Callable>(c)), r...);
     }
   }
 }
