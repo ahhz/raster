@@ -213,7 +213,7 @@ static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) 
     benchmark_3_rasters_pronto_forward_only_in_blocks();
 }
 
-unsigned char abc(const unsigned char& a, const unsigned char& b, const unsigned char& c)
+unsigned char abc(unsigned char a, unsigned char b, unsigned char c)
 {
   return static_cast<unsigned char>(3 * a + b * c);
 }
