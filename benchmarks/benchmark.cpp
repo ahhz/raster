@@ -213,8 +213,12 @@ static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) 
     benchmark_3_rasters_pronto_forward_only_in_blocks();
 }
 
+unsigned char abc(const unsigned char& a, const unsigned char& b, const unsigned char& c)
+{
+  return static_cast<unsigned char>(3 * a + b * c);
+}
 
-int benchmark_3_rasters_pronto_v2()
+int benchmark_3_rasters_pronto_v2_raster_algebra()
 {
   {
    
@@ -224,19 +228,69 @@ int benchmark_3_rasters_pronto_v2()
     auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
     auto raster_out = pr::open_v2<unsigned char, true, true>("output.tif");
   
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+   auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
       + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
-    pr::assign_blocked(raster_out, raster_sum, 256, 256);
-    //pr::assign_blocked(raster_out, raster_sum,256,256);
+
+   pr::assign_blocked(raster_out, raster_sum, 256, 256);
   }
    return 0;
 }
 
-static void BM_3_rasters_pronto_v2(benchmark::State& state) {
+static void BM_3_rasters_pronto_v2_raster_algebra(benchmark::State& state) {
   for (auto _ : state)
-    benchmark_3_rasters_pronto_v2();
+    benchmark_3_rasters_pronto_v2_raster_algebra();
 }
 
+int benchmark_3_rasters_pronto_v2_lambda()
+{
+  {
+
+    //pr::g_lru.set_capacity(5000000);
+    auto raster_a = pr::open_v2<unsigned char, true, false>("random_a.tif");
+    auto raster_b = pr::open_v2<unsigned char, true, false>("random_b.tif");
+    auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
+    auto raster_out = pr::open_v2<unsigned char, true, true>("output.tif");
+
+    auto f = [](const unsigned char& a, const unsigned char& b, const unsigned char& c)
+    {
+      return static_cast<unsigned char>(3 * a + b * c);
+    };
+
+    auto raster_sum = pr::transform(f, raster_a, raster_b, raster_c);
+
+
+    pr::assign_blocked(raster_out, raster_sum, 256, 256);
+  }
+  return 0;
+}
+
+static void BM_3_rasters_pronto_v2_lambda(benchmark::State& state) {
+  for (auto _ : state)
+    benchmark_3_rasters_pronto_v2_lambda();
+}
+
+
+int benchmark_3_rasters_pronto_v2_function()
+{
+  {
+
+    //pr::g_lru.set_capacity(5000000);
+    auto raster_a = pr::open_v2<unsigned char, true, false>("random_a.tif");
+    auto raster_b = pr::open_v2<unsigned char, true, false>("random_b.tif");
+    auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
+    auto raster_out = pr::open_v2<unsigned char, true, true>("output.tif");
+    
+    auto raster_sum = pr::transform(abc, raster_a, raster_b, raster_c);
+
+    pr::assign_blocked(raster_out, raster_sum, 256, 256);
+  }
+  return 0;
+}
+
+static void BM_3_rasters_pronto_v2_function(benchmark::State& state) {
+  for (auto _ : state)
+    benchmark_3_rasters_pronto_v2_function();
+}
 int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
 {
 	{
@@ -791,7 +845,9 @@ BENCHMARK(BM_3_rasters_pronto_forward_only)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_no_blocks_iterate)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks_transform)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_3_rasters_pronto_v2)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_v2_raster_algebra)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_v2_lambda)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_v2_function)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_readblock)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_rasterio)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_getlockedblockref)->Unit(benchmark::kMillisecond);
