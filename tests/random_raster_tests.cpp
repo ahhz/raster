@@ -137,7 +137,7 @@ bool test_based_on_benchmark()
   auto dist = std::uniform_int_distribution<int>(1, 6);
   auto gen_a = std::mt19937(std::random_device{}());
   auto random_a = pr::random_distribution_raster(rows, cols, dist, gen_a);
-  pr::assign(raster_a, random_a);
+  pr::assign_blocked(raster_a, random_a, 256, 256);
   return true;
 }
 
