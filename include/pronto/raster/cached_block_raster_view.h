@@ -77,10 +77,14 @@ namespace pronto
      
       void resize(std::size_t size)
       {
+        m_size = size;
         if (m_data)
           m_data = realloc(m_data, size);
         else
           m_data = malloc(size);
+
+        if (m_size > 0 && m_data == nullptr)
+          throw(lru_full{});
       }
 
       void clear()
@@ -694,7 +698,7 @@ namespace pronto
 
     public:
       cached_block_raster_view(std::shared_ptr<BlockProvider> bp)
-        : m_block_provider(bp), m_rows(bp->rows()), m_cols(bp->cols())
+        : m_block_provider(bp), m_rows(bp->rows()), m_cols(bp->cols()), m_first_row(0), m_first_col(0)
      //   , m_full_cols(bp->cols()), m_full_rows(bp->rows())
       { }
 
