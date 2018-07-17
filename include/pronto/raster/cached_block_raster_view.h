@@ -127,7 +127,13 @@ namespace pronto
       {
         m_size = b - a;
         m_data.resize(m_size * sizeof(T));
-        std::copy(a, b, m_data.get<T>());
+        T* pos = m_data.get<T>();
+        for (; a != b; ++a)
+        {
+          *pos = *a;
+          ++pos;
+        }
+//        std::copy(a, b, m_data.get<T>());
       }
 
       void resize(std::size_t size)
@@ -438,7 +444,7 @@ namespace pronto
       inline this_type& operator--()
       {
         auto d = std::distance(m_block->begin(), m_pos);
-        if (d % m_block->block_cols() > 0) {
+        if (d % m_view->block_cols() > 0) {
           --m_pos;
           return *this;
         }
@@ -465,7 +471,7 @@ namespace pronto
       inline this_type operator-(std::ptrdiff_t distance) const
       {
         this_type temp(*this);
-        temp += distance;
+        temp -= distance;
         return temp;
       }
 
@@ -752,6 +758,15 @@ namespace pronto
       {
         return m_rows * m_cols;
       }
+      
+      BlockProvider* get_block_provider()
+      {
+        return m_block_provider.get();
+      }
+      const BlockProvider* get_block_provider() const
+      {
+        return m_block_provider.get();
+      }
 	  
     private:
       friend class iterator;
@@ -759,6 +774,7 @@ namespace pronto
       std::shared_ptr<BlockProvider> m_block_provider;
       int m_rows; // only the subset rows
       int m_cols; // only the subset rows
+    public: // todo make private and accesss appropriately
       int m_first_row; // first row in subset
       int m_first_col; // first col in subset
      };

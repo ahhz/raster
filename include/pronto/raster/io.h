@@ -18,8 +18,10 @@
 #include <pronto/raster/blind_function.h>
 #include <pronto/raster/exceptions.h>
 #include <pronto/raster/filesystem.h>
+#include <pronto/raster/gdal_data_types.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_view.h>
+#include <pronto/raster/self_cached_gdal_raster_view.h>
 #include <pronto/raster/optional.h>
 
 #include <iostream>
@@ -35,70 +37,6 @@ namespace pronto
     };
 
     namespace detail {
-      template<typename T> struct native_gdal_data_type
-      {
-        static const GDALDataType value = GDT_Unknown;
-      };
-
-      template<> struct native_gdal_data_type<int32_t>
-      {
-        static const GDALDataType value = GDT_Int32;
-      };
-
-      template<>
-      struct native_gdal_data_type<uint32_t>
-      {
-        static const GDALDataType value = GDT_UInt32;
-      };
-
-      template<> struct native_gdal_data_type<int16_t>
-      {
-        static const GDALDataType value = GDT_Int16;
-      };
-
-      template<> struct native_gdal_data_type<uint16_t>
-      {
-        static const GDALDataType value = GDT_UInt16;
-      };
-
-      template<> struct native_gdal_data_type<uint8_t>
-      {
-        static const GDALDataType value = GDT_Byte;
-      };
-
-      template<> struct native_gdal_data_type<bool>
-      {
-        static const GDALDataType value = GDT_Byte;
-      };
-
-      template<> struct native_gdal_data_type<float>
-      {
-        static const GDALDataType value = GDT_Float32;
-      };
-
-      template<> struct native_gdal_data_type<double>
-      {
-        static const GDALDataType value = GDT_Float64;
-      };
-  /*
-      template<> struct native_gdal_data_type<cint16_t>
-      {
-        static const GDALDataType value = GDT_CInt16;
-      };
-
-      template<> struct native_gdal_data_type<cint32_t>
-      {
-        static const GDALDataType value = GDT_CInt32;
-      };
-      template<> struct native_gdal_data_type<cfloat32_t>
-      {
-        static const GDALDataType value = GDT_CFloat32;
-      };
-      template<> struct native_gdal_data_type<cfloat64_t>
-      {
-        static const GDALDataType value = GDT_CFloat64;
-      };
-*/
       static GDALDataset* create_standard_gdaldataset(
         const filesystem::path& path, int rows, int cols
         , GDALDataType datatype, int nBands = 1)
@@ -281,8 +219,8 @@ namespace pronto
 
       template<class T>
       static std::shared_ptr<GDALRasterBand> create_band_from_model(
-        const filesystem::path& path
-        , const gdal_raster_view<T>& model,
+        const filesystem::path& path, 
+        const gdal_raster_view<T>& model,
         GDALDataType datatype, is_temporary is_temp)
       {
         int nBands = 1;

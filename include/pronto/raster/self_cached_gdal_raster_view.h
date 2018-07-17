@@ -9,7 +9,8 @@
 
 #pragma once
 #include <pronto/raster/cached_block_raster_view.h>
-#include <pronto/raster/io.h>
+#include <pronto/raster/filesystem.h>
+#include <pronto/raster/gdal_data_types.h>
 #include <pronto/raster/lru.h>
 #include <pronto/raster/gdal_includes.h>
 
@@ -43,7 +44,12 @@ namespace pronto
         int major_col = block_index % blocks_per_row;
 
         band->ReadBlock(major_col, major_row, static_cast<void*>(get_data_ptr(original)));
-        std::copy(original.begin(), original.end(), target);
+    //    std::copy(original.begin(), original.end(), target);
+        for (auto&& v : original)
+        {
+          *target = v;
+          ++target;
+        }
         
       }
 
@@ -144,7 +150,9 @@ namespace pronto
         default: break;
         }
         if (m_band->GetAccess() == GA_ReadOnly) {
-         
+         // Even when IsMutable is true, do not write read-only datasets
+          m_write_block = [](GDALRasterBand*, const T*, int) {};
+
         }
       }
 
@@ -192,7 +200,13 @@ namespace pronto
         }
         return &(b);
       }
-    private:
+
+      GDALRasterBand* get_band() const
+      {
+        return m_band.get();
+      }
+
+    public:
       std::function<void(GDALRasterBand*, T*, int)> m_read_block;
       std::function<void(GDALRasterBand*, const T*, int)> m_write_block;
       std::shared_ptr<GDALRasterBand> m_band;
@@ -203,14 +217,132 @@ namespace pronto
       int m_block_cols;
     };
 
-
-
     template<class ValueType, bool IsForwardOnly, bool IsMutable>
-      using gdal_raster_view_v2 = cached_block_raster_view<
-        gdal_block_provider<ValueType, IsMutable>
-      , IsMutable 
+    using gdal_raster_view_v2 = cached_block_raster_view<
+      gdal_block_provider<ValueType, IsMutable>
+      , IsMutable
       , IsForwardOnly
-      >;
+    >;
+
+    namespace v2 {
+      template<class T, class IterationType = random_access_iteration>
+      class gdal_raster_view
+      {
+      private:
+        static const bool is_mutable = true;
+        static const bool is_forward_only = !std::is_same<
+          random_access_iteration, IterationType>::value;
+        using view_type = gdal_raster_view_v2<T, is_forward_only, is_mutable>;
+
+        using provider = gdal_block_provider<T, is_mutable>;
+    
+      public:
+        using value_type = T;
+
+        gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
+          : m_view(std::shared_ptr<provider>(new provider(band)))
+        {
+
+        }
+        gdal_raster_view() = default;
+
+        // using the aliasing constructor seems overly complicated now. Just remove for a 
+        // deleter that does nothing?
+        gdal_raster_view(GDALRasterBand* band)
+          : m_view(std::shared_ptr<GDALRasterBand>{
+          std::shared_ptr<GDALRasterBand>{}, band})
+        {};
+
+          using iterator = typename view_type::iterator;
+          using const_iterator = typename view_type::const_iterator;
+
+          GDALRasterBand* get_band() const
+          {
+            return m_view.get_block_provider()->get_band();
+          }
+          //  friend create_standard_gdaldataset_from_model
+
+          CPLErr get_geo_transform(double* padfTransform) const
+          {
+            GDALRasterBand* band = get_band();
+            CPLErr err = band->GetDataset()->GetGeoTransform(padfTransform);
+
+            // Set this default affine transformation to be consistent with ARCGIS
+            // For a raster with missing transformation, arcgis centers the top 
+            // left cell at (0,0). The cell-size is 1, the positive y-directions 
+            // direction is South to North.
+            // 
+            if (err == CE_Failure) {
+              padfTransform[0] = -0.5;
+              padfTransform[1] = 1;
+              padfTransform[2] = 0;
+              padfTransform[3] = 0.5;
+              padfTransform[4] = 0;
+              padfTransform[5] = -1;
+            }
+
+            // Modify the transform such that is only for the sub-raster and not for 
+            // the dataset.
+            padfTransform[0] = padfTransform[0]
+              + padfTransform[1] * m_view.m_first_col
+              + padfTransform[2] * m_view.m_first_row;
+
+            padfTransform[3] = padfTransform[3]
+              + padfTransform[4] * m_view.m_first_col
+              + padfTransform[5] * m_view.m_first_row;
+
+            return err;
+           }
+
+          int rows() const
+          {
+            return m_view.rows();
+          };
+
+          int cols() const
+          {
+            return m_view.cols();
+          };
+
+          int size() const
+          {
+            return rows() * cols();
+          };
+
+          gdal_raster_view sub_raster(int first_row, int first_col, int rows, int cols) const
+          {
+            gdal_raster_view out{ m_view.get_block_provider()->m_band };
+            out.m_view = m_view.sub_raster(first_row, first_col, rows, cols);
+            return out;
+          }
+
+          iterator begin()
+          {
+            return m_view.begin();
+          }
+
+          iterator end()
+          {
+            return m_view.end();
+          }
+
+          const_iterator begin() const
+          {
+            return m_view.begin();
+          }
+
+          const_iterator end() const
+          {
+            return m_view.end();
+          }
+      private:
+        view_type m_view;
+
+      };
+    }
+
+
+   
 
     
      template<class ValueType, bool IsForwardOnly, bool IsMutable>
