@@ -129,6 +129,9 @@ static void BM_create_data_for_benchmark(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256*10000*10);
+
   {
     auto raster_a = pr::open<unsigned char>("random_a.tif", pr::access::read_only);
     auto raster_b = pr::open<unsigned char>("random_b.tif", pr::access::read_only);
@@ -141,6 +144,8 @@ int benchmark_3_rasters_pronto()
 
     pr::assign(raster_out, raster_sum);
   }
+  pr::g_lru.set_capacity(cap);
+
   return 0;
 }
 
@@ -151,6 +156,9 @@ static void BM_3_rasters_pronto(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto_forward_only()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 10000 * 10);
+
   {
     auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
     auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
@@ -163,6 +171,7 @@ int benchmark_3_rasters_pronto_forward_only()
 
     pr::assign(raster_out, raster_sum);
   }
+  pr::g_lru.set_capacity(cap);
   return 0;
 }
 
@@ -173,6 +182,9 @@ static void BM_3_rasters_pronto_forward_only(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto_blind()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 10000 * 10);
+
   {
     auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
     auto raster_b = pr::open_any("random_b.tif", pr::access::read_only);
@@ -183,7 +195,9 @@ int benchmark_3_rasters_pronto_blind()
       + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 
     pr::assign(raster_out, raster_sum.unwrap());
-  }
+  }  
+  pr::g_lru.set_capacity(cap);
+
   return 0;
 }
 static void BM_3_rasters_pronto_blind(benchmark::State& state) {
@@ -193,6 +207,9 @@ static void BM_3_rasters_pronto_blind(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto_forward_only_in_blocks()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 256 * 10);
+
   {
     auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
     auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
@@ -205,7 +222,9 @@ int benchmark_3_rasters_pronto_forward_only_in_blocks()
 
     pr::assign_blocked(raster_out, raster_sum);
   }
-   return 0;
+  pr::g_lru.set_capacity(cap);
+
+  return 0;
 }
 
 static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) {
@@ -220,9 +239,12 @@ unsigned char abc(unsigned char a, unsigned char b, unsigned char c)
 
 int benchmark_3_rasters_pronto_v2_raster_algebra()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 256 * 10);
+
   {
    
-    //pr::g_lru.set_capacity(5000000);
+  
     auto raster_a = pr::open_v2<unsigned char, true, false>("random_a.tif");
     auto raster_b = pr::open_v2<unsigned char, true, false>("random_b.tif");
     auto raster_c = pr::open_v2<unsigned char, true, false>("random_c.tif");
@@ -233,7 +255,9 @@ int benchmark_3_rasters_pronto_v2_raster_algebra()
 
    pr::assign_blocked(raster_out, raster_sum, 256, 256);
   }
-   return 0;
+  pr::g_lru.set_capacity(cap);
+
+  return 0;
 }
 
 static void BM_3_rasters_pronto_v2_raster_algebra(benchmark::State& state) {
@@ -243,6 +267,9 @@ static void BM_3_rasters_pronto_v2_raster_algebra(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto_v2_lambda()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 256 * 10);
+
   {
 
     //pr::g_lru.set_capacity(5000000);
@@ -261,6 +288,7 @@ int benchmark_3_rasters_pronto_v2_lambda()
 
     pr::assign_blocked(raster_out, raster_sum, 256, 256);
   }
+  pr::g_lru.set_capacity(cap);
   return 0;
 }
 
@@ -272,6 +300,8 @@ static void BM_3_rasters_pronto_v2_lambda(benchmark::State& state) {
 
 int benchmark_3_rasters_pronto_v2_function()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 256 * 10);
   {
 
     //pr::g_lru.set_capacity(5000000);
@@ -284,6 +314,7 @@ int benchmark_3_rasters_pronto_v2_function()
 
     pr::assign_blocked(raster_out, raster_sum, 256, 256);
   }
+  pr::g_lru.set_capacity(cap);
   return 0;
 }
 
@@ -293,6 +324,8 @@ static void BM_3_rasters_pronto_v2_function(benchmark::State& state) {
 }
 int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 256 * 4);
 	{
 		auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
 		auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
@@ -307,6 +340,8 @@ int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
 		auto raster_sum = pr::transform(func, raster_a, raster_b, raster_c);
 		pr::assign_blocked(raster_out, raster_sum);
 	}
+  pr::g_lru.set_capacity(cap);
+
   return 0;
 }
 
@@ -317,6 +352,8 @@ static void BM_3_rasters_pronto_forward_only_in_blocks_transform(benchmark::Stat
 
 int benchmark_3_rasters_pronto_forward_only_no_blocks_iterate()
 {
+  std::size_t cap = pr::g_lru.get_capacity();
+  pr::g_lru.set_capacity(256 * 10000 * 10);
 	{
 		auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
 		auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
@@ -334,6 +371,8 @@ int benchmark_3_rasters_pronto_forward_only_no_blocks_iterate()
 			*iout = 3 * (*ia) + (*ib) * (*ic);
 		}
 	}
+  pr::g_lru.set_capacity(cap);
+
  
   return 0;
 }
