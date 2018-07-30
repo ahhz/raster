@@ -286,7 +286,7 @@ namespace pronto
         int index_in_block = row_in_block * block_cols + col_in_block;
 
         m_block.reset(m_view->m_band.get(), block_row, block_col);
-        if (is_mutable::value) 
+        if (is_mutable::value && m_view->m_band->GetAccess() == GA_Update) 
         { 
           m_block.mark_dirty(); 
         }
