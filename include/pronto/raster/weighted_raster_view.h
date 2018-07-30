@@ -85,12 +85,12 @@ namespace pronto {
         return reference(*m_iters.first, *m_iters.second);
       }
 
-      bool operator==(const pair_raster_iterator& b) const
+      bool operator==(const weighted_input_iterator& b) const
       {
         return m_iters.first == b.m_iters.first;
       }
 
-      bool operator!=(const pair_raster_iterator& b) const
+      bool operator!=(const weighted_input_iterator& b) const
       {
         return m_iters.first != b.m_iters.first;
       }
