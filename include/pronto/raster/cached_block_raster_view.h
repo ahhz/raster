@@ -116,8 +116,9 @@ namespace pronto
     public:
       using iterator = T* ;
       using const_iterator = const T* ;
-          
-    
+      using reference = T&;
+      using const_reference = const T&;
+         
       pod_vector() : m_size(0)
       {
       }
@@ -205,8 +206,22 @@ namespace pronto
       return v.get_data();
     }
 
+    inline bool* get_data_ptr(const std::vector<bool>& v)
+    {
+      assert(false);
+      return nullptr;
+      //      return &v[0];
+    }
+    inline bool* get_data_ptr(std::vector<bool>& v)
+    {
+      assert(false);
+      return nullptr;
+      //      return &v[0];
+    }
+
+
     template<class T>
-    T* get_data_ptr(std::vector<T>& v)
+    inline T* get_data_ptr(std::vector<T>& v)
     {
       return &v[0];
     }
@@ -223,6 +238,8 @@ namespace pronto
       using handle_type = typename lru::id;
       using value_type = T;
       using vector_type = cache_vector_type<value_type> ;
+      using reference = typename vector_type::reference;
+      using const_reference = typename vector_type::const_reference;
       using iterator = typename vector_type::iterator;
       using const_iterator = typename vector_type::const_iterator;
     
@@ -280,6 +297,11 @@ namespace pronto
       {
         return get_data_ptr(m_data);
       }
+
+      const T* get_data() const
+      {
+        return get_data_ptr(m_data);
+      }
     
       void create_data(std::size_t size)
       {
@@ -323,16 +345,18 @@ namespace pronto
       lru& m_lru = g_lru; // still using the global lru but set up to use any
     };
 
-    template<class T, class Block>
+    template<class T>
     class blocked_reference
     {
     public:
       using value_type = T;
-      blocked_reference(T& ref, Block* block) : m_reference(ref), m_block(block)
+      using reference = typename data_block<T>::reference;
+      blocked_reference(reference ref, data_block<T>* block) 
+        : m_reference(ref), m_block(block)
       {
-        assert(block);
         block->add_lock();
       }
+
       blocked_reference(const blocked_reference& that) 
         : m_reference(that.m_reference)
         , m_block(that.m_block)
@@ -353,30 +377,81 @@ namespace pronto
         if(m_block) m_block->drop_lock();
       }
 
-      value_type get() const
+      T get() const
       {
-        return m_reference;
+        return static_cast<T>(m_reference);
       }
 
-      void put(const value_type& value) 
+      void put(const T& value) 
       {
         m_reference = value;
       }
 
     private:
 
-      value_type& m_reference;
-      Block* m_block;
+      reference m_reference;
+      data_block<T>* m_block;
     };
+
+    template<class T>
+    class blocked_const_reference
+    {
+    public:
+      using value_type = T;
+
+      using const_reference = typename data_block<T>::const_reference;
+      blocked_const_reference(const_reference& ref, data_block<T>* block)
+        : m_reference(ref), m_block(block)
+      {
+        block->add_lock();
+      }
+
+      blocked_const_reference(const blocked_const_reference& that)
+        : m_reference(that.m_reference)
+        , m_block(that.m_block)
+      {
+        if (m_block) m_block->add_lock();
+      }
+
+      blocked_const_reference(blocked_const_reference&& that)
+        : m_reference(that.m_reference)
+        , m_block(that.m_block)
+      {
+        that.m_block = nullptr;
+      }
+
+      ~blocked_const_reference()
+      {
+        if (m_block) m_block->drop_lock();
+      }
+
+      T get() const
+      {
+        return static_cast<T>(m_reference);
+      }
+      void put(const T& value)
+      {
+        assert(false);
+      }
+    private:
+
+      const_reference m_reference;
+      data_block<T>* m_block;
+    };
+
+
 
     template<class CachedBlockRasterView, bool IsMutable, bool IsForwardOnly>
     class cached_block_raster_iterator
     {
+    public:      
       using view_type = CachedBlockRasterView;
+      using value_type = typename view_type::value_type;
+
       using block_provider_type =
         typename CachedBlockRasterView::block_provider_type;
       
-      using block_type = typename block_provider_type::block;
+      using block_type = data_block<value_type>;
       using block_iterator_type = typename block_type::iterator;
       using this_type = cached_block_raster_iterator;
     public:
@@ -387,9 +462,12 @@ namespace pronto
 
     public:
     
-      using value_type = typename view_type::value_type;
-      using proxy_reference = reference_proxy < blocked_reference<value_type, block_type> >;
+      using unblocked_reference = typename block_type::reference;
+      using unblocked_const_reference = typename block_type::const_reference;
 
+      using proxy_reference = reference_proxy < blocked_reference<value_type> >;
+      using proxy_const_reference = value_type;
+      
       // when forward only, the dereferenced iterator does not need to outlive 
       // the iterator, so can return references. 
       // when non-mutable we can return a value instead of a reference, 
@@ -399,10 +477,17 @@ namespace pronto
         std::conditional<IsMutable, value_type&, const value_type&>::type;
 
       using non_forward_only_reference = typename 
-        std::conditional<IsMutable, proxy_reference, value_type>::type;
+        std::conditional<IsMutable, proxy_reference, proxy_const_reference>::type;
 
-      using reference = typename std::conditional<IsForwardOnly,
-        forward_only_reference, non_forward_only_reference>::type;
+      
+      using const_reference = typename std::conditional<IsForwardOnly,
+        unblocked_const_reference, proxy_const_reference>::type;
+
+      using non_const_reference = typename std::conditional<IsForwardOnly,
+        unblocked_reference, proxy_reference>::type;
+
+      using reference = typename std::conditional<IsMutable,
+        non_const_reference, const_reference>::type;
 
       using difference_type = std::ptrdiff_t;
       using pointer = void;
@@ -538,21 +623,21 @@ namespace pronto
 
       inline reference get_reference(std::true_type, std::false_type) const
       {
-        blocked_reference<value_type, block_type> ref(*m_pos, m_block.get());
+        blocked_reference<value_type> ref(*m_pos, m_block.get());
         return proxy_reference(ref);
       }
 
-      inline reference get_reference(std::false_type, std::true_type) const
+      inline const_reference get_reference(std::false_type, std::true_type) const
       {
         return *m_pos;
       }
 
-      inline reference get_reference(std::false_type, std::false_type) const
+      inline const_reference get_reference(std::false_type, std::false_type) const
       {
         return *m_pos;
       }
-      
-      inline reference operator*() const
+
+      inline reference operator*() const  
       {
         return get_reference(is_mutable{}, is_forward_only{});
       }
