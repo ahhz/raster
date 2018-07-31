@@ -11,7 +11,7 @@
 
 #include <pronto/raster/index_sequence.h>
 #include <pronto/raster/traits.h>
-#include <pronto/raster/reference_proxy.h>
+#include <pronto/raster/reference_proxy_vector.h>
 
 #include <iterator>
 #include <utility>
@@ -42,9 +42,7 @@ namespace pronto {
         typename std::iterator_traits<single_iterator>::difference_type;
 
       using iterator_category = std::input_iterator_tag;
-
-
-
+      
       vector_of_raster_iterator& operator++()
       {
         for (auto&& i : m_iters) ++i;
