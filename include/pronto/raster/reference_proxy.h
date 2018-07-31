@@ -38,14 +38,6 @@ namespace pronto {
         m_accessor.put(v);
         return *this;
       }
-
-      template<class OtherAccessor>
-      reference_proxy& operator=(const reference_proxy<OtherAccessor>& that)
-      {
-        using other_value_type = typename reference_proxy<OtherAccessor>::value_type;
-        return operator=(static_cast<other_value_type>(that));
-      }
-
       reference_proxy& operator=(const reference_proxy& that)
       {
         return operator=(static_cast<value_type>(that));
@@ -79,14 +71,19 @@ namespace pronto {
         m_accessor.put(--m_accessor.get());
         return temp;
       }
+    
     private:
       Accessor m_accessor;
+    
     public:
 
+// MACRO to implement assigning operator
 #define PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(op)      \
 template<class T> const reference_proxy& operator op(const T& v) \
 { auto temp = m_accessor.get(); temp op v;m_accessor.put(temp); return *this; }
       
+      // All assigning operators.
+      // For the sake of some compilers deeclared after m_accessors
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(+=)
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(-= )
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(/= )
@@ -97,7 +94,6 @@ template<class T> const reference_proxy& operator op(const T& v) \
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(^= )
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(<<= )
       PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(>>= )
-        
     };
 
     template<class CharType, class CharTrait, class Accessor>
