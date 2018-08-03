@@ -7,10 +7,10 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 
-// TODO: When a GDALRasterBand is closed, now its parent GDALDataSet is 
-// closed. This will be problematic when multiple bands from the same 
-// dataset are used.  So for now we only support one band per 
-// dataset.  
+// TODO: When a GDALRasterBand is closed, now its parent GDALDataSet is
+// closed. This will be problematic when multiple bands from the same
+// dataset are used.  So for now we only support one band per
+// dataset.
 
 #pragma once
 #include <pronto/raster/any_blind_raster.h>
@@ -30,7 +30,7 @@ namespace pronto
   {
     enum is_temporary
     {
-      yes, 
+      yes,
       no
     };
 
@@ -110,7 +110,7 @@ namespace pronto
 
         char **papszOptions = NULL;
         // Commented out settings that are default anyway
-       
+
         //papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
         //papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
         papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
@@ -142,7 +142,7 @@ namespace pronto
 
         double gt_data[6];
         double* geotransform = gt_data;
-        CPLErr error_status = model.get_geo_transform(geotransform);
+        //CPLErr error_status = model.get_geo_transform(geotransform);
         dataset->SetGeoTransform(geotransform);
         dataset->SetProjection(model_data_set->GetProjectionRef());
         return dataset;
@@ -184,7 +184,7 @@ namespace pronto
           auto try_statistics = band->GetStatistics(FALSE,
             FALSE,
             &min, &max, &mean, &stddev);
-          // Only update statistics if rasterband thinks that they are up 
+          // Only update statistics if rasterband thinks that they are up
           // to date
           if (try_statistics != CE_Warning)
           {
@@ -222,7 +222,7 @@ namespace pronto
         GDALAllRegister();
         GDALDataset* dataset = (GDALDataset*)GDALOpen(path.string().c_str()
           , gdal_access(access));
-        
+
         bool test = dataset->GetAccess() == gdal_access(access);
         if (!test)
         {
@@ -234,7 +234,7 @@ namespace pronto
           std::cout << "Could not read: " << path.c_str() << std::endl;
           throw(opening_raster_failed{});
         }
-        
+
         auto closer = [](GDALDataset* ds) {
           if(ds) GDALClose(ds);
           ds = nullptr;
@@ -251,7 +251,7 @@ namespace pronto
 
         GDALRasterBand* rasterband = dataset->GetRasterBand(band);
 
-        // capture dataset by value: now it will not be deleted before the band 
+        // capture dataset by value: now it will not be deleted before the band
         auto closer = [dataset](GDALRasterBand* rb)
         {
           optionally_update_statistics(rb);
@@ -357,7 +357,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T> create_temp(
-      int rows, int cols, 
+      int rows, int cols,
       GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -429,7 +429,7 @@ namespace pronto
       return make_gdalrasterdata_view<T>(sh_band, data_type);
     }
 
-	// inline because this is a non-template function and strictly speaking 
+	// inline because this is a non-template function and strictly speaking
 	// this should be in a cpp file
     inline any_blind_raster open_any(
       const filesystem::path& path,
@@ -464,7 +464,7 @@ namespace pronto
     }
 
     template<class U>
-    struct export_any_helper 
+    struct export_any_helper
     {
       export_any_helper(const filesystem::path& path,
         optional<gdal_raster_view<U>> model)
@@ -484,11 +484,11 @@ namespace pronto
           assign(out, in);
         }
       }
-      
+
       const filesystem::path m_path;
       optional<gdal_raster_view<U> > m_model;
     };
-    
+
 
     template<class U>
     void export_any(const filesystem::path& path

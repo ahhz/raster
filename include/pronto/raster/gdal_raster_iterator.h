@@ -34,17 +34,17 @@ namespace pronto
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
       using view_type = gdal_raster_view<T, IterationType>;
-      
-      // For strictly forward iteration we could use the following and be more efficient 
+
+      // For strictly forward iteration we could use the following and be more efficient
       static const bool is_forward_only = std::is_same<forward_only_iteration, IterationType>::value;
       using proxy_ref = typename std::conditional<is_forward_only
         , reference_proxy<const gdal_raster_iterator&>
         , reference_proxy<gdal_raster_iterator> >::type;
 
- 
+
     public:
-      using is_mutable = std::bool_constant<AccessType::value == read_write>;
- 
+      using is_mutable = std::integral_constant<bool, AccessType::value == read_write>;
+
       using reference = typename std::conditional<is_mutable::value,
         proxy_ref, T>::type;
       using value_type = T;
@@ -60,7 +60,7 @@ namespace pronto
 
       gdal_raster_iterator(const gdal_raster_iterator& other) = default;
       gdal_raster_iterator(gdal_raster_iterator&& other) = default;
-      gdal_raster_iterator& operator=(const gdal_raster_iterator& other) 
+      gdal_raster_iterator& operator=(const gdal_raster_iterator& other)
         = default;
       gdal_raster_iterator& operator=(gdal_raster_iterator&& other) = default;
       ~gdal_raster_iterator() = default;
@@ -171,7 +171,7 @@ namespace pronto
         return get_reference(is_mutable{});
       }
 
-    private: 
+    private:
       friend class reference_proxy<const gdal_raster_iterator&>;
       friend class reference_proxy<gdal_raster_iterator>;
 
@@ -187,7 +187,7 @@ namespace pronto
          m_view->put(value, static_cast<void*>(m_pos));
       }
 
-    private: 
+    private:
       friend class gdal_raster_view<T, IterationType>;
 
       void find_begin(const view_type* view)
@@ -214,12 +214,12 @@ namespace pronto
       {
         return m_view->get(static_cast<void*>(m_pos));
       }
-      
+
       int get_index() const
       {
-        // it might seem more efficient to just add an index member to the 
-        // iterator, however the hot-path is operator++ and operator*(), 
-        // keep those as simple as possible 
+        // it might seem more efficient to just add an index member to the
+        // iterator, however the hot-path is operator++ and operator*(),
+        // keep those as simple as possible
 
         int block_rows = m_block.block_rows();
         int block_cols = m_block.block_cols();
@@ -230,7 +230,7 @@ namespace pronto
         block_iterator_type start = m_block.get_iterator(0, 0, m_view->m_stride);
 
         int index_in_block = static_cast<int>(std::distance(start, m_pos))
-          / m_view->m_stride; //  not -1 because m_pos has not been incremented 
+          / m_view->m_stride; //  not -1 because m_pos has not been incremented
         assert(index_in_block >= 0);
 
         int minor_row = index_in_block / block_cols;
@@ -283,12 +283,12 @@ namespace pronto
         int row_in_block = gdaldata_row % block_rows;
         int col_in_block = gdaldata_col % block_cols;
 
-        int index_in_block = row_in_block * block_cols + col_in_block;
+        //int index_in_block = row_in_block * block_cols + col_in_block;
 
         m_block.reset(m_view->m_band.get(), block_row, block_col);
-        if (is_mutable::value && m_view->m_band->GetAccess() == GA_Update) 
-        { 
-          m_block.mark_dirty(); 
+        if (is_mutable::value && m_view->m_band->GetAccess() == GA_Update)
+        {
+          m_block.mark_dirty();
         }
 
         m_pos = m_block.get_iterator(row_in_block, col_in_block, m_view->m_stride);
@@ -298,7 +298,7 @@ namespace pronto
 
         int minor_end_col = 1 + (end_col - 1) % block_cols;
 
-        m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col, 
+        m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col,
           m_view->m_stride);
 
         return *this;

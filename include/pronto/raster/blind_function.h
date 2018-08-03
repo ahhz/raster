@@ -15,8 +15,8 @@
 #include <functional>
 #include <tuple>
 #include <vector>
- 
-#pragma warning( push )  
+
+#pragma warning( push )
 #pragma warning( disable : 4244 )  // Suppressing warning related to casting,
 #pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
 
@@ -49,7 +49,7 @@ namespace pronto {
         return true;
       }
 
-      template<std::size_t I> 
+      template<std::size_t I>
       std::size_t  index_in_list_helper(const any_blind_raster& r)
       {
         throw bad_any_cast{}; // none of the types in the list is the value_type
@@ -102,7 +102,7 @@ namespace pronto {
       }
     };
 
-    // Create a vector of functions for all supported types, and then apply on 
+    // Create a vector of functions for all supported types, and then apply on
     // the actual type (which is only known at runtime)
     template<class F>
     blind_function_return_type<F> blind_function(F f, any_blind_raster r)
@@ -115,8 +115,8 @@ namespace pronto {
       return functions[index](f, r);
     }
 
-    // Must use the applicator pattern, because the return types of the 
-    // unused overloads cannot be derived. 
+    // Must use the applicator pattern, because the return types of the
+    // unused overloads cannot be derived.
     // This can be overcome by making traits<Raster> more robust
     template<class F, class A, class B>
     struct blind_function_2_applicator;
@@ -126,7 +126,7 @@ namespace pronto {
     template<class F, class B>
     struct blind_function_2_applicator<F, any_blind_raster, B>
     {
-      template<class F, class T>
+      template<class T>
       auto operator()(F f, any_blind_raster r, T v)
         ->decltype(blind_function(std::bind(f, _1, v), r))
       {
@@ -137,7 +137,7 @@ namespace pronto {
     template<class F, class A>
     struct blind_function_2_applicator<F, A, any_blind_raster>
     {
-      template<class F, class T>
+      template<class T>
       auto operator()(F f, T v, any_blind_raster r)
         ->decltype(blind_function(std::bind(f, v, _1), r))
       {
@@ -151,14 +151,16 @@ namespace pronto {
       blind_function_2_helper(F f, any_blind_raster first_arg)
         : m_f(f), m_first_arg(first_arg)
       {}
+
+      F m_f;
+      any_blind_raster m_first_arg;
+
       template<class T>  auto operator()(any_raster<T> second_arg)
         ->decltype(blind_function(std::bind(m_f, _1, second_arg), m_first_arg))
       {
         return blind_function(std::bind(m_f, _1, second_arg), m_first_arg);
       }
 
-      any_blind_raster m_first_arg;
-      F m_f;
     };
 
     template<class F>

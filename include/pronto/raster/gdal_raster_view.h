@@ -6,15 +6,16 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
-// This header file provides a wrapper around a GDALRasterBand that allows it 
-// to be used by the gdal_raster_iterator (which iterates row-by-row or 
-// column-by-column) over the rasterdata. 
+// This header file provides a wrapper around a GDALRasterBand that allows it
+// to be used by the gdal_raster_iterator (which iterates row-by-row or
+// column-by-column) over the rasterdata.
 //
 
 #pragma once
 
 #include <pronto/raster/access_type.h>
 #include <pronto/raster/complex_numbers.h>
+#include <pronto/raster/exceptions.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_iterator.h>
 
@@ -27,7 +28,7 @@ namespace pronto
 {
   namespace raster
   {
- 
+
 
     template<class T, class IterationType = random_access_iteration>
     class gdal_raster_view
@@ -36,9 +37,8 @@ namespace pronto
       using value_type = T;
 
     public:
-      gdal_raster_view(std::shared_ptr<GDALRasterBand> band) 
-        : m_first_row(0), m_first_col(0), m_rows(band->GetYSize())
-        , m_cols(band->GetXSize()), m_band(band)
+      gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
+        : m_band(band), m_rows(band->GetYSize()), m_cols(band->GetXSize()),m_first_row(0), m_first_col(0)
       {
         GDALDataType datatype = m_band->GetRasterDataType();
         m_stride = GDALGetDataTypeSize(datatype) / 8;
@@ -55,7 +55,7 @@ namespace pronto
         case GDT_UInt32:   set_accessors<uint32_t>();   break;
         case GDT_Float32:  set_accessors<float>();      break;
         case GDT_Float64:  set_accessors<double>();     break;
-        // Complex numbers not currently supported 
+        // Complex numbers not currently supported
 		    //
 		    //case GDT_CInt16:   set_accessors<cint16_t>();   break;
         //case GDT_CInt32:   set_accessors<cint32_t>();   break;
@@ -68,20 +68,20 @@ namespace pronto
         }
       }
       gdal_raster_view() = default;
-     
-      // using the aliasing constructor seems overly complicated now. Just remove for a 
+
+      // using the aliasing constructor seems overly complicated now. Just remove for a
       // deleter that does nothing?
       gdal_raster_view(GDALRasterBand* band)
         : gdal_raster_view(std::shared_ptr<GDALRasterBand>{
-        std::shared_ptr<GDALRasterBand>{}, band}) 
+        std::shared_ptr<GDALRasterBand>{}, band})
       {};
-         
+
       using iterator = gdal_raster_iterator<value_type
         , access_type::read_write_t, IterationType>;
       using const_iterator = gdal_raster_iterator<value_type
         , access_type::read_only_t, IterationType>;
 
-      std::shared_ptr<GDALRasterBand> get_band() const 
+      std::shared_ptr<GDALRasterBand> get_band() const
       {
         return m_band;
       }
@@ -92,10 +92,10 @@ namespace pronto
         CPLErr err = m_band->GetDataset()->GetGeoTransform(padfTransform);
 
         // Set this default affine transformation to be consistent with ARCGIS
-        // For a raster with missing transformation, arcgis centers the top 
-        // left cell at (0,0). The cell-size is 1, the positive y-directions 
+        // For a raster with missing transformation, arcgis centers the top
+        // left cell at (0,0). The cell-size is 1, the positive y-directions
         // direction is South to North.
-        // 
+        //
         if (err == CE_Failure) {
           padfTransform[0] = -0.5;
           padfTransform[1] = 1;
@@ -105,7 +105,7 @@ namespace pronto
           padfTransform[5] = -1;
         }
 
-        // Modify the transform such that is only for the sub-raster and not for 
+        // Modify the transform such that is only for the sub-raster and not for
         // the dataset.
         padfTransform[0] = padfTransform[0]
           + padfTransform[1] * m_first_col
@@ -118,21 +118,21 @@ namespace pronto
         return err;
       }
 
-      int rows() const 
+      int rows() const
       {
         return m_rows;
       };
-      
-      int cols() const 
+
+      int cols() const
       {
         return m_cols;
       };
 
-      int size() const 
+      int size() const
       {
         return rows() * cols();
       };
-    
+
       gdal_raster_view sub_raster(int first_row, int first_col, int rows, int cols) const
       {
         gdal_raster_view out{m_band};
@@ -143,14 +143,14 @@ namespace pronto
         return out;
       }
 
-      iterator begin() 
+      iterator begin()
       {
         iterator i;
         i.find_begin(this);
         return i;
       }
 
-      iterator end() 
+      iterator end()
       {
         iterator i;
         i.find_end(this);
@@ -170,10 +170,14 @@ namespace pronto
         i.find_end(this);
         return i;
       }
-    
+
     private:
-      friend class iterator;
-      friend class const_iterator;
+      //friend class iterator;
+      //friend class const_iterator;
+      friend class gdal_raster_iterator<value_type
+        , access_type::read_write_t, IterationType>;
+      friend class gdal_raster_iterator<value_type
+        , access_type::read_only_t, IterationType>;
 
       template<typename U>
       static void put_special(const value_type& value, void* const target)
@@ -199,7 +203,7 @@ namespace pronto
         get = gdal_raster_view::get_special<U>;
       }
 
-      // function pointers for "runtime polymorphism" based on file datatype. 
+      // function pointers for "runtime polymorphism" based on file datatype.
       void(*put)(const value_type&, void* const);
       value_type(*get)(const void* const);
 
@@ -207,7 +211,7 @@ namespace pronto
       //std::function<void(const value_type&, void* const)> put;
       //std::function<value_type(const void* const)> get;
 
-      unsigned char m_stride; 
+      unsigned char m_stride;
 
       std::shared_ptr<GDALRasterBand> m_band;
       int m_rows;

@@ -19,9 +19,9 @@
 
 namespace pronto {
   namespace raster {
-  
+
     template<class T> class any_raster;
-    template<class T> class any_raster_iterator;    
+    template<class T> class any_raster_iterator;
     template<class T> class any_raster_const_iterator;
 
     template<class Iter>
@@ -51,7 +51,7 @@ namespace pronto {
 
       inline static void put(const any& i, const value_type& v, const std::false_type&) // unassignable
       {
-        assert(false); // Trying to assign 
+        assert(false); // Trying to assign
       }
 
       inline static void put(const any& i, const value_type& v)
@@ -123,11 +123,11 @@ namespace pronto {
 
       template<class Iter>
       any_raster_iterator(const Iter& i)
-        : m_holding(i)
+        : m_get(typed_iterator_members<Iter>::get)
         , m_put(typed_iterator_members<Iter>::put)
-        , m_get(typed_iterator_members<Iter>::get)
-        , m_is_equal(typed_iterator_members<Iter>::is_equal)
         , m_increment(typed_iterator_members<Iter>::increment)
+        , m_is_equal(typed_iterator_members<Iter>::is_equal)
+        , m_holding(i)
       {}
 
       inline any_raster_iterator& operator++()
@@ -158,19 +158,19 @@ namespace pronto {
         return !m_is_equal(m_holding, other.m_holding);
       }
 
-      inline T get() const 
+      inline T get() const
       {
         return m_get(m_holding);
       }
-      
-      inline void put(const T& v) const 
+
+      inline void put(const T& v) const
       {
         return m_put(m_holding, v);
       }
 
-      void(*m_increment)(any&);
       T(*m_get)(const any&);
       void(*m_put)(const any&, const T&);
+      void(*m_increment)(any&);
       bool(*m_is_equal)(const any&, const any&);
 
     public:
@@ -189,10 +189,11 @@ namespace pronto {
 
       template<class Iter>
       any_raster_const_iterator(const Iter& i)
-        : m_holding(i)
-        , m_get(typed_iterator_members<Iter>::get)
-        , m_is_equal(typed_iterator_members<Iter>::is_equal)
+        : m_get(typed_iterator_members<Iter>::get)
         , m_increment(typed_iterator_members<Iter>::increment)
+        , m_is_equal(typed_iterator_members<Iter>::is_equal)
+        , m_holding(i)
+
       {}
 
       inline any_raster_const_iterator& operator++()
@@ -226,8 +227,8 @@ namespace pronto {
       inline T get() const { return m_get(m_holding); }
 
     private:
-      void(*m_increment)(any&);
       T(*m_get)(const any&);
+      void(*m_increment)(any&);
       bool(*m_is_equal)(const any&, const any&);
 
       any m_holding;
@@ -241,8 +242,7 @@ namespace pronto {
 
       template<class Raster>
       any_raster(Raster r)
-        : m_holding(r)
-        , m_begin(typed_raster_members<Raster>::begin)
+        : m_begin(typed_raster_members<Raster>::begin)
         , m_end(typed_raster_members<Raster>::end)
         , m_cbegin(typed_raster_members<Raster>::cbegin)
         , m_cend(typed_raster_members<Raster>::cend)
@@ -250,6 +250,7 @@ namespace pronto {
         , m_cols(typed_raster_members<Raster>::cols)
         , m_size(typed_raster_members<Raster>::size)
         , m_sub_raster(typed_raster_members<Raster>::sub_raster)
+        , m_holding(r)
       {}
 
       using iterator = any_raster_iterator<T>;
