@@ -9,7 +9,7 @@
 //
 // MACRO to provide operator overloads for range_algebra_wrappers
 //
-// Overload raster_algebra operator "op" and ties it to function "func". 
+// Overload raster_algebra operator "op" and ties it to function "func".
 
 #pragma once
 
@@ -19,7 +19,7 @@
 
 #include <functional>
 
-#pragma warning( push )  
+#pragma warning( push )
 #pragma warning( disable : 4244 )  // Suppressing warning related to casting,
 #pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
 
@@ -31,6 +31,7 @@ namespace pronto {
       blind_transforming_function_struct(F f) : m_f(f)
       {
       }
+      F m_f;
 
       template<class... Args>
       auto operator()(Args&&... args)->decltype(make_any_blind_raster(
@@ -40,7 +41,6 @@ namespace pronto {
           transform(m_f, std::forward<Args>(args)...));
       }
 
-      F m_f;
     };
 
     template<class F>
@@ -212,10 +212,10 @@ namespace pronto {
       return
         raster_algebra_wrap(
           blind_function(
-            blind_transforming_function_struct(function), t.unwrap()
+            blind_transforming_function_struct<F>(function), t.unwrap()
           ));
     }
-  
+
     template<template<typename>class F, class T1, class T2 >
     struct filtered_binary_operator
     {
@@ -229,10 +229,10 @@ namespace pronto {
 
       using return_type = optional<function_return_type>;
 
-      static return_type eval(const T1& v1, const T2& v2) 
+      static return_type eval(const T1& v1, const T2& v2)
       {
         if (recursive_is_initialized(v1) && recursive_is_initialized(v2)) {
-          return function_type{}(recursive_get_value(v1), 
+          return function_type{}(recursive_get_value(v1),
             recursive_get_value(v2));
         }
         else {
@@ -249,7 +249,7 @@ namespace pronto {
       using return_type = decltype(std::declval<function_type>()
         (std::declval<common_type>(), std::declval<common_type>()));
 
-      static return_type eval(const T1& v1, const T2& v2) 
+      static return_type eval(const T1& v1, const T2& v2)
       {
         return  function_type{}(v1,v2);
       }
@@ -274,8 +274,8 @@ namespace pronto {
     template<template<typename>class F, class T1, class T2 >
     using  optional_filtered_binary_operator =
       typename optional_filtered_binary_operator_helper<F, T1, T2>::type;
-   
-    
+
+
     template<template<typename> class F >
     struct filtered_binary_f
     {
@@ -286,8 +286,8 @@ namespace pronto {
         return optional_filtered_binary_operator<F, std::decay_t<T1>, std::decay_t<T2> >::eval(std::forward<T1>(v1), std::forward<T2>(v2));
       }
     };
-    
-    
+
+
     template<template<class> class F >
     struct filtered_unary_f
     {
@@ -308,7 +308,7 @@ namespace pronto {
           return optional<T>{};
         }
       }
-     
+
     };
 
     template<class T>
@@ -316,7 +316,7 @@ namespace pronto {
     {
       using type = typename
         std::conditional<std::is_integral<T>::value, T, int>::type;
-      
+
       auto operator()(const T& v1, const T& v2)const->decltype(type{} % type{})
       {
         assert(std::is_integral<T>::value); // TODO: should emit a warning
@@ -324,7 +324,7 @@ namespace pronto {
       }
     };
 
-  
+
   }
 }
 
@@ -363,7 +363,7 @@ class binary_function_getter
   {
     using type = unknown_type;
   };
- 
+
   template<class T2>
   struct common_type<unknown_type, T2>
   {
@@ -462,10 +462,10 @@ struct suppress_cast_warnings_binary<F, raster_algebra_wrapper<T>,  V2>
 };
 */
 
-BLINK_raster_RA_BINARY_OP(+, std::plus) 
+BLINK_raster_RA_BINARY_OP(+, std::plus)
 BLINK_raster_RA_BINARY_OP(-, std::minus)
 BLINK_raster_RA_BINARY_OP(/, std::divides)
-BLINK_raster_RA_BINARY_OP(%, my_modulus) 
+BLINK_raster_RA_BINARY_OP(%, my_modulus)
 BLINK_raster_RA_BINARY_OP(*, std::multiplies)
 BLINK_raster_RA_BINARY_OP(&&, std::logical_and)
 BLINK_raster_RA_BINARY_OP(||, std::logical_or)
@@ -480,4 +480,4 @@ BLINK_raster_RA_UNARY_OP(-, std::negate)
 BLINK_raster_RA_UNARY_OP(!, std::logical_not)
 // Unary plus? -> bit pointless
 
-#pragma warning( pop )  
+#pragma warning( pop )

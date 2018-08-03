@@ -196,7 +196,7 @@ bool const_transform_over_non_const_function()
   }
   auto c = pr::transform(plusser_non_const{}, a, b);
   std::vector<int> check;
-  for (auto&& i : std::as_const(c)) {
+  for (auto&& i : c) {
     check.push_back(i);
   }
 
@@ -331,7 +331,7 @@ bool transform_sub_raster_random_access()
   auto t9 = *(--c.end()) == *(--check.end());
   auto t10 = *(c.end() - 2) == *(check.end() - 2);
   return t1 && t2 && t3 && t4 && t5 && t6 && t7 && t8 && t9 && t10;
-  
+
 
 }
 

@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <pronto/raster/index_sequence.h> 
+#include <pronto/raster/index_sequence.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
 
@@ -20,15 +20,15 @@
 #include <cassert>
 namespace pronto {
   namespace raster {
-    
+
     // Now casting all inputs to the function to their value_type
     // this means that the proxy references will be cast, and therefore
     // all iterators are non-mutable.
-   
-    template<class View, class... I> 
+
+    template<class View, class... I>
     class transform_raster_iterator
     {
-    private: 
+    private:
       static const std::size_t N = sizeof...(I);
       using tuple_indices = make_index_sequence<N>;
 
@@ -44,19 +44,19 @@ namespace pronto {
       transform_raster_iterator(transform_raster_iterator&&) = default;
       transform_raster_iterator& operator=(const transform_raster_iterator&) = default; //delete because lambdas cannot be assigned
       transform_raster_iterator& operator=(transform_raster_iterator&&) = default;
-      
+
       using value_type = typename View::value_type;
       using reference = value_type;
       using pointer = void;
       using difference_type = std::ptrdiff_t;
       using iterator_category = std::output_iterator_tag;
-     
+
       transform_raster_iterator& operator++()
       {
          increment(tuple_indices{});
          return *this;
       }
-      
+
       transform_raster_iterator operator++(int)
       {
         transform_raster_iterator temp(*this);
@@ -148,7 +148,7 @@ namespace pronto {
       //
       //https://stackoverflow.com/questions/16387354/template-tuple-calling-a-function-on-each-element
       //
-      // actually we know that Pack is index_sequence, but this is more future proof 
+      // actually we know that Pack is index_sequence, but this is more future proof
 
       template<template<std::size_t...> class Pack, std::size_t ...S>
       void increment(Pack<S...>)
@@ -193,15 +193,15 @@ namespace pronto {
       std::tuple<I...> m_iters;
     };
 
-    template<class F, class... R> 
+    template<class F, class... R>
     class transform_raster_view
     {
     private:
       static_assert(std::is_copy_constructible<F>::value, "because this models RasterView, use std::ref in transform function");
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
-      
+
       using function_type = F;
-    
+
       static const std::size_t N = sizeof...(R);
       using tuple_indices = make_index_sequence<N>;
 
@@ -209,16 +209,16 @@ namespace pronto {
       transform_raster_view() = default;
       transform_raster_view(const transform_raster_view&) = default;
       transform_raster_view(transform_raster_view&&) = default;
-      transform_raster_view& operator=(const transform_raster_view&) = default; 
+      transform_raster_view& operator=(const transform_raster_view&) = default;
       transform_raster_view& operator=(transform_raster_view&&) = default;
 
       template<class FF>
-      transform_raster_view(FF&& f, R ...r) : m_function(std::forward<FF>(f)), m_rasters(r...)
+      transform_raster_view(FF&& f, R ...r) : m_rasters(r...), m_function(std::forward<FF>(f))
       { }
 
       using const_iterator = transform_raster_iterator<transform_raster_view,
         typename traits<R>::const_iterator...>;
-      
+
       using sub_raster_type = transform_raster_view<function_type, typename traits<R>::sub_raster...>;
 
 
@@ -249,7 +249,7 @@ namespace pronto {
         if (N == 0) return 0;
         return std::get<0>(m_rasters).size();
       }
-  
+
       sub_raster_type
           sub_raster(int start_row, int start_col, int rows, int cols) const
         {
@@ -257,7 +257,7 @@ namespace pronto {
         }
 
     private:
-      
+
       // Not allowing the function to change values in the rasters
       template<template<std::size_t...> class Pack, std::size_t ...S>
       const_iterator begin(Pack<S...>) const
@@ -283,11 +283,12 @@ namespace pronto {
 
       std::tuple<R...> m_rasters;
     private:
-      friend class const_iterator;
-     
+      //friend class const_iterator;
+      friend class transform_raster_iterator<transform_raster_view,
+        typename traits<R>::const_iterator...>;
       mutable optional<function_type> m_function;
     };
-    
+
 
     template<class T>
     using decay_t = typename std::decay<T>::type;
@@ -300,7 +301,7 @@ namespace pronto {
       {}
 
       reference_function(const reference_function& f) = default;
-      
+
       template<class...Args>
       auto operator()(Args&&... args)->decltype(std::declval<F>()(std::forward<Args>(args)...))
       {
@@ -309,7 +310,7 @@ namespace pronto {
     private:
       F& m_f;
    };
-    
+
     template<class F, class... R> // requires these to be RasterViews
     transform_raster_view<typename std::decay<F>::type, R...>
       transform(F&& f, R... r)
