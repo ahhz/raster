@@ -10,7 +10,7 @@
 
 #pragma once
 
-#ifndef BLINK_RASTER_USE_BOOST_FILESYSTEM
+#ifndef PRONTO_RASTER_USE_BOOST_FILESYSTEM
 
 #include <experimental/filesystem> // C++-standard header file name  
 //#include <filesystem> // Microsoft-specific implementation header file name  

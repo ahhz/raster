@@ -403,7 +403,7 @@ class binary_function_getter
 };
 */
 
-#define BLINK_raster_RA_BINARY_OP(op, func)                           \
+#define PRONTO_RASTER_RA_BINARY_OP(op, func)                           \
   namespace pronto {                                                  \
     namespace raster {                                                \
                                                                       \
@@ -429,9 +429,9 @@ class binary_function_getter
         return raster_algebra(filtered_binary_f<func>{}, r1, r2);     \
       }                                                               \
     }                                                                 \
-  } // end of BLINK_raster_RA_BINARY_OP(op, func)
+  } // end of PRONTO_raster_RA_BINARY_OP(op, func)
 
-#define BLINK_raster_RA_UNARY_OP(op, func)                         \
+#define PRONTO_RASTER_RA_UNARY_OP(op, func)                         \
   namespace pronto {                                                   \
     namespace raster {                                             \
                                                                       \
@@ -442,7 +442,7 @@ class binary_function_getter
         return raster_algebra(filtered_unary_f<func>{}, r);           \
       }                                                               \
     }                                                                 \
-  } // end of BLINK_raster_RA_UNARY_OP(op, func)
+  } // end of PRONTO_raster_RA_UNARY_OP(op, func)
 
 
 /*
@@ -462,22 +462,22 @@ struct suppress_cast_warnings_binary<F, raster_algebra_wrapper<T>,  V2>
 };
 */
 
-BLINK_raster_RA_BINARY_OP(+, std::plus)
-BLINK_raster_RA_BINARY_OP(-, std::minus)
-BLINK_raster_RA_BINARY_OP(/, std::divides)
-BLINK_raster_RA_BINARY_OP(%, my_modulus)
-BLINK_raster_RA_BINARY_OP(*, std::multiplies)
-BLINK_raster_RA_BINARY_OP(&&, std::logical_and)
-BLINK_raster_RA_BINARY_OP(||, std::logical_or)
-BLINK_raster_RA_BINARY_OP(>, std::greater)
-BLINK_raster_RA_BINARY_OP(>=, std::greater_equal)
-BLINK_raster_RA_BINARY_OP(<, std::less)
-BLINK_raster_RA_BINARY_OP(<= , std::less_equal)
-BLINK_raster_RA_BINARY_OP(== , std::equal_to)
-BLINK_raster_RA_BINARY_OP(!= , std::not_equal_to)
+PRONTO_RASTER_RA_BINARY_OP(+, std::plus)
+PRONTO_RASTER_RA_BINARY_OP(-, std::minus)
+PRONTO_RASTER_RA_BINARY_OP(/, std::divides)
+PRONTO_RASTER_RA_BINARY_OP(%, my_modulus)
+PRONTO_RASTER_RA_BINARY_OP(*, std::multiplies)
+PRONTO_RASTER_RA_BINARY_OP(&&, std::logical_and)
+PRONTO_RASTER_RA_BINARY_OP(||, std::logical_or)
+PRONTO_RASTER_RA_BINARY_OP(>, std::greater)
+PRONTO_RASTER_RA_BINARY_OP(>=, std::greater_equal)
+PRONTO_RASTER_RA_BINARY_OP(<, std::less)
+PRONTO_RASTER_RA_BINARY_OP(<= , std::less_equal)
+PRONTO_RASTER_RA_BINARY_OP(== , std::equal_to)
+PRONTO_RASTER_RA_BINARY_OP(!= , std::not_equal_to)
 
-BLINK_raster_RA_UNARY_OP(-, std::negate)
-BLINK_raster_RA_UNARY_OP(!, std::logical_not)
+PRONTO_RASTER_RA_UNARY_OP(-, std::negate)
+PRONTO_RASTER_RA_UNARY_OP(!, std::logical_not)
 // Unary plus? -> bit pointless
 
 #pragma warning( pop )
