@@ -99,6 +99,30 @@ namespace pronto
         static const GDALDataType value = GDT_CFloat64;
       };
 */
+      static GDALDataset* create_compressed_gdaldataset(
+        const filesystem::path& path, int rows, int cols
+        , GDALDataType datatype, int nBands = 1)
+      {
+        GDALAllRegister();
+
+        GDALDriverManager* m = GetGDALDriverManager();
+        GDALDriver* driver = m->GetDriverByName("GTiff");
+
+        char **papszOptions = NULL;
+        // Commented out settings that are default anyway
+
+        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
+        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
+        papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
+        //papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
+        papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "LZW");
+     //   papszOptions = CSLSetNameValue(papszOptions, "BIGTIFF", "YES");
+
+        GDALDataset* dataset = driver->Create(path.string().c_str(), cols, rows
+          , nBands, datatype, papszOptions);
+        return dataset;
+      }
+
       static GDALDataset* create_standard_gdaldataset(
         const filesystem::path& path, int rows, int cols
         , GDALDataType datatype, int nBands = 1)
@@ -116,11 +140,39 @@ namespace pronto
         papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
         //papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
         papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "NONE");
+        papszOptions = CSLSetNameValue(papszOptions, "BIGTIFF", "IF_NEEDED");
 
         GDALDataset* dataset = driver->Create(path.string().c_str(), cols, rows
           , nBands, datatype, papszOptions);
         return dataset;
       }
+
+      template<class T>
+      GDALDataset* create_compressed_gdaldataset_from_model
+      (const filesystem::path& path
+        , const gdal_raster_view<T>& model
+        , GDALDataType datatype, int nBands = 1)
+      {
+        //int rows = const_cast<GDALDataset*>(model)->GetRasterYSize();
+        //int cols = const_cast<GDALDataset*>(model)->GetRasterXSize();
+
+        int rows = model.rows();
+        int cols = model.cols();
+
+        GDALDataset* model_data_set = model.get_band()->GetDataset();
+        GDALDataset* dataset = create_compressed_gdaldataset(path, rows, cols
+          , datatype, nBands);
+
+        if (dataset == NULL) return NULL;
+
+        double gt_data[6];
+        double* geotransform = gt_data;
+        CPLErr error_status = model.get_geo_transform(geotransform);
+        dataset->SetGeoTransform(geotransform);
+        dataset->SetProjection(model_data_set->GetProjectionRef());
+        return dataset;
+      }
+
 
       template<class T>
       GDALDataset* create_standard_gdaldataset_from_model
@@ -142,9 +194,10 @@ namespace pronto
 
         double gt_data[6];
         double* geotransform = gt_data;
-        //CPLErr error_status = model.get_geo_transform(geotransform);
+        CPLErr error_status = model.get_geo_transform(geotransform);
         dataset->SetGeoTransform(geotransform);
         dataset->SetProjection(model_data_set->GetProjectionRef());
+
         return dataset;
       }
 
@@ -298,6 +351,25 @@ namespace pronto
           ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
           : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
       }
+      template<class T>
+      static std::shared_ptr<GDALRasterBand> create_compressed_band_from_model(
+        const filesystem::path& path
+        , const gdal_raster_view<T>& model,
+        GDALDataType datatype, is_temporary is_temp)
+      {
+        int nBands = 1;
+        GDALDataset* dataset = detail::create_compressed_gdaldataset_from_model
+        (path, model, datatype, nBands);
+
+        if (dataset == nullptr) {
+          std::cout << "Could not create raster file: " << path << std::endl;
+          throw(creating_a_raster_failed{});
+        }
+        GDALRasterBand* band = dataset->GetRasterBand(1);
+        return is_temp == is_temporary::yes
+          ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
+          : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+      }
     } // detail
 
     template<class T>
@@ -386,6 +458,23 @@ namespace pronto
 
       std::shared_ptr<GDALRasterBand> band = detail::create_band_from_model
        (path, model, data_type, is_temporary::no);
+
+      return gdal_raster_view<T>(band);
+    }
+
+    template<class T, class U>
+    gdal_raster_view<T> create_compressed_from_model
+    (const filesystem::path& path
+      , const gdal_raster_view<U>& model
+      , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
+    {
+      if (data_type == GDT_Unknown)
+      {
+        throw(creating_a_raster_failed{});
+      }
+
+      std::shared_ptr<GDALRasterBand> band = detail::create_compressed_band_from_model
+      (path, model, data_type, is_temporary::no);
 
       return gdal_raster_view<T>(band);
     }
