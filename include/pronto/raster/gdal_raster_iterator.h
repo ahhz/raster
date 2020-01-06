@@ -201,7 +201,7 @@ namespace pronto
       {
         m_view = view;
         m_stride = view->m_stride;
-        goto_index(m_view->rows() * m_view->cols());
+        goto_index(static_cast<long long>(m_view->rows()) * static_cast<long long>(m_view->cols()));
       }
 
     private:
@@ -215,7 +215,7 @@ namespace pronto
         return m_view->get(static_cast<void*>(m_pos));
       }
 
-      int get_index() const
+      long long get_index() const
       {
         // it might seem more efficient to just add an index member to the
         // iterator, however the hot-path is operator++ and operator*(),
@@ -241,21 +241,21 @@ namespace pronto
         int row = gdaldata_row - m_view->m_first_row;
         int col = gdaldata_col - m_view->m_first_col;
 
-        int index;
+        long long index;
         // in last block? one past the last element?
         if (row == m_view->rows() || col == m_view->cols()) {
 
-          index =  m_view->rows() * m_view->cols();
+          index =  static_cast<long long>(m_view->rows() )* static_cast<long long>(m_view->cols() );
         } else {
-          index =  row * m_view->cols() + col;
+          index =  static_cast<long long>(row) * static_cast<long long> (m_view->cols()) + static_cast<long long>(col);
         }
-        assert(index <= m_view->rows() * m_view->cols());
+        assert(index <= static_cast<long long>(m_view->rows()) * static_cast<long long>(m_view->cols()));
         return index;
       }
 
-      gdal_raster_iterator& goto_index(int index)
+      gdal_raster_iterator& goto_index(long long index)
       {
-        if (index == m_view->cols() * m_view->rows()) {
+        if (index == static_cast<long long>(m_view->cols()) * static_cast<long long>(m_view->rows())) {
           if (index == 0) { // empty raster, no place to go
             m_pos = m_block.get_null_iterator();
             return *this;
