@@ -18,6 +18,7 @@
 #include <pronto/raster/exceptions.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_iterator.h>
+#include <pronto/raster/optional.h>
 
 #include <cassert>
 #include <cstdint>
@@ -28,8 +29,6 @@ namespace pronto
 {
   namespace raster
   {
-
-
     template<class T, class IterationType = random_access_iteration>
     class gdal_raster_view
     {
@@ -171,6 +170,20 @@ namespace pronto
         return i;
       }
 
+      optional<T> get_nodata_value()
+      {
+        int* check = nullptr;
+        double value = m_band->GetNoDataValue(check);
+        if (check) return optional<T>{static_cast<T>(value)};
+        return optional<T>{};
+      }
+
+      void set_nodata_value(bool has_nodata, const T& value)
+      {
+        if (has_nodata) m_band->SetNoDataValue(value);
+        else m_band->DeleteNoDataValue();
+      }
+
     private:
       //friend class iterator;
       //friend class const_iterator;
@@ -196,7 +209,7 @@ namespace pronto
       {
         return static_cast<value_type>(*static_cast<const U*>(source));
       }
-
+	  
       template<typename U> void set_accessors()
       {
         put = gdal_raster_view::put_special<U>;
