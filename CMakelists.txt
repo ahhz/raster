@@ -1,0 +1,189 @@
+cmake_minimum_required(VERSION 3.1)
+# This CMake file is still largely aspirational.It relies on find_package() working correctly for GDAL, Boost, Google Test and Google Benchmark. This does not seem fully realistic as Debug and Release libraries are getting misconnected and Google Benchmark appears unsupported. 
+
+# Anybody who can help sort this out... Please do. 
+
+project(pronto)
+
+################################################################
+# These are the main configuration options: use Boost or C++17?
+#
+option(IN_PRONTO_RASTER_USE_BOOST_ANY  "Use boost::any instead of std::any" OFF)
+option(IN_PRONTO_RASTER_USE_BOOST_OPTIONAL "Use boost::optional instead of std::optional" OFF)
+option(IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM "Use boost::filesystem instead of std::filesystem" OFF)
+
+if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL)
+	set(PRONTO_CXX_STANDARD 11)
+else ()
+	set(PRONTO_CXX_STANDARD 17)
+endif ()
+
+################################################################
+# These are the main options about which projects to make
+#
+option(CREATE_PRONTO_RASTER_EXAMPLE  "Create project for Example 1 of  Pronto Raster" ON)
+option(CREATE_PRONTO_RASTER_TEST  "Create project for testing Pronto Raster" ON)
+option(CREATE_PRONTO_RASTER_BENCHMARK  "Create project for benchmarking Pronto Raster" ON)
+option(CREATE_PRONTO_RASTER_HEADERS "Create dummy project containing all Pronto Raster headers" ON)
+
+################################################################
+# Avoid the compile error: "Error C1128	number of sections 
+# exceeded object file format limit: compile with /bigobj"
+#
+if(WIN32)
+	add_definitions(/bigobj)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
+	set(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} /bigobj")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /bigobj")
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /bigobj")
+endif(WIN32)
+
+################################################################
+# Creating the main library: Pronto Raster
+#
+add_library(pronto_raster INTERFACE)
+
+# Set include directory, as this is a header-only library (for the time being)
+target_include_directories(pronto_raster INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
+
+# take care of GDAL dependency
+find_package(GDAL)
+target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARY})
+target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIR})
+
+# Depending on settings, require C++11 with Boost or C++17 without Boost
+if (IN_PRONTO_RASTER_USE_BOOST_ANY OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL)
+	find_package(Boost REQUIRED COMPONENTS filesystem)
+	target_link_libraries(pronto_raster INTERFACE ${BOOST_LIBRARY})
+endif ()
+
+
+# Promulgate options as compile definitions
+if (IN_PRONTO_RASTER_USE_BOOST_ANY )
+	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_ANY)
+endif ()
+
+if (IN_PRONTO_RASTER_USE_BOOST_OPTIONAL )
+	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_OPTIONAL)
+endif ()
+
+if (IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM )
+	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_FILESYSTEM)
+endif ()
+
+################################################################
+# Creating a simple executable: Example 1
+#
+if(CREATE_PRONTO_RASTER_EXAMPLE)
+	add_executable(pronto_example ${CMAKE_CURRENT_SOURCE_DIR}//examples/example_1.cpp)
+	target_link_libraries (pronto_example PRIVATE pronto_raster)
+	set_target_properties(pronto_example PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+endif()
+
+################################################################
+# Creating the testing program
+#
+if(CREATE_PRONTO_RASTER_TEST)
+
+	add_subdirectory(vendor/google/googletest/googletest)
+
+	set(test_files
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/any_blind_raster_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/dependencies_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/edge_view_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/gdal_raster_view_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/io_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/main.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/raster_algebra_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/transform_tests.cpp
+	)
+
+	add_executable(pronto_test ${test_files} )
+	set_target_properties(pronto_test PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+	target_link_libraries(pronto_test pronto_raster)
+	target_link_libraries(pronto_test gtest)
+endif()
+
+################################################################
+# Creating the benchmarking program
+#
+if(CREATE_PRONTO_RASTER_BENCHMARK)
+
+	set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark's tests" FORCE)
+	add_subdirectory(vendor/google/benchmark)
+
+	add_executable(pronto_benchmark ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp)
+	set_target_properties(pronto_benchmark PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+	target_link_libraries(pronto_benchmark pronto_raster)
+	target_link_libraries(pronto_benchmark benchmark)
+endif()
+
+################################################################
+# Creating a non-program that adds a project to the IDE with all header files
+#
+if(CREATE_PRONTO_RASTER_HEADERS)
+	set(ide_headers
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/access_type.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_blind_raster.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_raster.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/assign.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/blind_function.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_edge_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/complex_numbers.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/default_construction_functor.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_transform.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_weighted_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/edge_raster.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/exceptions.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/filesystem.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/fuzzy_kappa.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_block.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_includes.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_iterator.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/index_sequence.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator_functions.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/io.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/moving_window_indicator.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/nodata_transform.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/offset_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/padded_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/pair_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/patch_raster_transform.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/plot_raster.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/random_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_operators.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_transform.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_wrapper.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_allocator.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_edge_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy_vector.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/square_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/subraster_window_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/count.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/edge_density.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/interspersion.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/map_window.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/mean.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/most_common_class.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/patch_weighted_shape_index.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/shannon_diversity.h
+	)
+
+	add_custom_target(pronto_raster_ide SOURCES ${ide_headers})
+endif()

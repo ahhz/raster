@@ -10,7 +10,7 @@
 
 #pragma once
 
-#ifndef BLINK_RASTER_USE_BOOST_ANY
+#ifndef PRONTO_RASTER_USE_BOOST_ANY
 
 #include <any>
 namespace pronto {
