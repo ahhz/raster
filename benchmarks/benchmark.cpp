@@ -18,13 +18,73 @@
 
 #include <benchmark/benchmark.h>
 
+#include <fstream>
 #include <random>
 #include <iostream>
 
 namespace pr = pronto::raster;
 
+void create_virtual_raster_pixel_function(int rows, int cols)
+{
+	std::ofstream ofs("abc.vrt");
+	ofs << "<VRTDataset rasterXSize=\"" << std::to_string(cols) << "\" rasterYSize =\"" << std::to_string(rows) << "\">" << std::endl;
+	ofs << "  <VRTRasterBand dataType =\"Byte\" band =\"1\" subClass =\"VRTDerivedRasterBand\">" << std::endl;
+	ofs << "    <Description>Magnitude</Description>" << std::endl;
+	ofs << "    <PixelFunctionType>MyABCFunction</PixelFunctionType>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_a.tif</SourceFilename>" << std::endl;
+	ofs << "      <SourceBand>1</SourceBand>" << std::endl;
+	ofs << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_b.tif</SourceFilename>" << std::endl;
+	ofs << "      <SourceBand>1</SourceBand>" << std::endl;
+	ofs << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_c.tif</SourceFilename>" << std::endl;
+	ofs << "      <SourceBand>1</SourceBand>" << std::endl;
+	ofs << "      <SrcRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "      <DstRect xOff=\"0\" yOff=\"0\" xSize=\"" << std::to_string(cols) << "\" ySize=\"" << std::to_string(rows) << "\"/>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "  </VRTRasterBand>" << std::endl;
+	ofs << "</VRTDataset>" << std::endl;
+}
+
+void create_virtual_raster_python_function(int rows, int cols)
+{
+	std::ofstream ofs("abc_python.vrt");
+	ofs << "<VRTDataset rasterXSize=\"" << std::to_string(cols) << "\" rasterYSize=\"" << std::to_string(rows) << "\">" << std::endl;
+	ofs << "  <VRTRasterBand dataType=\"Byte\" band=\"1\" subClass=\"VRTDerivedRasterBand\">" << std::endl;
+	ofs << "    <PixelFunctionType>abcfunc</PixelFunctionType>" << std::endl;
+	ofs << "    <PixelFunctionLanguage>Python</PixelFunctionLanguage>" << std::endl;
+	ofs << "    <PixelFunctionCode><![CDATA[" << std::endl;
+	ofs << "import numpy as np" << std::endl;
+	ofs << "def abcfunc(in_ar, out_ar, xoff, yoff, xsize, ysize, raster_xsize," << std::endl;
+	ofs << "                   raster_ysize, buf_radius, gt, **kwargs):" << std::endl;
+	ofs << "    out_ar[:]=np.uint8(in_ar[0]*3 + in_ar[1] * in_ar[2])" << std::endl;
+	ofs << "]]>" << std::endl;
+	ofs << "    </PixelFunctionCode>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_a.tif</SourceFilename>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_b.tif</SourceFilename>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "    <SimpleSource>" << std::endl;
+	ofs << "      <SourceFilename relativeToVRT=\"1\">random_c.tif</SourceFilename>" << std::endl;
+	ofs << "    </SimpleSource>" << std::endl;
+	ofs << "  </VRTRasterBand>" << std::endl;
+	ofs << "</VRTDataset>" << std::endl;
+}
+
 void create_data_for_benchmark(int rows, int cols)
 {
+	create_virtual_raster_pixel_function(rows, cols);
+	create_virtual_raster_python_function(rows, cols);
+
 	auto raster_a = pr::create<int>("random_a.tif", rows, cols, GDT_Byte);
 	auto raster_b = pr::create<int>("random_b.tif", rows, cols, GDT_Byte);
 	auto raster_c = pr::create<int>("random_c.tif", rows, cols, GDT_Byte);
@@ -658,6 +718,8 @@ static void BM_3_rasters_reference_pixel_function(benchmark::State& state) {
 
 int benchmark_3_rasters_reference_python_pixel_function()
 {
+  std::cout << 1 << std::endl;
+
   GDALAllRegister();
   CPLSetConfigOption("GDAL_VRT_ENABLE_PYTHON", "YES");
   GDALDataset* dataset_abc = (GDALDataset*)GDALOpen("abc_python.vrt", GA_ReadOnly);
