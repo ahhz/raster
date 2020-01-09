@@ -12,14 +12,14 @@
 
 #ifndef PRONTO_RASTER_USE_BOOST_FILESYSTEM
 
-#include <experimental/filesystem> // C++-standard header file name  
-//#include <filesystem> // Microsoft-specific implementation header file name  
+//#include <experimental/filesystem> // C++-standard header file name  
+#include <filesystem> // Microsoft-specific implementation header file name  
 #include <random>
 #include <string>
 
 namespace pronto {
   namespace raster {
-    namespace filesystem = std::experimental::filesystem::v1;
+    namespace filesystem = std::filesystem;
    
     inline filesystem::path get_unique_path(const filesystem::path& path)
     {
