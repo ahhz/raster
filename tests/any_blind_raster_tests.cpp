@@ -32,7 +32,7 @@ bool test_get_any_blind_raster()
 	pr::any_raster<int> any_a(a);
 	pr::any_blind_raster blind_a(any_a);
 	
-  int index = pr::detail::index_in_packed_list(blind_a, pr::blind_data_types{});
+	auto index = pr::detail::index_in_packed_list(blind_a, pr::blind_data_types{});
 	return index == 4;
 }
 
