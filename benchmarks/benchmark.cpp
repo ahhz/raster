@@ -791,7 +791,7 @@ BENCHMARK(BM_3_rasters_reference_getlockedblockref)->Unit(benchmark::kMillisecon
 BENCHMARK(BM_3_rasters_reference_pixel_function)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_python_pixel_function)->Unit(benchmark::kMillisecond);
 
-BENCHMARK_MAIN()
+BENCHMARK_MAIN();
 
 int benchmark_assign()
 {
