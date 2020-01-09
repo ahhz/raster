@@ -266,8 +266,8 @@ namespace pronto
           return *this;
         }
 
-        int row = index / m_view->cols();
-        int col = index % m_view->cols();
+        int row = static_cast<int>(index / m_view->cols());
+        int col = static_cast<int>(index % m_view->cols());
 
         int gdaldata_row = row + m_view->m_first_row;
         int gdaldata_col = col + m_view->m_first_col;
