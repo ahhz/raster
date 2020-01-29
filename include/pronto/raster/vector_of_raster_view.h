@@ -76,20 +76,20 @@ namespace pronto {
 
       vector_of_raster_iterator& operator--()
       {
-        for (auto&& i : m_iters) --i
+        for (auto&& i : m_iters) --i;
         return *this;
       }
 
       vector_of_raster_iterator operator--(int)
       {
-        tuple_raster_iterator temp(*this);
+        vector_of_raster_iterator temp(*this);
         --(*this);
         return temp;
       }
 
       vector_of_raster_iterator operator-(const difference_type& n) const
       {
-        tuple_raster_iterator temp(*this);
+        vector_of_raster_iterator temp(*this);
         temp -= n;
         return temp;
       }
