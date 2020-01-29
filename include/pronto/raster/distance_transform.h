@@ -58,7 +58,7 @@
       post_process_buffer_square_root(long double d, int in, int out)
         :m_in(in), m_out(out)
       {
-        m_threshold = d * d;
+        m_threshold = static_cast<large_int>(d * d);
       }
       int operator()(large_int distance_squared)const
       {
@@ -262,7 +262,7 @@
 
       assign(out_row, transform(down_first, in_row));
       
-      for (large_int r = 1; r < rows; ++r) {
+      for (int r = 1; r < rows; ++r) {
         auto in_row = in.sub_raster(r, 0, 1, cols);
         auto out_row = out.sub_raster(r, 0, 1, cols);
         auto above_row = out.sub_raster(r-1, 0, 1, cols);
@@ -277,7 +277,7 @@
         assign(out_row, transform(down, in_row, above_row));
       }
 
-      for (large_int r = rows - 2; r >= 0; --r) {
+      for (int r = rows - 2; r >= 0; --r) {
         auto out_row = out.sub_raster(r, 0, 1, cols);
         auto below_row = out.sub_raster(r+1, 0, 1, cols);
 
