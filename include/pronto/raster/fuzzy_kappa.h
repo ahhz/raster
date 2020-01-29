@@ -143,11 +143,11 @@ namespace pronto {
       double& fuzzykappa)         // result: improved fuzzy kappa
     {
         // for use with std::get
-        using a_value = traits<RasterA>::value_type;
-        using b_value = traits<RasterB>::value_type;
-        using mask_value = traits<RasterMask>::value_type;
-        using out_value = traits<RasterOut>::value_type;
-        using temp_raster = RasterMaker::raster_type<double>;
+        using a_value = typename traits<RasterA>::value_type;
+        using b_value = typename traits<RasterB>::value_type;
+        using mask_value = typename traits<RasterMask>::value_type;
+        using out_value = typename traits<RasterOut>::value_type;
+        using temp_raster = typename RasterMaker::template raster_type<double>;
 
         // Nearest neighbour distances for all categories in both maps
         std::vector<temp_raster> distancesA;
