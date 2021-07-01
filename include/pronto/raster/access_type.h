@@ -16,7 +16,7 @@ namespace pronto
 {
   namespace raster
   {
-    enum access
+    enum class access
     {
       read_only,
       read_write
@@ -24,15 +24,15 @@ namespace pronto
     
     namespace access_type
     {
-      using read_only_t = std::integral_constant<access, read_only>;
-      using read_write_t = std::integral_constant<access, read_write>; 
+      using read_only_t = std::integral_constant<access, access::read_only>;
+      using read_write_t = std::integral_constant<access, access::read_write>;
     }
 
     static GDALAccess gdal_access(access a)
     {
       switch (a) {
-      case read_only: return GA_ReadOnly;
-      case read_write: return GA_Update;
+      case access::read_only: return GA_ReadOnly;
+      case access::read_write: return GA_Update;
       default:return GA_Update;
       }
     }

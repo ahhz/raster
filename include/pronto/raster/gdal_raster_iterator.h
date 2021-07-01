@@ -43,7 +43,7 @@ namespace pronto
 
 
     public:
-      using is_mutable = std::integral_constant<bool, AccessType::value == read_write>;
+      using is_mutable = std::integral_constant<bool, AccessType::value == access::read_write>;
 
       using reference = typename std::conditional<is_mutable::value,
         proxy_ref, T>::type;
@@ -182,7 +182,7 @@ namespace pronto
 
       void put(const T& value) const
       {
-        static_assert(AccessType::value == read_write
+        static_assert(AccessType::value == access::read_write
           , "only allow writing in mutable iterators");
          m_view->put(value, static_cast<void*>(m_pos));
       }

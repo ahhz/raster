@@ -28,10 +28,10 @@ namespace pronto
 {
   namespace raster
   {
-    enum is_temporary
+    enum class is_temporary
     {
-      yes,
-      no
+      no,
+      yes
     };
 
     namespace detail {
@@ -165,7 +165,7 @@ namespace pronto
 
         if (dataset == NULL) return NULL;
 
-        double gt_data[6];
+        double gt_data[6] = { 0,0,0,0,0,0};
         double* geotransform = gt_data;
         CPLErr error_status = model.get_geo_transform(geotransform);
         dataset->SetGeoTransform(geotransform);
@@ -174,10 +174,10 @@ namespace pronto
       }
 
 
-      template<class T>
+      template<class T, class I>
       GDALDataset* create_standard_gdaldataset_from_model
         ( const filesystem::path& path
-        , const gdal_raster_view<T>& model
+        , const gdal_raster_view<T, I>& model
         , GDALDataType datatype, int nBands = 1)
       {
         //int rows = const_cast<GDALDataset*>(model)->GetRasterYSize();
@@ -192,7 +192,7 @@ namespace pronto
 
         if (dataset == NULL) return NULL;
 
-        double gt_data[6];
+        double gt_data[6] = { 0, 0, 0, 0, 0, 0};
         double* geotransform = gt_data;
         CPLErr error_status = model.get_geo_transform(geotransform);
         dataset->SetGeoTransform(geotransform);
@@ -204,7 +204,7 @@ namespace pronto
       static filesystem::path get_temp_tiff_path()
       {
         auto temp_path = filesystem::temp_directory_path();
-        auto unique_temp_path_model = temp_path /= "%%%%-%%%%-%%%%-%%%%.tif";
+        filesystem::path unique_temp_path_model = temp_path /= "%%%%-%%%%-%%%%-%%%%.tif";
         return get_unique_path(unique_temp_path_model);
       }
 
@@ -332,10 +332,10 @@ namespace pronto
           : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
       }
 
-      template<class T>
+      template<class T, class I>
       static std::shared_ptr<GDALRasterBand> create_band_from_model(
         const filesystem::path& path
-        , const gdal_raster_view<T>& model,
+        , const gdal_raster_view<T, I>& model,
         GDALDataType datatype, is_temporary is_temp)
       {
         int nBands = 1;
@@ -445,10 +445,10 @@ namespace pronto
       return gdal_raster_view<T>(band);
     }
 
-    template<class T, class U>
+    template<class T, class U, class I>
     gdal_raster_view<T> create_from_model
       ( const filesystem::path& path
-      , const gdal_raster_view<U>& model
+      , const gdal_raster_view<U, I>& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -522,7 +522,7 @@ namespace pronto
 	// this should be in a cpp file
     inline any_blind_raster open_any(
       const filesystem::path& path,
-      access elem_access = read_write,
+      access elem_access = access::read_write,
       int band_index = 1)
     {
       auto dataset = detail::open_dataset(path, elem_access);

@@ -28,14 +28,14 @@
 namespace pronto {
   namespace raster {
 
-    enum contiguity
+    enum class contiguity
     {
       queen,
       rook
     };
     
-    using queen_contiguity = std::integral_constant<contiguity,queen>;
-    using rook_contiguity = std::integral_constant<contiguity, rook>;
+    using queen_contiguity = std::integral_constant<contiguity,contiguity::queen>;
+    using rook_contiguity = std::integral_constant<contiguity, contiguity::rook>;
     
     struct patch_info
     {
@@ -69,7 +69,7 @@ namespace pronto {
       std::shared_ptr<std::vector<patch_info> > m_patch_info;
     };
 
-    template<class Raster, class Contiguity>
+    template<class Raster, contiguity Contiguity>
     class patch_raster_transform
     {
       using full_patch_info_raster = transform_raster_view<patch_info_lookup, gdal_raster_view<int> >;
@@ -237,7 +237,7 @@ namespace pronto {
                   rook_lambda();
 
                 // compile time IF
-                if (Contiguity::value == queen) { 
+                if (Contiguity == contiguity::queen) {
                   nb = add(curr, NW); if (nb.first >= 0 && nb.second >= 0) 
                     queen_lambda();
                   nb = add(curr, NE); if (nb.first >= 0 && nb.second <= 
@@ -275,11 +275,9 @@ namespace pronto {
     };
 
     template<class Raster, class Contiguity>
-    patch_raster_transform<Raster, Contiguity> patch_raster(Raster r, Contiguity)
+    patch_raster_transform<Raster, Contiguity::value> patch_raster(Raster r, Contiguity)
     {
-      static_assert(Contiguity::value == queen || Contiguity::value == rook
-        , "Only know two types of contiguity");
-      return patch_raster_transform<Raster, Contiguity>(r);
+          return patch_raster_transform<Raster, Contiguity::value>(r);
     }
   }  
 }
