@@ -132,7 +132,7 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_BENCHMARK)
 
-	set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark's tests" FORCE)
+	#set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark's tests" FORCE)
 	find_package(benchmark REQUIRED)
 	set(benchmark_files
 		${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp
