@@ -1,7 +1,8 @@
-cmake_minimum_required(VERSION 3.1)
-# This CMake file is still largely aspirational.It relies on find_package() working correctly for GDAL, Boost, Google Test and Google Benchmark. This does not seem fully realistic as Debug and Release libraries are getting misconnected and Google Benchmark appears unsupported. 
+cmake_minimum_required(VERSION 3.14)
 
-# Anybody who can help sort this out... Please do. 
+# This CMake file now works "out of the box" in conjunction with vcpkg. 
+# I build gdal, boost, gtest and benchmark with vcpkg and use te vcpkg toolchain as 
+# instructed here: https://vcpkg.readthedocs.io/en/latest/examples/installing-and-using-packages/
 
 project(pronto)
 
@@ -12,7 +13,7 @@ option(IN_PRONTO_RASTER_USE_BOOST_ANY  "Use boost::any instead of std::any" OFF)
 option(IN_PRONTO_RASTER_USE_BOOST_OPTIONAL "Use boost::optional instead of std::optional" OFF)
 option(IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM "Use boost::filesystem instead of std::filesystem" OFF)
 
-if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL)
+if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM)
 	set(PRONTO_CXX_STANDARD 11)
 else ()
 	set(PRONTO_CXX_STANDARD 17)
@@ -44,32 +45,52 @@ endif(WIN32)
 #
 add_library(pronto_raster INTERFACE)
 
-# Set include directory, as this is a header-only library (for the time being)
+# Set include directory, as this is a header-only library 
 target_include_directories(pronto_raster INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
 
 # take care of GDAL dependency
-find_package(GDAL)
-target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARY})
-target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIR})
+find_package(GDAL REQUIRED)
+target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
+target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
 # Depending on settings, require C++11 with Boost or C++17 without Boost
 if (IN_PRONTO_RASTER_USE_BOOST_ANY OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL)
-	find_package(Boost REQUIRED COMPONENTS filesystem)
-	target_link_libraries(pronto_raster INTERFACE ${BOOST_LIBRARY})
+	find_package(Boost REQUIRED COMPONENTS filesystem any optional)
+	target_link_libraries(pronto_raster INTERFACE Boost::filesystem Boost::any Boost::optional)
 endif ()
 
 
-# Promulgate options as compile definitions
 if (IN_PRONTO_RASTER_USE_BOOST_ANY )
+    
+	# Include library
+	find_package(Boost REQUIRED COMPONENTS any )
+	target_link_libraries(pronto_raster INTERFACE Boost::any)
+
+	# Promulgate option as compile definition
 	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_ANY)
+
 endif ()
 
 if (IN_PRONTO_RASTER_USE_BOOST_OPTIONAL )
+
+	# Include library
+	find_package(Boost REQUIRED COMPONENTS optional )
+	target_link_libraries(pronto_raster INTERFACE Boost::optional)
+
+	# Promulgate option as compile definition
 	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_OPTIONAL)
+
 endif ()
 
 if (IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM )
+
+	# Include library
+	find_package(Boost REQUIRED COMPONENTS filesystem )
+	target_link_libraries(pronto_raster INTERFACE Boost::filesystem)
+
+	# Promulgate option as compile definition
 	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_FILESYSTEM)
+
 endif ()
 
 ################################################################
@@ -82,11 +103,11 @@ if(CREATE_PRONTO_RASTER_EXAMPLE)
 endif()
 
 ################################################################
-# Creating the testing program
+# Creating the testing executable
 #
 if(CREATE_PRONTO_RASTER_TEST)
 
-	add_subdirectory(vendor/google/googletest/googletest)
+	find_package(GTest REQUIRED)
 
 	set(test_files
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/any_blind_raster_tests.cpp
@@ -101,26 +122,30 @@ if(CREATE_PRONTO_RASTER_TEST)
 
 	add_executable(pronto_test ${test_files} )
 	set_target_properties(pronto_test PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+	
 	target_link_libraries(pronto_test pronto_raster)
-	target_link_libraries(pronto_test gtest)
+	target_link_libraries(pronto_test GTest::gtest_main)
 endif()
 
 ################################################################
-# Creating the benchmarking program
+# Creating the benchmarking executable
 #
 if(CREATE_PRONTO_RASTER_BENCHMARK)
 
 	set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark's tests" FORCE)
-	add_subdirectory(vendor/google/benchmark)
-
-	add_executable(pronto_benchmark ${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp)
+	find_package(benchmark REQUIRED)
+	set(benchmark_files
+		${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp
+	)
+	
+	add_executable(pronto_benchmark ${benchmark_files})
 	set_target_properties(pronto_benchmark PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_benchmark pronto_raster)
-	target_link_libraries(pronto_benchmark benchmark)
+	target_link_libraries(pronto_benchmark benchmark::benchmark)
 endif()
 
 ################################################################
-# Creating a non-program that adds a project to the IDE with all header files
+# Creating a non-executable that adds a project to the IDE with all header files
 #
 if(CREATE_PRONTO_RASTER_HEADERS)
 	set(ide_headers
