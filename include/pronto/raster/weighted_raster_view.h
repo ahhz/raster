@@ -29,7 +29,7 @@ namespace pronto {
       {}
 
       template<class V, class W>
-      weighted_value(const weighted_value<V, W>& wv) : m_value(mv.m_value), m_weight(mv.m_weight)
+      weighted_value(const weighted_value<V, W>& wv) : m_value(wv.m_value), m_weight(wv.m_weight)
       {}
 
       Value m_value;
