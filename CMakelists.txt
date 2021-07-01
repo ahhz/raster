@@ -26,6 +26,7 @@ option(CREATE_PRONTO_RASTER_EXAMPLE  "Create project for Example 1 of  Pronto Ra
 option(CREATE_PRONTO_RASTER_TEST  "Create project for testing Pronto Raster" ON)
 option(CREATE_PRONTO_RASTER_BENCHMARK  "Create project for benchmarking Pronto Raster" ON)
 option(CREATE_PRONTO_RASTER_HEADERS "Create dummy project containing all Pronto Raster headers" ON)
+option(CREATE_PRONTO_RASTER_PYTHON "Create python bindings (tentative)" ON)
 
 ################################################################
 # Avoid the compile error: "Error C1128	number of sections 
@@ -132,7 +133,6 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_BENCHMARK)
 
-	#set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "Suppressing Google Benchmark's tests" FORCE)
 	find_package(benchmark REQUIRED)
 	set(benchmark_files
 		${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp
@@ -142,6 +142,21 @@ if(CREATE_PRONTO_RASTER_BENCHMARK)
 	set_target_properties(pronto_benchmark PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_benchmark pronto_raster)
 	target_link_libraries(pronto_benchmark benchmark::benchmark)
+endif()
+
+################################################################
+# Creating the python bindings (tentative)
+#
+if(CREATE_PRONTO_RASTER_PYTHON)
+
+	find_package(pybind11 REQUIRED)
+	set(python_binding_files
+		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
+	)
+	pybind11_add_module(pronto_python ${python_binding_files})
+	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+	target_link_libraries(pronto_python pronto_raster)
+	target_link_libraries(pronto_python pybind11::pybind11)
 endif()
 
 ################################################################
