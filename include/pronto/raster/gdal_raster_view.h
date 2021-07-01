@@ -37,7 +37,7 @@ namespace pronto
 
     public:
       gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
-        : m_band(band), m_rows(band->GetYSize()), m_cols(band->GetXSize()),m_first_row(0), m_first_col(0)
+        : m_band(band), m_rows(band->GetYSize()), m_cols(band->GetXSize()),m_first_row(0), m_first_col(0), put(nullptr), get(nullptr)
       {
         GDALDataType datatype = m_band->GetRasterDataType();
         m_stride = GDALGetDataTypeSize(datatype) / 8;
