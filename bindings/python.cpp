@@ -72,7 +72,7 @@ void moving_window_pattern(const std::string& input, const std::string& output, 
 }
 
 
-PYBIND11_MODULE(example, m) {
+PYBIND11_MODULE(pronto_python, m) {
     m.doc() = "Bindings for pronto raster moving window analysis"; 
 
     py::enum_<metric>(m, "Metric")
