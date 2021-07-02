@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.20)
 
 # This CMake file now works "out of the box" in conjunction with vcpkg. 
 # I build gdal, boost, gtest and benchmark with vcpkg and use te vcpkg toolchain as 
@@ -124,8 +124,8 @@ if(CREATE_PRONTO_RASTER_TEST)
 	add_executable(pronto_test ${test_files} )
 	set_target_properties(pronto_test PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	
-	target_link_libraries(pronto_test pronto_raster)
-	target_link_libraries(pronto_test GTest::gtest_main)
+	target_link_libraries(pronto_test PRIVATE pronto_raster)
+	target_link_libraries(pronto_test PRIVATE GTest::gtest_main)
 endif()
 
 ################################################################
@@ -140,23 +140,26 @@ if(CREATE_PRONTO_RASTER_BENCHMARK)
 	
 	add_executable(pronto_benchmark ${benchmark_files})
 	set_target_properties(pronto_benchmark PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
-	target_link_libraries(pronto_benchmark pronto_raster)
-	target_link_libraries(pronto_benchmark benchmark::benchmark)
+	target_link_libraries(pronto_benchmark PRIVATE pronto_raster)
+	target_link_libraries(pronto_benchmark PRIVATE benchmark::benchmark)
 endif()
 
 ################################################################
 # Creating the python bindings (tentative)
 #
 if(CREATE_PRONTO_RASTER_PYTHON)
-
+		
+	set(DPYBIND11_FINDPYTHON ON)
+	find_package (Python REQUIRED COMPONENTS Interpreter Development)
 	find_package(pybind11 REQUIRED)
 	set(python_binding_files
 		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
 	)
 	pybind11_add_module(pronto_python ${python_binding_files})
 	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
-	target_link_libraries(pronto_python pronto_raster)
-	target_link_libraries(pronto_python pybind11::pybind11)
+	target_link_libraries(pronto_python PRIVATE pronto_raster)
+	target_link_libraries(pronto_python PRIVATE pybind11::pybind11)
+	
 endif()
 
 ################################################################
