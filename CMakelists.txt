@@ -13,11 +13,6 @@ option(IN_PRONTO_RASTER_USE_BOOST_ANY  "Use boost::any instead of std::any" OFF)
 option(IN_PRONTO_RASTER_USE_BOOST_OPTIONAL "Use boost::optional instead of std::optional" OFF)
 option(IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM "Use boost::filesystem instead of std::filesystem" OFF)
 
-if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM)
-	set(PRONTO_CXX_STANDARD 11)
-else ()
-	set(PRONTO_CXX_STANDARD 17)
-endif ()
 
 ################################################################
 # These are the main options about which projects to make
@@ -55,11 +50,11 @@ target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
 target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
 # Depending on settings, require C++11 with Boost or C++17 without Boost
-if (IN_PRONTO_RASTER_USE_BOOST_ANY OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL OR IN_PRONTO_RASTER_USE_BOOST_OPTIONAL)
-	find_package(Boost REQUIRED COMPONENTS filesystem any optional)
-	target_link_libraries(pronto_raster INTERFACE Boost::filesystem Boost::any Boost::optional)
+if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM)
+	set(PRONTO_CXX_STANDARD 11)
+else ()
+	set(PRONTO_CXX_STANDARD 17)
 endif ()
-
 
 if (IN_PRONTO_RASTER_USE_BOOST_ANY )
     
@@ -108,7 +103,7 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_TEST)
 
-	find_package(GTest REQUIRED)
+	find_package(GTest CONFIG REQUIRED)
 
 	set(test_files
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/any_blind_raster_tests.cpp
@@ -133,7 +128,7 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_BENCHMARK)
 
-	find_package(benchmark REQUIRED)
+	find_package(benchmark CONFIG REQUIRED)
 	set(benchmark_files
 		${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/benchmark.cpp
 	)
@@ -149,16 +144,15 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_PYTHON)
 		
-	set(DPYBIND11_FINDPYTHON ON)
-	find_package (Python REQUIRED COMPONENTS Interpreter Development)
-	find_package(pybind11 REQUIRED)
-	set(python_binding_files
+	find_package(pybind11 CONFIG REQUIRED)
+  	set(python_binding_files
 		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
 	)
 	pybind11_add_module(pronto_python ${python_binding_files})
 	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_python PRIVATE pronto_raster)
-	target_link_libraries(pronto_python PRIVATE pybind11::pybind11)
+	target_link_libraries(pronto_python PRIVATE pybind11::module)
+
 	
 endif()
 
