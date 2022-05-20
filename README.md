@@ -7,8 +7,8 @@
 </table> 
 
 The library requires one of the following:
-- GDAL, Boost (for Boost.Any, Boost.Filesystem and Boost.Optional) and C++11
-- GDAL, C++17 (for std\::any, std\::filesystem and std\::optional)
+- C++20 (especially for the Range and Iterator libraries)
+- GDAL (for accessing GIS raster data)
 
 See the [full documentation](./docs/raster.md) for details. Or try the new [website](http://ahhz.github.io/raster/) (still maturing)
 
