@@ -279,12 +279,12 @@ namespace pronto
         bool test = dataset->GetAccess() == gdal_access(access);
         if (!test)
         {
-          std::cout << "GDALAccess mismatch: " << path.c_str() << std::endl;
+          std::cout << "GDALAccess mismatch: " << path << std::endl;
           throw(opening_raster_failed{});
         }
         assert(test);
         if (dataset == nullptr) {
-          std::cout << "Could not read: " << path.c_str() << std::endl;
+          std::cout << "Could not read: " << path << std::endl;
           throw(opening_raster_failed{});
         }
 

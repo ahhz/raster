@@ -7,14 +7,6 @@ cmake_minimum_required(VERSION 3.20)
 project(pronto)
 
 ################################################################
-# These are the main configuration options: use Boost or C++17?
-#
-option(IN_PRONTO_RASTER_USE_BOOST_ANY  "Use boost::any instead of std::any" OFF)
-option(IN_PRONTO_RASTER_USE_BOOST_OPTIONAL "Use boost::optional instead of std::optional" OFF)
-option(IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM "Use boost::filesystem instead of std::filesystem" OFF)
-
-
-################################################################
 # These are the main options about which projects to make
 #
 option(CREATE_PRONTO_RASTER_EXAMPLE  "Create project for Example 1 of  Pronto Raster" ON)
@@ -49,45 +41,8 @@ find_package(GDAL REQUIRED)
 target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
 target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
-# Depending on settings, require C++11 with Boost or C++17 without Boost
-if (IN_PRONTO_RASTER_USE_BOOST_ANY AND IN_PRONTO_RASTER_USE_BOOST_OPTIONAL AND IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM)
-	set(PRONTO_CXX_STANDARD 11)
-else ()
-	set(PRONTO_CXX_STANDARD 17)
-endif ()
-
-if (IN_PRONTO_RASTER_USE_BOOST_ANY )
-    
-	# Include library
-	find_package(Boost REQUIRED COMPONENTS any )
-	target_link_libraries(pronto_raster INTERFACE Boost::any)
-
-	# Promulgate option as compile definition
-	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_ANY)
-
-endif ()
-
-if (IN_PRONTO_RASTER_USE_BOOST_OPTIONAL )
-
-	# Include library
-	find_package(Boost REQUIRED COMPONENTS optional )
-	target_link_libraries(pronto_raster INTERFACE Boost::optional)
-
-	# Promulgate option as compile definition
-	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_OPTIONAL)
-
-endif ()
-
-if (IN_PRONTO_RASTER_USE_BOOST_FILESYSTEM )
-
-	# Include library
-	find_package(Boost REQUIRED COMPONENTS filesystem )
-	target_link_libraries(pronto_raster INTERFACE Boost::filesystem)
-
-	# Promulgate option as compile definition
-	target_compile_definitions(pronto_raster INTERFACE -DPRONTO_RASTER_USE_BOOST_FILESYSTEM)
-
-endif ()
+# Require C++20
+set(PRONTO_CXX_STANDARD 20)
 
 ################################################################
 # Creating a simple executable: Example 1
@@ -148,12 +103,12 @@ if(CREATE_PRONTO_RASTER_PYTHON)
   	set(python_binding_files
 		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
 	)
-	pybind11_add_module(pronto_python ${python_binding_files})
+	pybind11_add_module(pronto_python MODULE ${python_binding_files})
 	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_python PRIVATE pronto_raster)
 	target_link_libraries(pronto_python PRIVATE pybind11::module)
-
-	
+	install(TARGETS pronto_python LIBRARY DESTINATION .)
+	install(TARGETS pronto_raster LIBRARY DESTINATION .)
 endif()
 
 ################################################################
@@ -184,6 +139,7 @@ if(CREATE_PRONTO_RASTER_HEADERS)
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/index_sequence.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator_functions.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/io.h
+		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/iterator_facade.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/moving_window_indicator.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/nodata_transform.h
 		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/offset_raster_view.h
