@@ -1,6 +1,6 @@
 //
 //=======================================================================
-// Copyright 2015-2017
+// Copyright 2015-2022
 // Author: Alex Hagen-Zanker
 // University of Surrey
 //
@@ -111,12 +111,12 @@ namespace pronto
         char **papszOptions = NULL;
         // Commented out settings that are default anyway
 
-        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
-        //papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
+        // papszOptions = CSLSetNameValue(papszOptions, "BLOCKXSIZE", "256");
+        // papszOptions = CSLSetNameValue(papszOptions, "BLOCKYSIZE", "256");
         papszOptions = CSLSetNameValue(papszOptions, "TILED", "YES");
-        //papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
+        // papszOptions = CSLSetNameValue(papszOptions, "INTERLEAVE", "BAND");
         papszOptions = CSLSetNameValue(papszOptions, "COMPRESS", "LZW");
-     //   papszOptions = CSLSetNameValue(papszOptions, "BIGTIFF", "YES");
+        // papszOptions = CSLSetNameValue(papszOptions, "BIGTIFF", "YES");
 
         GDALDataset* dataset = driver->Create(path.string().c_str(), cols, rows
           , nBands, datatype, papszOptions);
@@ -147,10 +147,10 @@ namespace pronto
         return dataset;
       }
 
-      template<class T>
+      inline
       GDALDataset* create_compressed_gdaldataset_from_model
       (const filesystem::path& path
-        , const gdal_raster_view<T>& model
+        , const gdal_raster_view_base& model
         , GDALDataType datatype, int nBands = 1)
       {
         //int rows = const_cast<GDALDataset*>(model)->GetRasterYSize();
@@ -174,10 +174,10 @@ namespace pronto
       }
 
 
-      template<class T, class I>
+      inline
       GDALDataset* create_standard_gdaldataset_from_model
         ( const filesystem::path& path
-        , const gdal_raster_view<T, I>& model
+        , const gdal_raster_view_base& model
         , GDALDataType datatype, int nBands = 1)
       {
         //int rows = const_cast<GDALDataset*>(model)->GetRasterYSize();
@@ -332,10 +332,10 @@ namespace pronto
           : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
       }
 
-      template<class T, class I>
+      inline
       static std::shared_ptr<GDALRasterBand> create_band_from_model(
         const filesystem::path& path
-        , const gdal_raster_view<T, I>& model,
+        , const gdal_raster_view_base& model,
         GDALDataType datatype, is_temporary is_temp)
       {
         int nBands = 1;
@@ -351,10 +351,10 @@ namespace pronto
           ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
           : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
       }
-      template<class T>
+      inline
       static std::shared_ptr<GDALRasterBand> create_compressed_band_from_model(
         const filesystem::path& path
-        , const gdal_raster_view<T>& model,
+        , const gdal_raster_view_base& model,
         GDALDataType datatype, is_temporary is_temp)
       {
         int nBands = 1;
@@ -445,10 +445,10 @@ namespace pronto
       return gdal_raster_view<T>(band);
     }
 
-    template<class T, class U, class I>
+    template<class T>
     gdal_raster_view<T> create_from_model
       ( const filesystem::path& path
-      , const gdal_raster_view<U, I>& model
+      , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -462,10 +462,10 @@ namespace pronto
       return gdal_raster_view<T>(band);
     }
 
-    template<class T, class U>
+    template<class T>
     gdal_raster_view<T> create_compressed_from_model
     (const filesystem::path& path
-      , const gdal_raster_view<U>& model
+      , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -479,9 +479,9 @@ namespace pronto
       return gdal_raster_view<T>(band);
     }
 
-    template<class T, class U>
+    template<class T>
     gdal_raster_view<T> create_temp_from_model(
-      const gdal_raster_view<U>& model
+      const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)

@@ -30,8 +30,19 @@ namespace pronto
 {
   namespace raster
   {
+      class gdal_raster_view_base
+      {
+      public:
+          virtual int rows() const = 0;
+          virtual int cols() const = 0;
+          virtual int size() const = 0;
+          virtual CPLErr get_geo_transform(double* padfTransform) const = 0;
+          virtual std::shared_ptr<GDALRasterBand> get_band() const = 0;
+      };
+
+
     template<class T, class IterationType = multi_pass>
-    class gdal_raster_view : public std::ranges::view_interface<gdal_raster_view<T, IterationType> >
+    class gdal_raster_view : public std::ranges::view_interface<gdal_raster_view<T, IterationType> >, public gdal_raster_view_base
     {
     private:
       using value_type = T;
