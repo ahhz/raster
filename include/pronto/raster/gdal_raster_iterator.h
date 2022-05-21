@@ -24,70 +24,71 @@ namespace pronto
 {
   namespace raster
   {
-    class forward_only_iteration {};
-    class random_access_iteration {};
+    class single_pass {};
+    class multi_pass{};
 
     template<class, class> class gdal_raster_view; // forward declaration
 
-    template<class T, class AccessType, class IterationType = random_access_iteration>
-    class gdal_raster_iterator : public iterator_facade<gdal_raster_iterator<T,AccessType, IterationType>>
+    template<class T, class AccessType, class IterationType = multi_pass>
+    class gdal_raster_iterator 
+      : public iterator_facade<gdal_raster_iterator<T,AccessType, IterationType>>
     {
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
       using view_type = gdal_raster_view<T, IterationType>;
 
-      // For strictly forward iteration we could use the following and be more efficient
-      static const bool is_forward_only = std::is_same<forward_only_iteration, IterationType>::value;
-      using proxy_ref = typename std::conditional<is_forward_only
-        , reference_proxy<const gdal_raster_iterator&>
-        , reference_proxy<gdal_raster_iterator> >::type;
-
-
+   
     public:
-      using is_mutable = std::integral_constant<bool, AccessType::value == access::read_write>;
-
-      using reference = typename std::conditional<is_mutable::value,
-        proxy_ref, T>::type;
+      static const bool is_single_pass = std::is_same<single_pass, IterationType>::value;
+      static const bool is_mutable = AccessType::value == access::read_write;
       using value_type = T;
-//      using difference_type = std::ptrdiff_t;
-//      using pointer = void;
-//      using iterator_category = std::input_iterator_tag;
 
       gdal_raster_iterator()
         : m_block()
         , m_end_of_stretch(m_block.get_null_iterator()) // not so elegant
         , m_pos(m_block.get_null_iterator())            // not so elegant
+        , m_stride(0)
       {}
 
-      gdal_raster_iterator(const gdal_raster_iterator& other) = default;
-      gdal_raster_iterator(gdal_raster_iterator&& other) = default;
-      gdal_raster_iterator& operator=(const gdal_raster_iterator& other)
-        = default;
-      gdal_raster_iterator& operator=(gdal_raster_iterator&& other) = default;
-      ~gdal_raster_iterator() = default;
+      gdal_raster_iterator(const gdal_raster_iterator& )            = default;
+      gdal_raster_iterator(gdal_raster_iterator&& )                 = default;
+      gdal_raster_iterator& operator=(const gdal_raster_iterator& ) = default;
+      gdal_raster_iterator& operator=(gdal_raster_iterator&& )      = default;
+      ~gdal_raster_iterator()                                       = default;
 
       
-      reference dereference() const {
-          return get_reference(is_mutable{});
+      auto dereference() const {
+        if constexpr (is_mutable)
+        {
+        if constexpr (is_single_pass)
+        {
+          return reference_proxy<const gdal_raster_iterator&>(*this);
+        } else {
+          return reference_proxy<gdal_raster_iterator>(*this);
+        }
+        }
+        else {
+            return m_view->get(static_cast<void*>(m_pos));
+        }
       }
 
       void increment() {
-          m_pos += m_stride;
+        m_pos += m_stride;
 
-          if (m_pos == m_end_of_stretch) {
-              m_pos -= m_stride;
-              goto_index(get_index() + 1);
-          }
+        if (m_pos == m_end_of_stretch) {
+            m_pos -= m_stride;
+            goto_index(get_index() + 1);
+        }
       }
       void decrement() {
-          auto d = std::distance(m_block.get_iterator(0, 0, m_view->m_stride), m_pos);
-          if (d % m_block.block_cols() > 0) {
-              m_pos -= m_view->m_stride;
-          }
-          else
-          {
-              goto_index(get_index() - 1);
-          }
+        auto d = std::distance(m_block.get_iterator(0, 0, m_view->m_stride), m_pos);
+        if (d % m_block.block_cols() > 0) {
+            m_pos -= m_stride;
+        }
+        else
+        {
+            goto_index(get_index() - 1);
+        }
       }
 
       void advance(std::ptrdiff_t offset) {
@@ -135,16 +136,7 @@ namespace pronto
       }
 
     private:
-      reference get_reference(std::true_type) const // mutable
-      {
-        return reference(*this);
-      }
-
-      reference get_reference(std::false_type) const // not mutable
-      {
-        return m_view->get(static_cast<void*>(m_pos));
-      }
-
+   
       long long get_index() const
       {
         // it might seem more efficient to just add an index member to the
@@ -185,54 +177,52 @@ namespace pronto
 
       void goto_index(long long index)
       {
-          if (index == static_cast<long long>(m_view->cols()) * static_cast<long long>(m_view->rows())) {
-              if (index == 0) { // empty raster, no place to go
-                  m_pos = m_block.get_null_iterator();
-              }
-              else {
-                  // Go to last block, one past the last element.
-                  goto_index(index - 1);
-                  m_pos += m_view->m_stride;
-              }
-          }
-          else {
+        if (index == static_cast<long long>(m_view->cols()) * static_cast<long long>(m_view->rows())) {
+            if (index == 0) { // empty raster, no place to go
+                m_pos = m_block.get_null_iterator();
+            }
+            else {
+                // Go to last block, one past the last element.
+                goto_index(index - 1);
+                m_pos += m_view->m_stride;
+            }
+        }
+        else {
 
-              int row = static_cast<int>(index / m_view->cols());
-              int col = static_cast<int>(index % m_view->cols());
+        int row = static_cast<int>(index / m_view->cols());
+        int col = static_cast<int>(index % m_view->cols());
 
-              int gdaldata_row = row + m_view->m_first_row;
-              int gdaldata_col = col + m_view->m_first_col;
+        int gdaldata_row = row + m_view->m_first_row;
+        int gdaldata_col = col + m_view->m_first_col;
 
-              int block_rows = 0;
-              int block_cols = 0;
+        int block_rows = 0;
+        int block_cols = 0;
 
-              m_view->m_band->GetBlockSize(&block_cols, &block_rows);
+        m_view->m_band->GetBlockSize(&block_cols, &block_rows);
 
-              int block_row = gdaldata_row / block_rows;
-              int block_col = gdaldata_col / block_cols;
+        int block_row = gdaldata_row / block_rows;
+        int block_col = gdaldata_col / block_cols;
 
-              int row_in_block = gdaldata_row % block_rows;
-              int col_in_block = gdaldata_col % block_cols;
+        int row_in_block = gdaldata_row % block_rows;
+        int col_in_block = gdaldata_col % block_cols;
 
-              //int index_in_block = row_in_block * block_cols + col_in_block;
+        m_block.reset(m_view->m_band.get(), block_row, block_col);
+        if constexpr (is_mutable) {
+            if (m_view->m_band->GetAccess() == GA_Update) {
+                m_block.mark_dirty();
+            }
+        }
+             
+        m_pos = m_block.get_iterator(row_in_block, col_in_block, m_view->m_stride);
 
-              m_block.reset(m_view->m_band.get(), block_row, block_col);
-              if (is_mutable::value && m_view->m_band->GetAccess() == GA_Update)
-              {
-                  m_block.mark_dirty();
-              }
+        int end_col = std::min<int>((block_col + 1) * block_cols
+            , m_view->m_first_col + m_view->m_cols);
 
-              m_pos = m_block.get_iterator(row_in_block, col_in_block, m_view->m_stride);
+        int minor_end_col = 1 + (end_col - 1) % block_cols;
 
-              int end_col = std::min<int>((block_col + 1) * block_cols
-                  , m_view->m_first_col + m_view->m_cols);
-
-              int minor_end_col = 1 + (end_col - 1) % block_cols;
-
-              m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col,
-                  m_view->m_stride);
-
-          }
+        m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col,
+            m_view->m_stride);
+        }
       }
 
       const view_type* m_view;

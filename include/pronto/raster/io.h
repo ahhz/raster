@@ -385,14 +385,14 @@ namespace pronto
 
 
     template<class T>
-    gdal_raster_view<T, forward_only_iteration> open_forward_only(
+    gdal_raster_view<T, single_pass> open_forward_only(
       const filesystem::path& path,
       access elem_access = read_write,
       int band_index = 1)
     {
       auto dataset = detail::open_dataset(path, elem_access);
       auto band = detail::open_band(dataset, band_index);
-      return gdal_raster_view<T, forward_only_iteration>(band);
+      return gdal_raster_view<T, single_pass>(band);
     }
 
     template<class T>
@@ -412,7 +412,7 @@ namespace pronto
     }
 
     template<class T>
-    gdal_raster_view<T, forward_only_iteration> create_forward_only(
+    gdal_raster_view<T, single_pass> create_forward_only(
       const filesystem::path& path, int rows, int cols
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
@@ -424,7 +424,7 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band = detail::create_band
       (path, rows, cols, data_type, is_temporary::no);
 
-      return gdal_raster_view<T, forward_only_iteration>(band);
+      return gdal_raster_view<T, single_pass>(band);
     }
 
     template<class T>

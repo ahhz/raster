@@ -23,14 +23,15 @@
 #include <cassert>
 #include <cstdint>
 #include <memory>
+#include <ranges>
 #include <type_traits>
 
 namespace pronto
 {
   namespace raster
   {
-    template<class T, class IterationType = random_access_iteration>
-    class gdal_raster_view
+    template<class T, class IterationType = multi_pass>
+    class gdal_raster_view : public std::ranges::view_interface<gdal_raster_view<T, IterationType> >
     {
     private:
       using value_type = T;
