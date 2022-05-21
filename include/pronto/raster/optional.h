@@ -9,9 +9,6 @@
 //
 
 #pragma once
-
-#ifndef PRONTO_RASTER_USE_BOOST_OPTIONAL
-
 #include <optional>
 
 namespace pronto {
@@ -22,21 +19,6 @@ namespace pronto {
     static const none_t none = std::nullopt;
   }
 }
-
-#else
-
-#include <boost/optional.hpp>
-#include <boost/none.hpp>
-namespace pronto {
-  namespace raster {
-    using boost::optional;
-    using boost::make_optional;
-    using boost::none;
-    using boost::none_t;
-  }
-}
-
-#endif
 
 namespace pronto {
   namespace raster {

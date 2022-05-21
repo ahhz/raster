@@ -10,10 +10,7 @@
 
 #pragma once
 
-#ifndef PRONTO_RASTER_USE_BOOST_FILESYSTEM
-
-//#include <experimental/filesystem> // C++-standard header file name  
-#include <filesystem> // Microsoft-specific implementation header file name  
+#include <filesystem> 
 #include <random>
 #include <string>
 
@@ -43,17 +40,3 @@ namespace pronto {
   }
 }
 
-#else
-
-#include <boost/filesystem.hpp>
-namespace pronto {
-  namespace raster {
-    namespace filesystem = boost::filesystem;
-    inline filesystem::path get_unique_path(const filesystem::path& path)
-    {
-      return filesystem::unique_path(path);
-    }
-  }
-}
-
-#endif

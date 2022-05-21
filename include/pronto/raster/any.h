@@ -9,9 +9,6 @@
 //
 
 #pragma once
-
-#ifndef PRONTO_RASTER_USE_BOOST_ANY
-
 #include <any>
 namespace pronto {
   namespace raster {
@@ -21,15 +18,3 @@ namespace pronto {
   }
 }
 
-#else
-
-#include <boost/any.hpp>
-namespace pronto {
-  namespace raster {
-    using boost::any;
-    using boost::any_cast;
-	using boost::bad_any_cast;
-  }
-}
-
-#endif
