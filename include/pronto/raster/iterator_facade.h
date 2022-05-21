@@ -5,15 +5,13 @@
 namespace pronto {
     namespace raster {
         
-
         template <typename T>
         concept impls_distance_to = requires (const T it) { it.distance_to(it); };
 
         // Check for .decrement
         template <typename T>
         concept impls_decrement = requires (T t) { t.decrement(); };
-
-       
+               
         // Check for .equal_to
         template <typename T>
         concept impls_equal_to =
@@ -128,7 +126,7 @@ namespace pronto {
             --*this;
             return copy;
           }
-  
+      
           friend self_type& 
           operator+=(self_type& self, difference_type_arg<self_type> auto offset)
             requires impls_advance<self_type>
@@ -138,21 +136,21 @@ namespace pronto {
           }
 
           friend self_type
-          operator+(self_type left, difference_type_arg<self_type> auto offset)
+          operator+(self_type left, difference_type_arg<self_type> auto offset) 
             requires impls_advance<self_type>
           {
             return left += offset;
           }
 
           friend self_type
-          operator+(difference_type_arg<self_Type> auto offset, self_type right)
+          operator+(difference_type_arg<self_type> auto offset, self_type right) 
             requires impls_advance<self_type>
           {
             return right += offset;
           }
 
           friend self_type
-          operator-(self_type left, difference_type_arg<self_type> auto offset)
+          operator-(self_type left, difference_type_arg<self_type> auto offset) 
             requires impls_advance<self_type>
           {
             return left + -offset;
@@ -165,13 +163,13 @@ namespace pronto {
             return left = left - offset;
           }
 
-          decltype(auto) operator[](difference_type_arg<self_type> auto offset)
+          decltype(auto) operator[](difference_type_arg<self_type> auto offset) const
             requires impls_advance<self_type>
           {
             return *(_self() + offset);
           }
   
-          friend self_type&
+          friend auto
           operator-(const self_type& left, const self_type& right)
             requires impls_distance_to<self_type>
           {
@@ -218,25 +216,25 @@ namespace pronto {
           using reference = decltype(*_it);
           using difference_type = pronto::raster::infer_difference_type_t<Iter>;
           using value_type = pronto::raster::infer_value_type_t<Iter>;
-  
+
+          class io_iterator_tag : public input_iterator_tag, public output_iterator_tag
+          {};
+
           // TODO - This needs to be updated to consider output_iterator, input_and_output_iterator
           using iterator_category =
             std::conditional_t<
               pronto::raster::meets_random_access<Iter>,
-              // We meet the requirements of random-access:
-              std::random_access_iterator_tag,
-              // We don't:
-              std::conditional_t<
-              pronto::raster::meets_bidirectional<Iter>,
-                // We meet requirements for bidirectional usage:
-              std::bidirectional_iterator_tag,
-                // We don't:
-                std::conditional_t<
-              pronto::raster::decls_single_pass<Iter>,
-                  // A single-pass iterator is an input-iterator:
-              std::input_iterator_tag,
-                  // Otherwise we are a forward iterator:
-              std::forward_iterator_tag
+                std::random_access_iterator_tag,
+                std::conditional_t< 
+                  pronto::raster::meets_bidirectional<Iter>,
+                  std::bidirectional_iterator_tag,
+                  std::conditional_t<
+                    Iter::is_single_pass,
+                    std::conditional_t<
+                       Iter::is_mutable,
+                       std::input_iterator_tag,
+                       io_iterator_tag>,
+                    std::forward_iterator_tag
                 >
               >
             >;
