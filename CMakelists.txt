@@ -41,8 +41,14 @@ find_package(GDAL REQUIRED)
 target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
 target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
-# Require C++20
-set(PRONTO_CXX_STANDARD 20)
+# Require C++20, std:c++latest for msvc and -std=c++20 for everyone else
+if (MSVC)
+    # this change happened in CMake 3.20.4
+    set(PRONTO_CXX_STANDARD 23) # /std:c++latest - unlocks the non stable cpp20 features. For new 16.11 versions
+else ()
+    set(PRONTO_CXX_STANDARD 20) # /std:c++latest for msvc and -std=c++20 for everyone else.
+endif ()
+
 
 ################################################################
 # Creating a simple executable: Example 1
