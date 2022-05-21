@@ -12,7 +12,7 @@
 
 #include <pronto/raster/io.h>
 #include <pronto/raster/gdal_raster_view.h>
-
+#include <ranges>
 #include <vector>
 
 namespace pr = pronto::raster;
@@ -35,17 +35,28 @@ bool test_increment_reference_proxy()
 	return *iter == 5.0;
 }
 
+
+
 bool test_sub_raster()
 {
   int rows = 6;
   int cols = 4;
   auto a = pr::create_temp<int>(rows, cols);
+
+  static_assert(std::ranges::range<decltype(a)>);
+  static_assert(std::ranges::view<decltype(a)>);
+  static_assert(std::ranges::random_access_range<decltype(a)>);
+  static_assert(!std::ranges::contiguous_range<decltype(a)>);
+
   int num = 0;
   for (auto&& i : a) {
     num += 2;
     i = num;
   }
   auto c = a.sub_raster(2, 1, 3, 2);
+
+  static_assert(std::is_same_v<decltype(a), decltype(c)>);
+ 
   std::vector<int> check;
   for (auto&& i : c) {
     check.push_back(i);
