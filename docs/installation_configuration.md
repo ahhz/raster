@@ -4,7 +4,7 @@ sidebar:
   nav: docs
 ---
 # Installation and configuration
-The Pronto Raster library is a header-only library that depends on C+\+20 language features and STL and the GDAL library. re Boost.
+The Pronto Raster library is a C++ library that depends on C+\+20 language features and STL and the GDAL library.
 
 See the websites of [GDAL](http://www.gdal.org) for guidance on installing that library. If you are using Microsoft Visual Studio it can be useful to use [vcpkg](https://github.com/Microsoft/vcpkg). 
 

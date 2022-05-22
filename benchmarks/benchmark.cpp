@@ -143,13 +143,13 @@ static void BM_3_rasters_pronto(benchmark::State& state) {
     benchmark_3_rasters_pronto();
 }
 
-int benchmark_3_rasters_pronto_forward_only()
+int benchmark_3_rasters_pronto_single_pass()
 {
   {
-    auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
+    auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
+    auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
+    auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -162,9 +162,9 @@ int benchmark_3_rasters_pronto_forward_only()
   return 0;
 }
 
-static void BM_3_rasters_pronto_forward_only(benchmark::State& state) {
+static void BM_3_rasters_pronto_single_pass(benchmark::State& state) {
   for (auto _ : state)
-    benchmark_3_rasters_pronto_forward_only();
+    benchmark_3_rasters_pronto_single_pass();
 }
 
 int benchmark_3_rasters_pronto_blind()
@@ -190,13 +190,13 @@ static void BM_3_rasters_pronto_blind(benchmark::State& state) {
     benchmark_3_rasters_pronto_blind();
 }
 
-int benchmark_3_rasters_pronto_forward_only_in_blocks()
+int benchmark_3_rasters_pronto_single_pass_in_blocks()
 {
   {
-    auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
+    auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
+    auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
+    auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -209,18 +209,18 @@ int benchmark_3_rasters_pronto_forward_only_in_blocks()
   return 0;
 }
 
-static void BM_3_rasters_pronto_forward_only_in_blocks(benchmark::State& state) {
+static void BM_3_rasters_pronto_single_pass_in_blocks(benchmark::State& state) {
   for (auto _ : state)
-    benchmark_3_rasters_pronto_forward_only_in_blocks();
+    benchmark_3_rasters_pronto_single_pass_in_blocks();
 }
 
-int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
+int benchmark_3_rasters_pronto_single_pass_in_blocks_transform()
 {
 	{
-		auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
-		auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
-		auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
-		auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
+		auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
+		auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
+		auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
+		auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
 
 		auto func = [](const unsigned char& a, const unsigned char& b, const unsigned char& c)
 		{
@@ -234,18 +234,18 @@ int benchmark_3_rasters_pronto_forward_only_in_blocks_transform()
   return 0;
 }
 
-static void BM_3_rasters_pronto_forward_only_in_blocks_transform(benchmark::State& state) {
+static void BM_3_rasters_pronto_single_pass_in_blocks_transform(benchmark::State& state) {
   for (auto _ : state)
-    benchmark_3_rasters_pronto_forward_only_in_blocks_transform();
+    benchmark_3_rasters_pronto_single_pass_in_blocks_transform();
 }
 
-int benchmark_3_rasters_pronto_forward_only_no_blocks_iterate()
+int benchmark_3_rasters_pronto_single_pass_no_blocks_iterate()
 {
 	{
-		auto raster_a = pr::open_forward_only<unsigned char>("random_a.tif", pr::access::read_only);
-		auto raster_b = pr::open_forward_only<unsigned char>("random_b.tif", pr::access::read_only);
-		auto raster_c = pr::open_forward_only<unsigned char>("random_c.tif", pr::access::read_only);
-		auto raster_out = pr::open_forward_only<unsigned char>("output.tif", pr::access::read_write);
+		auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
+		auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
+		auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
+		auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
 
 		auto ia = std::as_const(raster_a).begin();
 		auto ib = std::as_const(raster_b).begin();
@@ -263,9 +263,9 @@ int benchmark_3_rasters_pronto_forward_only_no_blocks_iterate()
   
   return 0;
 }
-static void BM_3_rasters_pronto_forward_only_no_blocks_iterate(benchmark::State& state) {
+static void BM_3_rasters_pronto_single_pass_no_blocks_iterate(benchmark::State& state) {
   for (auto _ : state)
-    benchmark_3_rasters_pronto_forward_only_no_blocks_iterate();
+    benchmark_3_rasters_pronto_single_pass_no_blocks_iterate();
 }
 
 int benchmark_3_rasters_reference_readblock()
@@ -781,10 +781,10 @@ BENCHMARK(BM_create_data_for_benchmark)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_coldstart)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_blind)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_3_rasters_pronto_forward_only)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_3_rasters_pronto_forward_only_no_blocks_iterate)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks)->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_3_rasters_pronto_forward_only_in_blocks_transform)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_single_pass)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_single_pass_no_blocks_iterate)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_single_pass_in_blocks)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_single_pass_in_blocks_transform)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_readblock)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_rasterio)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_reference_getlockedblockref)->Unit(benchmark::kMillisecond);

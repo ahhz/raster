@@ -31,15 +31,6 @@ endif(WIN32)
 ################################################################
 # Creating the main library: Pronto Raster
 #
-add_library(pronto_raster INTERFACE)
-
-# Set include directory, as this is a header-only library 
-target_include_directories(pronto_raster INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
-
-# take care of GDAL dependency
-find_package(GDAL REQUIRED)
-target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
-target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
 # Require C++20, std:c++latest for msvc and -std=c++20 for everyone else
 if (MSVC)
@@ -48,6 +39,84 @@ if (MSVC)
 else ()
     set(PRONTO_CXX_STANDARD 20) # /std:c++latest for msvc and -std=c++20 for everyone else.
 endif ()
+
+set(pronto_raster_files
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/access_type.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_blind_raster.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_raster.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/assign.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/blind_function.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_edge_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/complex_numbers.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/default_construction_functor.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_transform.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_weighted_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/edge_raster.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/exceptions.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/filesystem.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/fuzzy_kappa.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_block.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_includes.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_iterator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/index_sequence.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator_functions.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/io.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/iterator_facade.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/moving_window_indicator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/nodata_transform.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/offset_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/padded_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/pair_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/patch_raster_transform.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/plot_raster.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/random_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_operators.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_transform.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_wrapper.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_allocator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_edge_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy_vector.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/square_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/subraster_window_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/count.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/edge_density.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/interspersion.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/map_window.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/mean.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/most_common_class.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/patch_weighted_shape_index.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/shannon_diversity.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/pronto/raster/io.cpp
+)
+
+add_library(pronto_raster ${pronto_raster_files})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/ )
+set_target_properties(pronto_raster PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
+
+# Set include directory, 
+target_include_directories(pronto_raster INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
+
+# take care of GDAL dependency
+find_package(GDAL REQUIRED)
+target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
+target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
+
+
 
 
 ################################################################
@@ -118,71 +187,8 @@ if(CREATE_PRONTO_RASTER_PYTHON)
 endif()
 
 ################################################################
-# Creating a non-executable that adds a project to the IDE with all header files
+# Creating the Pronto Raster library
 #
-if(CREATE_PRONTO_RASTER_HEADERS)
-	set(ide_headers
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/access_type.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_blind_raster.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_raster.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/assign.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/blind_function.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_edge_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/complex_numbers.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/default_construction_functor.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_transform.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_weighted_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/edge_raster.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/exceptions.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/filesystem.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/fuzzy_kappa.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_block.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_includes.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_iterator.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/index_sequence.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator_functions.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/io.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/iterator_facade.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/moving_window_indicator.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/nodata_transform.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/offset_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/optional_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/padded_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/pair_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/patch_raster_transform.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/plot_raster.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/random_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_operators.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_transform.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_wrapper.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_allocator.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_edge_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy_vector.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/square_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/subraster_window_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/count.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/edge_density.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/interspersion.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/map_window.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/mean.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/most_common_class.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/patch_weighted_shape_index.h
-		${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/shannon_diversity.h
-	)
+if(CREATE_PRONTO_RASTER_LIB)
 
-	add_custom_target(pronto_raster_ide SOURCES ${ide_headers})
 endif()

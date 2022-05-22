@@ -24,7 +24,7 @@ enum class window_shape
 void moving_window_pattern(const std::string& input, const std::string& output, double radius, metric m, window_shape w)
 {
     double nodata_value = -9999;
-    auto in = pr::open_forward_only<int> (input, pr::access::read_only, 1);
+    auto in = pr::open_single_pass<int> (input, pr::access::read_only, 1);
     auto out = pr::create_from_model<double>(pr::filesystem::path(output), in);
     out.set_nodata_value(true, nodata_value);
 
