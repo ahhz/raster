@@ -103,36 +103,36 @@ namespace pronto
       GDALDataset* create_compressed_gdaldataset(
           const std::filesystem::path& path, int rows, int cols
           , GDALDataType datatype, int nBands = 1);
+      
       GDALDataset* create_standard_gdaldataset(
           const std::filesystem::path& path, int rows, int cols
           , GDALDataType datatype, int nBands = 1);
+      
       GDALDataset* create_compressed_gdaldataset_from_model
       (const std::filesystem::path& path
           , const gdal_raster_view_base& model
           , GDALDataType datatype, int nBands = 1);
+      
       GDALDataset* create_standard_gdaldataset_from_model
       (const std::filesystem::path& path
           , const gdal_raster_view_base& model
           , GDALDataType datatype, int nBands = 1);
 
       std::filesystem::path get_temp_tiff_path();
-
+      void optionally_update_statistics(GDALRasterBand* band);
 
       struct dataset_deleter
       {
           void operator()(GDALRasterBand* band) const;
       };
 
-      void optionally_update_statistics(GDALRasterBand* band);
-
       struct dataset_closer
       {
-          dataset_closer(GDALDataset* dataset);
-
-          void operator()(GDALRasterBand* band) const;
+        dataset_closer(GDALDataset* dataset);
+        void operator()(GDALRasterBand* band) const;
         GDALDataset* m_dataset;
-
       };
+
       std::shared_ptr<GDALDataset> open_dataset(
           const std::filesystem::path& path, access access);
 
@@ -161,7 +161,6 @@ namespace pronto
       return gdal_raster_view<T>(band);
     }
 
-
     template<class T>
     gdal_raster_view<T, single_pass> open_single_pass(
       const std::filesystem::path& path,
@@ -173,9 +172,9 @@ namespace pronto
       return gdal_raster_view<T, single_pass>(band);
     }
 
-    template<class T>
-    gdal_raster_view<T> create(
-      const std::filesystem::path& path, int rows, int cols
+    template<class T, class IterationType = multi_pass>
+    gdal_raster_view<T, IterationType> create(
+      const std::filesystem::path& path, int rows, int cols, IterationType = IterationType{}
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -186,7 +185,7 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band = detail::create_band
         (path, rows, cols, data_type, is_temporary::no);
 
-      return gdal_raster_view<T>(band);
+      return gdal_raster_view<T, IterationType>(band);
     }
 
     template<class T>
@@ -194,24 +193,15 @@ namespace pronto
       const std::filesystem::path& path, int rows, int cols
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
-        throw(creating_a_raster_failed{});
-      }
-
-      std::shared_ptr<GDALRasterBand> band = detail::create_band
-      (path, rows, cols, data_type, is_temporary::no);
-
-      return gdal_raster_view<T, single_pass>(band);
+      return create<T>(path, rows, cols, single_pass{}, data_type);
     }
 
-    template<class T>
-    gdal_raster_view<T> create_temp(
-      int rows, int cols,
+    template<class T, class IterationType = multi_pass>
+    gdal_raster_view<T, IterationType> create_temp(
+      int rows, int cols, IterationType it = IterationType{},
       GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
+      if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
       }
 
@@ -220,7 +210,7 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band = detail::create_band
         (path, rows, cols, data_type, is_temporary::yes);
 
-      return gdal_raster_view<T>(band);
+      return gdal_raster_view<T, IterationType>(band);
     }
 
     template<class T>

@@ -60,16 +60,16 @@ namespace pronto
       auto dereference() const {
         if constexpr (is_mutable)
         {
-        if constexpr (is_single_pass)
-        {
-          return reference_proxy<const gdal_raster_iterator&>(*this);
-        } else {
-          return reference_proxy<gdal_raster_iterator>(*this);
-        }
-        }
-        else {
-            return m_view->get(static_cast<void*>(m_pos));
-        }
+          if constexpr (is_single_pass)
+          {
+            return reference_proxy<const gdal_raster_iterator&>(*this);
+          } else {
+            return reference_proxy<gdal_raster_iterator>(*this);
+          }
+          }
+          else {
+              return m_view->get(static_cast<void*>(m_pos));
+          }
       }
 
       void increment() {

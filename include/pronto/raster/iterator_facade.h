@@ -222,19 +222,19 @@ namespace pronto {
 
           // TODO - This needs to be updated to consider output_iterator, input_and_output_iterator
           using iterator_category =
-            std::conditional_t<
-              pronto::raster::meets_random_access<Iter>,
+            std::conditional_t <
+              Iter::is_single_pass,
+              std::conditional_t<
+                Iter::is_mutable,
+                io_iterator_tag,
+                std::input_iterator_tag>, 
+              std::conditional_t<
+                pronto::raster::meets_random_access<Iter>,
                 std::random_access_iterator_tag,
                 std::conditional_t< 
                   pronto::raster::meets_bidirectional<Iter>,
                   std::bidirectional_iterator_tag,
-                  std::conditional_t<
-                    Iter::is_single_pass,
-                    std::conditional_t<
-                       Iter::is_mutable,
-                       std::input_iterator_tag,
-                       io_iterator_tag>,
-                    std::forward_iterator_tag
+                  std::forward_iterator_tag
                 >
               >
             >;

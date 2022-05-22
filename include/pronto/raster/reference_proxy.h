@@ -33,17 +33,33 @@ namespace pronto {
       }
 
       // assignment to make the iterator writable
-      reference_proxy& operator=(const value_type& v)
+      const reference_proxy& operator=(const value_type& v) const
       {
         m_accessor.put(v);
         return *this;
       }
-      reference_proxy& operator=(const reference_proxy& that)
+      const reference_proxy& operator=(const reference_proxy& that) const
       {
         return operator=(static_cast<value_type>(that));
       }
       
-      reference_proxy& operator=(reference_proxy&& that)
+      const reference_proxy& operator=(reference_proxy&& that) const
+      {
+        return operator=(static_cast<value_type>(that));
+      }
+
+      // assignment to make the iterator writable
+      reference_proxy& operator=(const value_type& v) 
+      {
+        m_accessor.put(v);
+        return *this;
+      }
+      reference_proxy& operator=(const reference_proxy& that) 
+      {
+        return operator=(static_cast<value_type>(that));
+      }
+
+      reference_proxy& operator=(reference_proxy&& that) 
       {
         return operator=(static_cast<value_type>(that));
       }
