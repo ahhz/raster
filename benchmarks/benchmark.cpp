@@ -146,10 +146,10 @@ static void BM_3_rasters_pronto(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass()
 {
   {
-    auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -193,10 +193,10 @@ static void BM_3_rasters_pronto_blind(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass_in_blocks()
 {
   {
-    auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
+    auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -217,10 +217,10 @@ static void BM_3_rasters_pronto_single_pass_in_blocks(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass_in_blocks_transform()
 {
 	{
-		auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
-		auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
-		auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
-		auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
+		auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
 
 		auto func = [](const unsigned char& a, const unsigned char& b, const unsigned char& c)
 		{
@@ -242,10 +242,10 @@ static void BM_3_rasters_pronto_single_pass_in_blocks_transform(benchmark::State
 int benchmark_3_rasters_pronto_single_pass_no_blocks_iterate()
 {
 	{
-		auto raster_a = pr::open_single_pass<unsigned char>("random_a.tif", pr::access::read_only);
-		auto raster_b = pr::open_single_pass<unsigned char>("random_b.tif", pr::access::read_only);
-		auto raster_c = pr::open_single_pass<unsigned char>("random_c.tif", pr::access::read_only);
-		auto raster_out = pr::open_single_pass<unsigned char>("output.tif", pr::access::read_write);
+		auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
+		auto raster_out = pr::open<unsigned char>("output.tif, pr::single_pass{}", pr::access::read_write);
 
 		auto ia = std::as_const(raster_a).begin();
 		auto ib = std::as_const(raster_b).begin();
