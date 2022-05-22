@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace pr = pronto::raster;
-namespace fs = pr::filesystem;
+namespace fs = std::filesystem;
 
 bool transform_with_overloaded_function_object()
 {

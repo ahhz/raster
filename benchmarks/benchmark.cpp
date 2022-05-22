@@ -109,7 +109,7 @@ void create_data_for_benchmark(int rows, int cols)
     pr::assign(raster_c, random_c);
     pr::assign(raster_out, zeros);
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
 }
 
@@ -132,7 +132,7 @@ int benchmark_3_rasters_pronto()
 
     pr::assign(raster_out, raster_sum);
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
 
   return 0;
@@ -157,7 +157,7 @@ int benchmark_3_rasters_pronto_single_pass()
 
     pr::assign(raster_out, raster_sum);
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -180,7 +180,7 @@ int benchmark_3_rasters_pronto_blind()
 
     pr::assign(raster_out, raster_sum.unwrap());
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
 
   return 0;
@@ -204,7 +204,7 @@ int benchmark_3_rasters_pronto_single_pass_in_blocks()
 
     pr::assign_blocked(raster_out, raster_sum);
   }
-   std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+   std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -230,7 +230,7 @@ int benchmark_3_rasters_pronto_single_pass_in_blocks_transform()
 		auto raster_sum = pr::transform(func, raster_a, raster_b, raster_c);
 		pr::assign_blocked(raster_out, raster_sum);
 	}
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
   return 0;
 }
 
@@ -258,7 +258,7 @@ int benchmark_3_rasters_pronto_single_pass_no_blocks_iterate()
 			*iout = 3 * (*ia) + (*ib) * (*ic);
 		}
 	}
-	std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+	std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   
   return 0;
@@ -340,7 +340,7 @@ int benchmark_3_rasters_reference_readblock()
   GDALClose(dataset_c);
   GDALClose(dataset_out);
 
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -423,7 +423,7 @@ int benchmark_3_rasters_reference_rasterio()
   GDALClose(dataset_c);
   GDALClose(dataset_out);
 
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") <<std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") <<std::endl;
 
   return 0;
 }
@@ -513,7 +513,7 @@ int benchmark_3_rasters_reference_getlockedblockref()
   GDALClose(dataset_b);
   GDALClose(dataset_c);
   GDALClose(dataset_out);
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -537,7 +537,7 @@ int benchmark_2_rasters()
     //pr::assign_blocked(raster_out, raster_sum,256, 256);
     pr::assign(raster_out, raster_sum);
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -554,7 +554,7 @@ int benchmark_2_rasters_blind()
 
     pr::assign(raster_out, raster_sum.unwrap());
   }
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -620,7 +620,7 @@ int benchmark_2_rasters_reference()
   GDALClose(dataset_a);
   GDALClose(dataset_b);
   GDALClose(dataset_out);
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }
@@ -705,7 +705,7 @@ int benchmark_3_rasters_reference_pixel_function()
   CPLFree(data_abc);
   GDALClose(dataset_out);
 
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
 
   return 0;
@@ -764,7 +764,7 @@ int benchmark_3_rasters_reference_python_pixel_function()
 
   CPLFree(data_abc);
   GDALClose(dataset_out);
-  std::cout << "Files size of output.tif: " << pr::filesystem::file_size("output.tif") << std::endl;
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
   return 0;
 }

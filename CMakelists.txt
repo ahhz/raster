@@ -55,7 +55,6 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_weighted_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/edge_raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/exceptions.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/filesystem.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/fuzzy_kappa.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_block.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_includes.h

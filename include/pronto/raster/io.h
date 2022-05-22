@@ -22,6 +22,7 @@
 #include <pronto/raster/gdal_raster_view.h>
 #include <pronto/raster/optional.h>
 
+#include <filesystem>
 #include <iostream>
 
 namespace pronto
@@ -100,21 +101,21 @@ namespace pronto
       };
 */
       GDALDataset* create_compressed_gdaldataset(
-          const filesystem::path& path, int rows, int cols
+          const std::filesystem::path& path, int rows, int cols
           , GDALDataType datatype, int nBands = 1);
       GDALDataset* create_standard_gdaldataset(
-          const filesystem::path& path, int rows, int cols
+          const std::filesystem::path& path, int rows, int cols
           , GDALDataType datatype, int nBands = 1);
       GDALDataset* create_compressed_gdaldataset_from_model
-      (const filesystem::path& path
+      (const std::filesystem::path& path
           , const gdal_raster_view_base& model
           , GDALDataType datatype, int nBands = 1);
       GDALDataset* create_standard_gdaldataset_from_model
-      (const filesystem::path& path
+      (const std::filesystem::path& path
           , const gdal_raster_view_base& model
           , GDALDataType datatype, int nBands = 1);
 
-      filesystem::path get_temp_tiff_path();
+      std::filesystem::path get_temp_tiff_path();
 
 
       struct dataset_deleter
@@ -133,25 +134,25 @@ namespace pronto
 
       };
       std::shared_ptr<GDALDataset> open_dataset(
-          const filesystem::path& path, access access);
+          const std::filesystem::path& path, access access);
 
       std::shared_ptr<GDALRasterBand> open_band(std::shared_ptr<GDALDataset> dataset, int band = 1);
       std::shared_ptr<GDALRasterBand> create_band(
-          const filesystem::path& path, int rows, int cols,
+          const std::filesystem::path& path, int rows, int cols,
           GDALDataType datatype, is_temporary is_temp);
       std::shared_ptr<GDALRasterBand> create_band_from_model(
-          const filesystem::path& path
+          const std::filesystem::path& path
           , const gdal_raster_view_base& model,
           GDALDataType datatype, is_temporary is_temp);
       std::shared_ptr<GDALRasterBand> create_compressed_band_from_model(
-          const filesystem::path& path
+          const std::filesystem::path& path
           , const gdal_raster_view_base& model,
           GDALDataType datatype, is_temporary is_temp);
     } // detail
 
     template<class T>
     gdal_raster_view<T> open(
-      const filesystem::path& path,
+      const std::filesystem::path& path,
       access elem_access = read_write,
       int band_index = 1)
     {
@@ -163,7 +164,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T, single_pass> open_single_pass(
-      const filesystem::path& path,
+      const std::filesystem::path& path,
       access elem_access = read_write,
       int band_index = 1)
     {
@@ -174,7 +175,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T> create(
-      const filesystem::path& path, int rows, int cols
+      const std::filesystem::path& path, int rows, int cols
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -190,7 +191,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T, single_pass> create_single_pass(
-      const filesystem::path& path, int rows, int cols
+      const std::filesystem::path& path, int rows, int cols
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -224,7 +225,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T> create_from_model
-      ( const filesystem::path& path
+      ( const std::filesystem::path& path
       , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
@@ -241,7 +242,7 @@ namespace pronto
 
     template<class T>
     gdal_raster_view<T> create_compressed_from_model
-    (const filesystem::path& path
+    (const std::filesystem::path& path
       , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
@@ -298,14 +299,14 @@ namespace pronto
 	// inline because this is a non-template function and strictly speaking
 	// this should be in a cpp file
     any_blind_raster open_any(
-        const filesystem::path& path,
+        const std::filesystem::path& path,
         access elem_access = access::read_write,
         int band_index = 1);
 
     template<class U>
     struct export_any_helper
     {
-      export_any_helper(const filesystem::path& path,
+      export_any_helper(const std::filesystem::path& path,
         optional<gdal_raster_view<U>> model)
         : m_path(path), m_model(model)
       {}
@@ -324,18 +325,18 @@ namespace pronto
         }
       }
 
-      const filesystem::path m_path;
+      const std::filesystem::path m_path;
       optional<gdal_raster_view<U> > m_model;
     };
 
 
     template<class U>
-    void export_any(const filesystem::path& path
+    void export_any(const std::filesystem::path& path
       , any_blind_raster raster, gdal_raster_view<U> model)
     {
       blind_function(export_any_helper<U>{path, model}, raster);
     }
 
-    void export_any(const filesystem::path& path, any_blind_raster raster);
+    void export_any(const std::filesystem::path& path, any_blind_raster raster);
   }
 }

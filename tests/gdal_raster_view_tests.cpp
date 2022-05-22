@@ -16,7 +16,7 @@
 #include <vector>
 
 namespace pr = pronto::raster;
-namespace fs = pr::filesystem;
+namespace fs = std::filesystem;
 
 bool test_assign_reference_proxy()
 {

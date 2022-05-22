@@ -1,10 +1,12 @@
 #include <pronto/raster/io.h>
+#include <random>
+#include <string>
 
 namespace pronto {
 	namespace raster {
 		namespace detail {
   GDALDataset* create_compressed_gdaldataset(
-	const filesystem::path& path, int rows, int cols
+	const std::filesystem::path& path, int rows, int cols
 	, GDALDataType datatype, int nBands)
   {
 	GDALAllRegister();
@@ -28,7 +30,7 @@ namespace pronto {
   }
 
   GDALDataset* create_standard_gdaldataset(
-	const filesystem::path& path, int rows, int cols
+	const std::filesystem::path& path, int rows, int cols
 	, GDALDataType datatype, int nBands)
   {
 	GDALAllRegister();
@@ -52,7 +54,7 @@ namespace pronto {
   }
 
   GDALDataset* create_compressed_gdaldataset_from_model
-  (const filesystem::path& path
+  (const std::filesystem::path& path
 	, const gdal_raster_view_base& model
 	, GDALDataType datatype, int nBands )
   {
@@ -78,7 +80,7 @@ namespace pronto {
 
 
   GDALDataset* create_standard_gdaldataset_from_model
-	( const filesystem::path& path
+	( const std::filesystem::path& path
 	, const gdal_raster_view_base& model
 	, GDALDataType datatype, int nBands )
   {
@@ -103,10 +105,30 @@ namespace pronto {
 	return dataset;
   }
 
-  filesystem::path get_temp_tiff_path()
+  std::filesystem::path get_unique_path(const std::filesystem::path& path)
   {
-	auto temp_path = filesystem::temp_directory_path();
-	filesystem::path unique_temp_path_model = temp_path /= "%%%%-%%%%-%%%%-%%%%.tif";
+
+	  const wchar_t hex[] = L"0123456789abcdef";
+	  std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	  std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+	  std::uniform_int_distribution<int> dis(0, 15);
+
+	  // convert path to wstring
+	  std::wstring s = path.wstring();
+
+	  // replace % for random hex number
+	  for (auto&& ch : s) {
+		  if (ch == L'%') {
+			  ch = hex[dis(gen)];
+		  }
+	  }
+	  return std::filesystem::path(s);
+  }
+
+  std::filesystem::path get_temp_tiff_path()
+  {
+	auto temp_path = std::filesystem::temp_directory_path();
+	std::filesystem::path unique_temp_path_model = temp_path /= "%%%%-%%%%-%%%%-%%%%.tif";
 	return get_unique_path(unique_temp_path_model);
   }
 
@@ -164,7 +186,7 @@ void dataset_closer::operator()(GDALRasterBand* band) const
 
 }
 std::shared_ptr<GDALDataset> open_dataset(
-	const filesystem::path& path, access access)
+	const std::filesystem::path& path, access access)
 {
 	GDALAllRegister();
 	GDALDataset* dataset = (GDALDataset*)GDALOpen(path.string().c_str()
@@ -208,7 +230,7 @@ std::shared_ptr<GDALDataset> open_dataset(
   }
 
 	std::shared_ptr<GDALRasterBand> create_band(
-	const filesystem::path& path, int rows, int cols,
+	const std::filesystem::path& path, int rows, int cols,
 	GDALDataType datatype, is_temporary is_temp)
   {
 	int nBands = 1;
@@ -227,7 +249,7 @@ std::shared_ptr<GDALDataset> open_dataset(
   }
 
   std::shared_ptr<GDALRasterBand> create_band_from_model(
-	const filesystem::path& path
+	const std::filesystem::path& path
 	, const gdal_raster_view_base& model,
 	GDALDataType datatype, is_temporary is_temp)
   {
@@ -245,7 +267,7 @@ std::shared_ptr<GDALDataset> open_dataset(
 	  : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
   }
  std::shared_ptr<GDALRasterBand> create_compressed_band_from_model(
-	const filesystem::path& path
+	const std::filesystem::path& path
 	, const gdal_raster_view_base& model,
 	GDALDataType datatype, is_temporary is_temp)
   {
@@ -265,7 +287,7 @@ std::shared_ptr<GDALDataset> open_dataset(
 } // detail
 
   any_blind_raster open_any(
-      const filesystem::path& path,
+      const std::filesystem::path& path,
       access elem_access,
       int band_index)
     {
@@ -296,7 +318,7 @@ std::shared_ptr<GDALDataset> open_dataset(
       }
     }
 
-    inline void export_any(const filesystem::path& path, any_blind_raster raster)
+    void export_any(const std::filesystem::path& path, any_blind_raster raster)
     {
       blind_function(export_any_helper<int>{path, none}, raster);
     }

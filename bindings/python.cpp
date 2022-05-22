@@ -25,7 +25,7 @@ void moving_window_pattern(const std::string& input, const std::string& output, 
 {
     double nodata_value = -9999;
     auto in = pr::open_single_pass<int> (input, pr::access::read_only, 1);
-    auto out = pr::create_from_model<double>(pr::filesystem::path(output), in);
+    auto out = pr::create_from_model<double>(std::filesystem::path(output), in);
     out.set_nodata_value(true, nodata_value);
 
     switch (w) {
