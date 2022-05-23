@@ -200,13 +200,12 @@ namespace pronto
       , const gdal_raster_view_base& model, IterationType it = IterationType{}
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
+      if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
       }
 
-      std::shared_ptr<GDALRasterBand> band = detail::create_band_from_model
-       (path, model, data_type, is_temporary::no);
+      auto band = detail::create_band_from_model(path, model, data_type
+        , is_temporary::no);
 
       return gdal_raster_view<T, IterationType>(band);
     }
@@ -217,13 +216,12 @@ namespace pronto
       , const gdal_raster_view_base& model, IterationType = IterationType{}
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
+      if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
       }
 
-      std::shared_ptr<GDALRasterBand> band = detail::create_compressed_band_from_model
-      (path, model, data_type, is_temporary::no);
+      auto band = detail::create_compressed_band_from_model(path, model
+        , data_type, is_temporary::no);
 
       return gdal_raster_view<T, IterationType>(band);
     }
@@ -233,15 +231,14 @@ namespace pronto
       const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
+      if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
       }
 
       auto path = detail::get_temp_tiff_path();
 
-      std::shared_ptr<GDALRasterBand> band = detail::create_band_from_model
-        (path, model, data_type, is_temporary::yes);
+      auto band = detail::create_band_from_model(path, model, data_type
+        , is_temporary::yes);
 
       return gdal_raster_view<T, IterationType>(band);
     }
@@ -251,10 +248,10 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      if (data_type == GDT_Unknown)
-      {
+      if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
       }
+
       return gdal_raster_view<T>(band);
     }
 
@@ -263,50 +260,35 @@ namespace pronto
       GDALRasterBand* band
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
-      std::shared_ptr<GDALRasterBand> sh_band(band, [](GDALRasterBand*) {});
+      auto sh_band(band, [](GDALRasterBand*) {});
       return make_gdalrasterdata_view<T>(sh_band, data_type);
     }
 
-	// inline because this is a non-template function and strictly speaking
-	// this should be in a cpp file
-    any_blind_raster open_any(
-        const std::filesystem::path& path,
-        access elem_access = access::read_write,
-        int band_index = 1);
+    any_blind_raster open_any(const std::filesystem::path& path
+      , access elem_access = access::read_write, int band_index = 1);
 
-    template<class U>
     struct export_any_helper
     {
-      export_any_helper(const std::filesystem::path& path,
-        optional<gdal_raster_view<U>> model)
-        : m_path(path), m_model(model)
-      {}
+      export_any_helper(const std::filesystem::path& path, const gdal_raster_view_base& model);
+      export_any_helper(const std::filesystem::path& path);
 
       template<class T>
-      void operator()(any_raster<T> in)
-      {
+      void operator()(any_raster<T> in) {
         if (m_model) {
           auto out = create_from_model<T>(m_path, *m_model);
           assign(out, in);
-        }
-        else
-        {
+        } else {
           auto out = create<T>(m_path, in.rows(), in.cols());
           assign(out, in);
         }
       }
 
       const std::filesystem::path m_path;
-      optional<gdal_raster_view<U> > m_model;
+      std::optional<std::reference_wrapper<const gdal_raster_view_base > > m_model;
     };
 
-
-    template<class U>
-    void export_any(const std::filesystem::path& path
-      , any_blind_raster raster, gdal_raster_view<U> model)
-    {
-      blind_function(export_any_helper<U>{path, model}, raster);
-    }
+    void export_any(const std::filesystem::path& path, any_blind_raster raster
+      , const gdal_raster_view_base& model);
 
     void export_any(const std::filesystem::path& path, any_blind_raster raster);
   }

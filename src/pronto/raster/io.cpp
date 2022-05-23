@@ -310,10 +310,25 @@ namespace pronto
         return any_blind_raster{};
       }
     }
-  
+
+    export_any_helper::export_any_helper(const std::filesystem::path& path,
+      const gdal_raster_view_base& model)
+      : m_path(path), m_model(std::ref(model))
+    {}
+
+    export_any_helper::export_any_helper(const std::filesystem::path& path)
+      : m_path(path), m_model()
+    {}
+
+    void export_any(const std::filesystem::path& path
+      , any_blind_raster raster, const gdal_raster_view_base& model)
+    {
+      blind_function(export_any_helper{ path, model }, raster);
+    }
+
     void export_any(const std::filesystem::path& path, any_blind_raster raster)
     {
-      blind_function(export_any_helper<int>{path, none}, raster);
+      blind_function(export_any_helper{path}, raster);
     }
   }
 }
