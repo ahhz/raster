@@ -9,10 +9,9 @@
 //
 
 #pragma once
-
-#include <pronto/raster/any.h>
 #include <pronto/raster/any_raster.h>
 
+#include <any>
 #include <functional>
 
 namespace pronto {
@@ -38,7 +37,7 @@ namespace pronto {
       template<class T>
       any_raster<T> get() const // throws bad_any_cast for the wrong T
       {
-        return any_cast<any_raster<T>>(m_data);
+        return std::any_cast<any_raster<T>>(m_data);
       }
 
       int rows() const
@@ -62,7 +61,7 @@ namespace pronto {
       }
 
     private:
-      any m_data;
+      std::any m_data;
       std::function<int()> m_get_rows;
       std::function<int()> m_get_cols;
       std::function<int()> m_get_size;

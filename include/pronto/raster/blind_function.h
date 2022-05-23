@@ -42,7 +42,7 @@ namespace pronto {
         {
           r.get<T>();
         }
-        catch (const bad_any_cast&)
+        catch (const std::bad_any_cast&)
         {
           return false;
         }
@@ -52,7 +52,7 @@ namespace pronto {
       template<std::size_t I>
       std::size_t  index_in_list_helper(const any_blind_raster& r)
       {
-        throw bad_any_cast{}; // none of the types in the list is the value_type
+        throw std::bad_any_cast{}; // none of the types in the list is the value_type
         return 0;
       }
 

@@ -10,12 +10,12 @@
 
 #pragma once
 
-#include <pronto/raster/any.h>
 #include <pronto/raster/reference_proxy.h>
 #include <pronto/raster/traits.h>
 
-#include <type_traits>
+#include <any>
 #include <cassert>
+#include <type_traits>
 
 namespace pronto {
   namespace raster {
@@ -29,32 +29,32 @@ namespace pronto {
     {
       using value_type = typename std::iterator_traits<Iter>::value_type;
 
-      inline static void increment(any& i)
+      inline static void increment(std::any& i)
       {
-        ++any_cast<Iter&>(i);
+        ++std::any_cast<Iter&>(i);
       }
 
-      inline static value_type get(const any& i)
+      inline static value_type get(const std::any& i)
       {
-        return *any_cast<const Iter&>(i);
+        return *std::any_cast<const Iter&>(i);
       }
 
-      inline static bool is_equal(const any& i, const any& j)
+      inline static bool is_equal(const std::any& i, const std::any& j)
       {
         return any_cast<const Iter&>(i) == any_cast<const Iter&>(j);
       }
 
-      inline static void put(const any& i, const value_type& v, const std::true_type&) // assignable
+      inline static void put(const std::any& i, const value_type& v, const std::true_type&) // assignable
       {
         *any_cast<const Iter&>(i) = v;
       }
 
-      inline static void put(const any& i, const value_type& v, const std::false_type&) // unassignable
+      inline static void put(const std::any& i, const value_type& v, const std::false_type&) // unassignable
       {
         assert(false); // Trying to assign
       }
 
-      inline static void put(const any& i, const value_type& v)
+      inline static void put(const std::any& i, const value_type& v)
       {
         using ref_type = typename std::iterator_traits<Iter>::reference;
         using assignable = typename std::is_assignable<ref_type, value_type>::type;
@@ -69,45 +69,45 @@ namespace pronto {
       using iterator = any_raster_iterator<value_type>;
       using const_iterator = any_raster_const_iterator<value_type>;
 
-      static iterator begin(any& holding)
+      static iterator begin(std::any& holding)
       {
-        return any_cast<Raster&>(holding).begin();
+        return std::any_cast<Raster&>(holding).begin();
       }
 
-      static iterator end(any& holding)
+      static iterator end(std::any& holding)
       {
-        return any_cast<Raster&>(holding).end();
+        return std::any_cast<Raster&>(holding).end();
       }
 
-      static const_iterator cbegin(const any& holding)
+      static const_iterator cbegin(const std::any& holding)
       {
-        return any_cast<const Raster&>(holding).begin();
+        return std::any_cast<const Raster&>(holding).begin();
       }
 
-      static const_iterator cend(const any& holding)
+      static const_iterator cend(const std::any& holding)
       {
-        return any_cast<const Raster&>(holding).end();
+        return std::any_cast<const Raster&>(holding).end();
       }
 
-      static int rows(const any& holding)
+      static int rows(const std::any& holding)
       {
-        return any_cast<const Raster&>(holding).rows();
+        return std::any_cast<const Raster&>(holding).rows();
       }
 
-      static int cols(const any& holding)
+      static int cols(const std::any& holding)
       {
-        return any_cast<const Raster&>(holding).cols();
+        return std::any_cast<const Raster&>(holding).cols();
       }
 
-      static int size(const any& holding)
+      static int size(const std::any& holding)
       {
-        return any_cast<const Raster&>(holding).size();
+        return std::any_cast<const Raster&>(holding).size();
       }
 
-      static any_raster<value_type> sub_raster(const any& holding, int start_row, int start_col, int rows, int cols)
+      static any_raster<value_type> sub_raster(const std::any& holding, int start_row, int start_col, int rows, int cols)
       {
         return any_raster<value_type>(
-          any_cast<const Raster&>(holding).sub_raster(start_row, start_col, rows, cols));
+          std::any_cast<const Raster&>(holding).sub_raster(start_row, start_col, rows, cols));
       }
     };
 
@@ -168,13 +168,13 @@ namespace pronto {
         return m_put(m_holding, v);
       }
 
-      T(*m_get)(const any&);
-      void(*m_put)(const any&, const T&);
-      void(*m_increment)(any&);
-      bool(*m_is_equal)(const any&, const any&);
+      T(*m_get)(const std::any&);
+      void(*m_put)(const std::any&, const T&);
+      void(*m_increment)(std::any&);
+      bool(*m_is_equal)(const std::any&, const std::any&);
 
     public:
-      any m_holding;
+      std::any m_holding;
     };
 
     template<class T>
@@ -227,11 +227,11 @@ namespace pronto {
       inline T get() const { return m_get(m_holding); }
 
     private:
-      T(*m_get)(const any&);
-      void(*m_increment)(any&);
-      bool(*m_is_equal)(const any&, const any&);
+      T(*m_get)(const std::any&);
+      void(*m_increment)(std::any&);
+      bool(*m_is_equal)(const std::any&, const std::any&);
 
-      any m_holding;
+      std::any m_holding;
     };
 
     template<class T>
@@ -267,16 +267,16 @@ namespace pronto {
       { return m_sub_raster(m_holding, start_row, start_col, rows, cols); }
 
     private:
-      iterator(*m_begin)(any&);
-      iterator(*m_end)(any&);
-      const_iterator(*m_cbegin)(const any&);
-      const_iterator(*m_cend)(const any&);
-      int(*m_rows)(const any&);
-      int(*m_cols)(const any&);
-      int(*m_size)(const any&);
-      any_raster<T>(*m_sub_raster)(const any&, int, int, int, int);
+      iterator(*m_begin)(std::any&);
+      iterator(*m_end)(std::any&);
+      const_iterator(*m_cbegin)(const std::any&);
+      const_iterator(*m_cend)(const std::any&);
+      int(*m_rows)(const std::any&);
+      int(*m_cols)(const std::any&);
+      int(*m_size)(const std::any&);
+      any_raster<T>(*m_sub_raster)(const std::any&, int, int, int, int);
 
-      any m_holding;
+      std::any m_holding;
     };
 
     template<class Raster>

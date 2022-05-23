@@ -17,7 +17,6 @@
 #include <pronto/raster/assign.h>
 #include <pronto/raster/blind_function.h>
 #include <pronto/raster/exceptions.h>
-#include <pronto/raster/filesystem.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_view.h>
 #include <pronto/raster/optional.h>
