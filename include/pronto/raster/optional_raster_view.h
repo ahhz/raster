@@ -10,18 +10,17 @@
 
 #pragma once
 
-#include <pronto/raster/optional.h>
 #include <pronto/raster/transform_raster_view.h>
-
+#include <optional>
 namespace pronto {
   namespace raster {
 
     struct make_optional_value
     {
       template<class T>
-      optional<T> operator()(const T& v) const  
+      std::optional<T> operator()(const T& v) const  
       {
-        return optional<T>(v);
+        return std::optional<T>(v);
       }
     };
 

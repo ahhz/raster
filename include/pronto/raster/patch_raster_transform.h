@@ -56,12 +56,12 @@ namespace pronto {
         : m_patch_info(patch_info)
       {}
     
-      optional<patch_info> operator()(int index) const
+      std::optional<patch_info> operator()(int index) const
       {
         if(index  != -1){
           return (*m_patch_info)[index];
         } else{
-          return none;
+          return std::nullopt;
         }
       }
   

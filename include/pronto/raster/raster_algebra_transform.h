@@ -21,7 +21,7 @@
 namespace pronto {
   namespace raster {
 
-    using optional_dimension = optional<std::pair<int, int> >;
+    using optional_dimension = std::optional<std::pair<int, int> >;
 
     optional_dimension get_dimension()
     {

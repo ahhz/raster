@@ -244,9 +244,9 @@ namespace pronto {
         }
       }
 
-      optional<T> extract() const
+      std::optional<T> extract() const
       {
-        if (m_counts.empty()) return none;
+        if (m_counts.empty()) return std::nullopt;
         return m_counts.front().first;
       }
       

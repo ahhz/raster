@@ -93,7 +93,7 @@ namespace pronto {
         const std::size_t m = categories.size();
 
         // Need at least three categories to calculate interspersion
-        if (m < 3) return none;
+        if (m < 3) return std::nullopt;
 
         const double nominator = -std::log(0.5 * m * (m - 1));
         return numerator / nominator;

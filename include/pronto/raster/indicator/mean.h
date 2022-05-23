@@ -72,10 +72,10 @@ namespace pronto {
         sum -= subtotal.sum;
       }
 
-      optional<double> extract() const
+      std::optional<double> extract() const
       {
-        if (weight > 0) return optional<double>(sum / weight);
-        return none;
+        if (weight > 0) return std::optional<double>(sum / weight);
+        return std::nullopt;
       }
 
       double weight;

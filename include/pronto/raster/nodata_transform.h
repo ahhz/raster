@@ -34,10 +34,10 @@ namespace pronto
       nodata_to_optional_functor& operator=(nodata_to_optional_functor&&) 
         = default;
      
-      optional<T> operator()(const T& value) const
+      std::optional<T> operator()(const T& value) const
       {
-        if (value == m_nodata_value) return none;
-        else return optional<T>(value);
+        if (value == m_nodata_value) return std::nullopt;
+        else return std::optional<T>(value);
       }
 
     private:

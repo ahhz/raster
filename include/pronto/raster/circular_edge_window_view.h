@@ -352,7 +352,7 @@ namespace pronto {
                
         padded_edge_view h_padded = pad(optionalize(h_edge(m_raster) )
           , radius_round, radius_round + 1, radius_round, radius_round + 1
-          , none);
+          , std::nullopt);
         // + 1 makes the next step easier because it means that the end of 
         // a stretch over a row is still on the same row and not the first 
         // element of the next row
@@ -360,7 +360,7 @@ namespace pronto {
 
         padded_edge_view v_padded = pad(optionalize(v_edge(m_raster))
           , radius_round, radius_round + 1, radius_round, radius_round + 1
-          , none);
+          , std::nullopt);
         // + 1 makes the next step easier because it means that the end of 
         // a stretch over a row is still on the same row and not the first 
         // element of the next row

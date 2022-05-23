@@ -182,12 +182,12 @@ namespace pronto
         return i;
       }
 
-      optional<T> get_nodata_value()
+      std::optional<T> get_nodata_value()
       {
         int* check = nullptr;
         double value = m_band->GetNoDataValue(check);
-        if (check) return optional<T>{static_cast<T>(value)};
-        return optional<T>{};
+        if (check) return std::optional<T>{static_cast<T>(value)};
+        return std::optional<T>{};
       }
 
       void set_nodata_value(bool has_nodata, const T& value)

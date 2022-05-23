@@ -62,7 +62,7 @@ namespace pronto
       struct block
       {
         seed_type m_seed;
-        optional<lru_iterator> m_cached_block;
+        std::optional<lru_iterator> m_cached_block;
       };
 
     public:
@@ -424,7 +424,7 @@ namespace pronto
   
           if (!(i->m_lock_count > 0))
           {
-            bl.m_cached_block = none;
+            bl.m_cached_block = std::nullopt;
             m_lru.splice(m_lru.end(), m_lru, i);
             return i;
           }
@@ -479,7 +479,7 @@ namespace pronto
         cached_random_blocks copy = *this;
         for (auto&& i : copy.m_blocks)
         {
-          i.m_cached_block = none;
+          i.m_cached_block = std::nullopt;
         }
         copy.m_lru.clear();
         copy.m_first_row = m_first_row + first_row;

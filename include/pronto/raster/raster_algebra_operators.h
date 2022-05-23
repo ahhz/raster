@@ -227,7 +227,7 @@ namespace pronto {
       using function_return_type = decltype(std::declval<function_type>()
         (std::declval<common_type>(), std::declval<common_type>()));
 
-      using return_type = optional<function_return_type>;
+      using return_type = std::optional<function_return_type>;
 
       static return_type eval(const T1& v1, const T2& v2)
       {
@@ -298,14 +298,14 @@ namespace pronto {
       }
 
       template<class T>
-      optional<decltype(F<T>{}(T{})) >
-        operator()(optional<T>&& v) const
+      std::optional<decltype(F<T>{}(T{})) >
+        operator()(std::optional<T>&& v) const
       {
         if (v) {
           return F<T>{}(*v);
         }
         else {
-          return optional<T>{};
+          return std::optional<T>{};
         }
       }
 

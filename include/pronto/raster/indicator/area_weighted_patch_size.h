@@ -70,10 +70,10 @@ namespace pronto {
         m_weight -= w * subtotal.m_weight;
       }
 
-      optional<double> extract() const
+      std::optional<double> extract() const
       {
         if (m_weight == 0) {
-          return none;
+          return std::nullopt;
         }
         else {
           return m_sum / m_weight;

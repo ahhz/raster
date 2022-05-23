@@ -14,7 +14,6 @@
 
 #include <pronto/raster/any_blind_raster.h>
 #include <pronto/raster/blind_function.h>
-#include <pronto/raster/optional.h>
 #include <pronto/raster/raster_algebra_wrapper.h>
 
 #include <iostream>
@@ -58,7 +57,7 @@ namespace pronto {
       }
 
       template<class T>
-      void cout_value(const optional<T>& v)
+      void cout_value(const std::optional<T>& v)
       {
         if (v) cout_value(*v);
         else std::cout << "-";

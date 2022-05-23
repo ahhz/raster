@@ -272,7 +272,7 @@ namespace pronto {
         int sqr_radius_round = static_cast<int>(sqr_radius);
                
         padded_view padded = pad(optionalize(m_raster), radius_round,
-            radius_round + 1, radius_round, radius_round + 1, none);
+            radius_round + 1, radius_round, radius_round + 1, std::nullopt);
         // + 1 makes the next step easier because it means that the end of 
         // a stretch over a row is still on the same row and not the first 
         // element of the next row

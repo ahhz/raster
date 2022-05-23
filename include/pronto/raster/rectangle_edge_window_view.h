@@ -79,8 +79,8 @@ namespace pronto {
         , IndicatorGenerator indicator_generator)
         : m_indicator_generator(indicator_generator)
       {
-        m_h_edges = pad(optionalize(h_edge(raster)), 0, 1, 0, 0, none);
-        m_v_edges = pad(optionalize(v_edge(raster)), 0, 0, 0, 1, none);
+        m_h_edges = pad(optionalize(h_edge(raster)), 0, 1, 0, 0, std::nullopt);
+        m_v_edges = pad(optionalize(v_edge(raster)), 0, 0, 0, 1, std::nullopt);
         m_h_window = single_window_view(m_h_edges, rows_before, rows_after - 1
           , cols_before, cols_after, m_indicator_generator);
         m_v_window = single_window_view(m_v_edges, rows_before, rows_after

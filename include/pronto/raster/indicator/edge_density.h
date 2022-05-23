@@ -50,10 +50,10 @@ namespace pronto {
         count_edge -= subtotal.count_edge;
       }
 
-      optional<double> extract() const
+      std::optional<double> extract() const
       {
         if (count_all > 0) return count_edge / count_all;
-        else return optional<double>{};
+        else return std::optional<double>{};
       }
 
       double count_all;

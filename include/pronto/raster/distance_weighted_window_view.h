@@ -103,7 +103,7 @@ namespace pronto {
         WeightType> window, IndicatorGenerator gen)
     {
       auto subraster_raster = make_square_subraster_window_view(optionalize(raster)
-        , window.m_kernel_radius, none);
+        , window.m_kernel_radius, std::nullopt);
       auto weight_raster_raster = uniform(raster.rows(), raster.cols(), window.m_kernel);
       auto global_indicator_function = global_indicator<IndicatorGenerator>(gen);
       return transform(global_indicator_function, subraster_raster, weight_raster_raster);

@@ -13,15 +13,6 @@
 
 namespace pronto {
   namespace raster {
-    using std::optional;
-    using std::make_optional;
-    using none_t = std::nullopt_t;
-    static const none_t none = std::nullopt;
-  }
-}
-
-namespace pronto {
-  namespace raster {
 
     namespace detail {
       template<class V>
@@ -41,27 +32,27 @@ namespace pronto {
       };
 
       template<class V>
-      struct generic_optional_helper< optional<V> >
+      struct generic_optional_helper< std::optional<V> >
       {
         static const bool is_optional = true;
 
         using value_type = V;
-        static bool is_initialized(const optional<V>& v) { return v; }
-        static const V& get_value(const optional<V>& v) { return *v; }
-        static V& get_value(optional<V>& v) { return *v; }
+        static bool is_initialized(const std::optional<V>& v) { return v; }
+        static const V& get_value(const std::optional<V>& v) { return *v; }
+        static V& get_value(std::optional<V>& v) { return *v; }
 
         using recursive_value_type = typename generic_optional_helper<V>::recursive_value_type;
-        static bool recursive_is_initialized(const optional<V>& v)
+        static bool recursive_is_initialized(const std::optional<V>& v)
         {
           return v && generic_optional_helper<V>::recursive_is_initialized(*v);
         }
 
-        static const recursive_value_type& recursive_get_value(const optional<V>& v)
+        static const recursive_value_type& recursive_get_value(const std::optional<V>& v)
         {
           return generic_optional_helper<V>::recursive_get_value(*v);
         }
 
-        static recursive_value_type& recursive_get_value(optional<V>& v)
+        static recursive_value_type& recursive_get_value(std::optional<V>& v)
         {
           return generic_optional_helper<V>::recursive_get_value(*v);
         }
@@ -135,14 +126,14 @@ namespace pronto {
 
       template<class... Args>
       auto operator()(Args&&... args) const
-        ->optional<decltype(m_f(recursive_get_value(std::forward<Args>(args))...))>
+        ->std::optional<decltype(m_f(recursive_get_value(std::forward<Args>(args))...))>
       {
         if (are_all_initialized(args...))
         {
           return m_f(recursive_get_value(std::forward<Args>(args))...);
         }
         else {
-          return none;
+          return std::nullopt;
         }
 
       }

@@ -286,7 +286,7 @@ namespace pronto {
       //friend class const_iterator;
       friend class transform_raster_iterator<transform_raster_view,
         typename traits<R>::const_iterator...>;
-      mutable optional<function_type> m_function;
+      mutable std::optional<function_type> m_function;
     };
 
 
