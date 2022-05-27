@@ -1,3 +1,5 @@
+#define _STL_CRT_SECURE_INVALID_PARAMETER(expr) _CRT_SECURE_INVALID_PARAMETER(expr)
+
 #include <pybind11/pybind11.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/moving_window_indicator.h>

@@ -180,8 +180,6 @@ if(CREATE_PRONTO_RASTER_PYTHON)
 	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_python PRIVATE pronto_raster)
 	target_link_libraries(pronto_python PRIVATE pybind11::module)
-	install(TARGETS pronto_python LIBRARY DESTINATION .)
-	install(TARGETS pronto_raster LIBRARY DESTINATION .)
 endif()
 
 ################################################################

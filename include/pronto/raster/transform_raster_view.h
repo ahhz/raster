@@ -10,9 +10,9 @@
 
 #pragma once
 
-#include <pronto/raster/index_sequence.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
+#include <pronto/raster/iterator_facade.h>
 
 #include <functional>
 #include <iterator>
@@ -21,18 +21,23 @@
 namespace pronto {
   namespace raster {
 
+
     // Now casting all inputs to the function to their value_type
     // this means that the proxy references will be cast, and therefore
     // all iterators are non-mutable.
 
     template<class View, class... I>
-    class transform_raster_iterator
+    class transform_raster_iterator : public iterator_facade<transform_raster_iterator<View, I...> >
     {
     private:
       static const std::size_t N = sizeof...(I);
-      using tuple_indices = make_index_sequence<N>;
-
+      using tuple_indices = std::make_index_sequence<N>;
     public:
+      using value_type = typename View::value_type;
+      using reference = value_type;
+      const static bool is_mutable = false;
+      const static bool is_single_pass = false; // should really check if any of the iterators is single_pass
+      using difference_type = std::ptrdiff_t; // could get this from the first Iter
       transform_raster_iterator(const View& view, const I& ...iters)
         : m_view(&view), m_iters(iters...)
       {
@@ -45,137 +50,34 @@ namespace pronto {
       transform_raster_iterator& operator=(const transform_raster_iterator&) = default; //delete because lambdas cannot be assigned
       transform_raster_iterator& operator=(transform_raster_iterator&&) = default;
 
-      using value_type = typename View::value_type;
-      using reference = value_type;
-      using pointer = void;
-      using difference_type = std::ptrdiff_t;
-      using iterator_category = std::output_iterator_tag;
-
-      transform_raster_iterator& operator++()
-      {
-         increment(tuple_indices{});
-         return *this;
-      }
-
-      transform_raster_iterator operator++(int)
-      {
-        transform_raster_iterator temp(*this);
-        ++(*this);
-        return temp;
-      }
-
-      transform_raster_iterator& operator+=(const difference_type& n)
-      {
-        increment_step(n, tuple_indices{});
-        return *this;
-      }
-
-      transform_raster_iterator operator+(const difference_type& n) const
-      {
-		    transform_raster_iterator temp(*this);
-        temp += n;
-        return temp;
-      }
-
-      transform_raster_iterator& operator--()
-      {
-        decrement(tuple_indices{});
-        return *this;
-      }
-
-      transform_raster_iterator operator--(int)
-      {
-        transform_raster_iterator temp(*this);
-        --(*this);
-        return temp;
-      }
-
-      transform_raster_iterator& operator-=(const difference_type& n)
-      {
-        decrement_step(n, tuple_indices{});
-        return *this;
-      }
-
-      transform_raster_iterator operator-(const difference_type& n) const
-      {
-		    transform_raster_iterator temp(*this);
-        temp -= n;
-        return temp;
-      }
-
-      reference operator*() const
-      {
-        return dereference(tuple_indices{});
-      }
-
-      reference operator[](std::ptrdiff_t distance) const
-      {
-        return *(operator+(distance));
-      }
-
-      bool operator==(const transform_raster_iterator& b) const
-      {
-        return N==0 || std::get<0>(m_iters) == std::get<0>(b.m_iters);
-      }
-
-      bool operator!=(const transform_raster_iterator& b) const
-      {
-        return N != 0 && std::get<0>(m_iters) != std::get<0>(b.m_iters);
-      }
-
-      bool operator<(const transform_raster_iterator& b) const
-      {
-        return N != 0 && std::get<0>(m_iters) < std::get<0>(b.m_iters);
-      }
-
-      bool operator>(const transform_raster_iterator& b) const
-      {
-        return N != 0 && std::get<0>(m_iters) > std::get<0>(b.m_iters);
-      }
-
-      bool operator<=(const transform_raster_iterator& b) const
-      {
-        return N != 0 && std::get<0>(m_iters) <= std::get<0>(b.m_iters);
-      }
-
-      bool operator>=(const transform_raster_iterator& b) const
-      {
-        return N != 0 && std::get<0>(m_iters) >= std::get<0>(b.m_iters);
-      }
-
 
     private:
-      //
-      //https://stackoverflow.com/questions/16387354/template-tuple-calling-a-function-on-each-element
-      //
-      // actually we know that Pack is index_sequence, but this is more future proof
-
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void increment(Pack<S...>)
+      template<std::size_t ...S>
+      void increment(std::index_sequence<S...>)
       {
         auto dummy = { (++std::get<S>(m_iters), 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void decrement(Pack<S...>)
+      template<std::size_t ...S>
+      void decrement(std::index_sequence<S...>)
       {
         auto dummy = { (--std::get<S>(m_iters), 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void increment_step(difference_type step, Pack<S...>)
+      template<std::size_t ...S>
+      void increment_step(difference_type step, std::index_sequence<S...>)
       {
         auto dummy = { (std::get<S>(m_iters) += step, 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void decrement_step(difference_type step, Pack<S...>)
+      template<std::size_t ...S>
+      void decrement_step(difference_type step, std::index_sequence<S...>)
       {
         auto dummy = { (std::get<S>(m_iters) -= step, 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      reference dereference(Pack<S...>) const
+      template<std::size_t ...S>
+      reference dereference(std::index_sequence<S...>) const
       {
         // #pragma warning( push )
         // #pragma warning( disable : 4244 ) // suppressing warnings due to casts
@@ -188,6 +90,36 @@ namespace pronto {
         // #pragma warning( pop )
       }
 
+    public:
+      friend iterator_facade<transform_raster_iterator<View, I...> >;
+     
+      reference dereference() const
+      {
+        return dereference(tuple_indices{});
+      }
+      void increment() 
+      {
+        increment(tuple_indices{});
+      }
+      void decrement() 
+      {
+        decrement(tuple_indices{});
+      }
+
+      void advance(difference_type n)
+      {
+        increment_step(n, tuple_indices{});
+      }
+
+      bool equal_to(const transform_raster_iterator& b) const
+      {
+        return N == 0 || std::get<0>(m_iters) == std::get<0>(b.m_iters);
+      }
+
+      difference_type distance_to(const transform_raster_iterator& b) const
+      {
+       return N > 0 ? std::get<0>(b.m_iters) - std::get<0>(b) : 0;
+      }
 
       const View* m_view;
       std::tuple<I...> m_iters;
@@ -203,7 +135,7 @@ namespace pronto {
       using function_type = F;
 
       static const std::size_t N = sizeof...(R);
-      using tuple_indices = make_index_sequence<N>;
+      using tuple_indices = std::make_index_sequence<N>;
 
     public:
       transform_raster_view() = default;
@@ -256,23 +188,23 @@ namespace pronto {
           return sub_raster(tuple_indices{}, start_row, start_col, rows, cols);
         }
 
-    private:
+    public:
 
       // Not allowing the function to change values in the rasters
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      const_iterator begin(Pack<S...>) const
+      template<std::size_t ...S>
+      const_iterator begin(std::index_sequence<S...>) const
       {
         return const_iterator(*this, std::get<S>(m_rasters).begin()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      const_iterator end(Pack<S...>) const
+      template<std::size_t ...S>
+      const_iterator end(std::index_sequence<S...>) const
       {
         return const_iterator(*this, std::get<S>(m_rasters).end()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      sub_raster_type sub_raster(Pack<S...>
+      template<std::size_t ...S>
+      sub_raster_type sub_raster(std::index_sequence<S...>
         , int start_row, int start_col, int rows, int cols) const
       {
         assert(start_row >= 0 && start_col >= 0 && rows + start_row <= this->rows() && cols + start_col <= this->cols());
