@@ -10,14 +10,15 @@
 
 #pragma once
 
+#include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
-#include <pronto/raster/iterator_facade.h>
 
 #include <functional>
 #include <iterator>
 #include <utility>
 #include <cassert>
+
 namespace pronto {
   namespace raster {
 
@@ -65,29 +66,19 @@ namespace pronto {
       }
 
       template<std::size_t ...S>
-      void increment_step(difference_type step, std::index_sequence<S...>)
+      void advance(difference_type step, std::index_sequence<S...>)
       {
         auto dummy = { (std::get<S>(m_iters) += step, 0)... };
       }
-
-      template<std::size_t ...S>
-      void decrement_step(difference_type step, std::index_sequence<S...>)
-      {
-        auto dummy = { (std::get<S>(m_iters) -= step, 0)... };
-      }
-
+      
       template<std::size_t ...S>
       reference dereference(std::index_sequence<S...>) const
       {
-        // #pragma warning( push )
-        // #pragma warning( disable : 4244 ) // suppressing warnings due to casts
-        // #pragma warning( disable : 4800 ) // suppressing warnings due to casts
-        auto& f = *(m_view->m_function);
+         auto& f = *(m_view->m_function);
         return f(
           static_cast<typename
           std::iterator_traits<typename std::tuple_element<S, std::tuple<I...>>::type>::value_type>
           (*std::get<S>(m_iters))...);
-        // #pragma warning( pop )
       }
 
     public:
@@ -108,7 +99,7 @@ namespace pronto {
 
       void advance(difference_type n)
       {
-        increment_step(n, tuple_indices{});
+        advance(n, tuple_indices{});
       }
 
       bool equal_to(const transform_raster_iterator& b) const
