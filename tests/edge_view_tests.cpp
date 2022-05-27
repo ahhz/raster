@@ -10,7 +10,6 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <pronto/raster/filesystem.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/gdal_raster_view.h>
 #include <pronto/raster/edge_raster.h>
@@ -18,7 +17,7 @@
 #include <vector>
 
 namespace pr = pronto::raster;
-namespace fs = std::filesystem;
+
 
 bool test_v_edge()
 {
