@@ -10,10 +10,10 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <pronto/raster/filesystem.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/gdal_raster_view.h>
 
+#include <filesystem>
 #include <vector>
 
 namespace pr = pronto::raster;
