@@ -24,9 +24,6 @@ namespace pronto
 {
   namespace raster
   {
-    class single_pass {};
-    class multi_pass{};
-
     template<class, class> class gdal_raster_view; // forward declaration
 
     template<class T, class AccessType, class IterationType = multi_pass>

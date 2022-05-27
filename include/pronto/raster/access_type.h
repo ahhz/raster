@@ -36,5 +36,8 @@ namespace pronto
       default:return GA_Update;
       }
     }
+
+    class single_pass {};
+    class multi_pass {};
   }
 }
