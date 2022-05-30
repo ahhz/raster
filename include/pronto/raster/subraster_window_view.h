@@ -9,7 +9,6 @@
 //
 #pragma once
 
-#include <pronto/raster/index_sequence.h>
 #include <pronto/raster/padded_raster_view.h>
 #include <pronto/raster/traits.h>
 

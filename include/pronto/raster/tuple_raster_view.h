@@ -9,7 +9,7 @@
 //
 #pragma once
 
-#include <pronto/raster/index_sequence.h>
+
 #include <pronto/raster/traits.h>
 
 #include <iterator>
@@ -130,34 +130,34 @@ namespace pronto {
 
     private:
       static const std::size_t N = sizeof...(I);
-      using tuple_indices = make_index_sequence<N>;
+      using tuple_indices = std::make_index_sequence<N>;
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void increment(Pack<S...>)
+      template<std::size_t ...S>
+      void increment(std::index_sequence<S...>)
       {
         auto dummy = { (++std::get<S>(m_iters), 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void decrement(Pack<S...>)
+      template< std::size_t ...S>
+      void decrement(std::index_sequence<S...>)
       {
         auto dummy = { (++std::get<S>(m_iters), 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void increment_step(difference_type step, Pack<S...>)
+      template<std::size_t ...S>
+      void increment_step(difference_type step, std::index_sequence<S...>)
       {
         auto dummy = { (std::get<S>(m_iters) += step, 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      void decrement_step(difference_type step, Pack<S...>)
+      template<std::size_t ...S>
+      void decrement_step(difference_type step, std::index_sequence<S...>)
       {
         auto dummy = { (std::get<S>(m_iters) -= step, 0)... };
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      reference dereference(Pack<S...>) const
+      template<std::size_t ...S>
+      reference dereference(std::index_sequence<S...>) const
       {
         return reference(*std::get<S>(m_iters)...);
       }
@@ -229,35 +229,35 @@ namespace pronto {
 
     private:
       static const std::size_t N = sizeof...(R);
-      using tuple_indices = make_index_sequence<N>;
+      using tuple_indices = std::make_index_sequence<N>;
 
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      iterator begin(Pack<S...>)
+      template<std::size_t ...S>
+      iterator begin(std::index_sequence<S...>)
       {
         return iterator(std::get<S>(m_rasters).begin()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      iterator end(Pack<S...>)
+      template<std::size_t ...S>
+      iterator end(std::index_sequence<S...>)
       {
         return iterator(std::get<S>(m_rasters).end()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      const_iterator begin(Pack<S...>) const
+      template<std::size_t ...S>
+      const_iterator begin(std::index_sequence<S...>) const
       {
         return const_iterator(std::get<S>(m_rasters).begin()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      const_iterator end(Pack<S...>) const
+      template<std::size_t ...S>
+      const_iterator end(std::index_sequence<S...>) const
       {
         return const_iterator(std::get<S>(m_rasters).end()...);
       }
 
-      template<template<std::size_t...> class Pack, std::size_t ...S>
-      sub_raster_type sub_raster(Pack<S...>
+      template< std::size_t ...S>
+      sub_raster_type sub_raster(std::index_sequence<S...>
         , int start_row, int start_col, int rows, int cols) const
       {
         return tuple_raster_view<typename traits<R>::sub_raster...>
