@@ -59,7 +59,6 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_includes.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_iterator.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/gdal_raster_view.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/index_sequence.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator_functions.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/io.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/iterator_facade.h
