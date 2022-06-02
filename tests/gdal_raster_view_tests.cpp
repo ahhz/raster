@@ -101,7 +101,7 @@ bool test_sub_raster()
   {
     int rows = 6;
     int cols = 4;
-    auto a = pr::create_temp<int>(rows, cols, pr::single_pass{});
+    auto a = pr::create_temp<int, pr::iteration_type::single_pass>(rows, cols);
     static_assert(std::ranges::range<decltype(a)>);
     static_assert(std::ranges::view<decltype(a)>);
     static_assert(std::ranges::sized_range<decltype(a)>);

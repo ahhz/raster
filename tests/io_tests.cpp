@@ -61,7 +61,7 @@ bool test_open()
   bool check_exist = fs::exists("temp.tif");
   bool check_contents;
   {
-    auto r = pronto::raster::open<int>("temp.tif", pr::access::read_only);
+    auto r = pronto::raster::open<int, pr::iteration_type::multi_pass, pr::access::read_only>("temp.tif");
     std::vector<int> check_vector;
     for (auto&& i : r) {
       check_vector.push_back(i);
@@ -89,7 +89,7 @@ bool test_create_open_large()
 
   bool check_contents;
   {
-    auto view = pr::open<int>("temp.tif", pr::access::read_only);
+    auto view = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_only>("temp.tif");
 
     std::vector<int> check_vector;
     for (auto&& i : view) {
