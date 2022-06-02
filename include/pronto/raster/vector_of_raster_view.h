@@ -9,7 +9,7 @@
 //
 #pragma once
 
-#include <pronto/raster/index_sequence.h>
+
 #include <pronto/raster/traits.h>
 #include <pronto/raster/reference_proxy_vector.h>
 
