@@ -70,20 +70,20 @@ namespace pronto
       T m_nodata_value;
     };
     
-    template<class Raster>
-    using nodata_to_optional_raster_view =
-      transform_raster_view<nodata_to_optional_functor<
-      typename traits<Raster>::value_type>, Raster>;
+  //  template<class Raster>
+  //  using nodata_to_optional_raster_view =
+  //    transform_raster_view<nodata_to_optional_functor<
+  //    typename traits<Raster>::value_type>, Raster>;
     
-    template<class Raster>
-    using optional_to_nodata_raster_view =
-      transform_raster_view< optional_to_nodata_functor<
-      recursive_optional_value_type<
-      typename traits<Raster>::value_type > >, Raster>;
+  //  template<class Raster>
+  //  using optional_to_nodata_raster_view =
+  //    transform_raster_view< optional_to_nodata_functor<
+  //    recursive_optional_value_type<
+  //    typename traits<Raster>::value_type > >, Raster>;
 
 
     template<class Raster>
-    nodata_to_optional_raster_view<Raster> nodata_to_optional(
+    auto nodata_to_optional(
       Raster r, const typename traits<Raster>::value_type& nodata_value)
     {
       using value_type = typename traits<Raster>::value_type;
@@ -91,7 +91,7 @@ namespace pronto
     }
 
     template<class Raster>
-    optional_to_nodata_raster_view<Raster> optional_to_nodata(
+    auto optional_to_nodata(
       Raster r, const recursive_optional_value_type<
         typename traits<Raster>::value_type >& nodata_value)
     {
