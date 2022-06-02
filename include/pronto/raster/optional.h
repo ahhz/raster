@@ -13,6 +13,49 @@
 
 namespace pronto {
   namespace raster {
+    /*
+    template<class V>
+    auto rec_get_value(V& v)
+    {
+      return v
+    }
+
+    template<class V>
+    auto rec_get_value(std::optional<V>& v)
+    {
+      return rec_get_value(*v);
+    }
+
+    template<class V>
+    auto rec_get_value(const std::optional<V>& v)
+    {
+      return rec_get_value(*v);
+    }
+
+    template<class V>
+    bool rec_is_initialized(const V& v)
+    {
+      return true;
+    }
+
+    template<class V>
+    bool rec_is_initialized(const std::optional<V>& v)
+    {
+      return v && rec_is_initialized(*v);
+    }
+
+    template<class V>
+    bool is_initialized(const V& v)
+    {
+      return true;
+    }
+
+    template<class V>
+    bool is_initialized(const std::optional<V>& v)
+    {
+      return v;
+    }
+    */
 
     namespace detail {
       template<class V>

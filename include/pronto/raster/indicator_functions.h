@@ -87,12 +87,12 @@ namespace pronto {
       }
     };
 
-    template<class IndicatorView>
-    using extracted_indicator_view = transform_raster_view<indicator_extractor,
-      IndicatorView>;
+    //template<class IndicatorView>
+    //using extracted_indicator_view = transform_raster_view<indicator_extractor,
+    //  IndicatorView>;
 
     template<class IndicatorView>
-    extracted_indicator_view<IndicatorView> extract(IndicatorView iv)
+    auto extract(IndicatorView iv)
     {
       return transform(indicator_extractor{}, iv);
     }
