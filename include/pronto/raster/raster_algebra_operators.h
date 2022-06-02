@@ -52,9 +52,9 @@ namespace pronto {
     template<class F, class A, class B>
     struct applicator
     {
-      using type = transform_raster_view<F, A, B>;
+      //using type = transform_raster_view<F, A, B>;
 
-      static type f(F function, A a, B b)
+      static auto f(F function, A a, B b)
       {
         return transform(function, a, b);
       }
