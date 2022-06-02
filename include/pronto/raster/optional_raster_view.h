@@ -24,14 +24,14 @@ namespace pronto {
       }
     };
 
-    template <class Raster>
-    using optional_raster_view = transform_raster_view<
-      make_optional_value, Raster>;
+   // template <class Raster>
+  //  using optional_raster_view = transform_raster_view<
+   //   make_optional_value, Raster>;
 	
     template<class Raster>
-    optional_raster_view<Raster> optionalize(Raster r)
+    auto optionalize(Raster r)
     {
-      return optional_raster_view<Raster>(make_optional_value{}, r);
+      return transform(make_optional_value{}, r);
     }
   }
 }
