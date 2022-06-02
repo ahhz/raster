@@ -1,51 +1,33 @@
 # Raster 
 
 ## Summary
-A `Raster` is a two-dimensional sequence of values, organised by a number of rows and a number of columns.
+A `Raster` is a `range` that iterates over the elements in a two-dimensional raster.
 
 ## Refinement of
-`SizedRange` as proposed in the [Working Draft, C++ Extensions for Ranges](http://open-std.org/JTC1/SC22/WG21/docs/papers/2016/n4569.pdf).
+`sized_range` and `view` as defined in the [C++20 Ranges library ](https://en.cppreference.com/w/cpp/ranges). 
 
 ## Associated types
-The `iterator` and `const iterator` associated with a `Raster` implement `RasterIterator`.
+The `iterator` associated with a `raster` implements `raster_iterator`.
 
 ## Notation
-`R` is a type implementing the Raster concept.
-`mr` is a mutable Raster object
-`nmr` is a non-mutable raster object 
-`iterator_type` is the iterator for a mutable Raster object
-`const_iterator_type` is the iterator for a non-mutable Raster object
+`R` is a class that confrims to the `Raster` concept.
+`ras` is a object that confirms to the `Raster` concept.
 
 ## Definition
 
 ## Valid expressions
-The following expressions are in support of the `SizedRange` concept:
-
+The following expressions are additional to those of `sized_range`:
 ```cpp
-auto it =  mr.begin();
-auto it =  mr.end();
-
-auto cit =  nmr.begin();
-auto cit =  nmr.end();
-auto i =  nmr.size(); 
+i = ras.rows();
+i = ras.cols();
+sr = ras.sub_raster(first_row, first_col, rows, cols);
 ```
 
-The following expressions are additional requirements:
+The following expression is used to inspect traits:
 ```cpp
-i = nmr.rows();
-i = nmr.cols();
-sr = nmr.sub_raster(first_row, first_col, rows, cols);
-```
-
-The following expressions are used to inspect  traits:
-```cpp
-typename pronto::raster::traits<R>::iterator;
-typename pronto::raster::traits<R>::const_iterator;
-typename pronto::raster::traits<R>::value_type;
-typename pronto::raster::traits<R>::reference;
 typename pronto::raster::traits<R>::sub_raster;
 ```
 
 #### Expression Semantics
-The `begin()` and `end()` functions return iterators that correspond to respectively the first and one-past-the-last element of the `Raster`. The order of iteration over elements in the Raster is row-by-row and within each row column-by-column.  The `size()`, `rows()` and `cols()` are used to query the dimensions of the the `Raster`, whereby `size() == rows() * cols()`.  
-The `sub_raster(first_row, first_col, rows, cols)` member function returns a `RasterView` (a Raster that does not own its data and hence is cheap to copy) that refers to a subset of the raster.
+The order of iteration over elements in a `raster` is row-by-row and within each row column-by-column.  The  `rows()` and `cols()` are used to query the dimensions of the the `raster`, whereby `size() == rows() * cols()`.  
+The `sub_raster(first_row, first_col, rows, cols)` member function returns a `raster` that refers to a subset of the raster. To date, all rasters in the library have a `sub_raster` type that is identical to the raster, but it is not a requirement. 
