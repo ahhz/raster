@@ -149,20 +149,16 @@ namespace pronto
           GDALDataType datatype, is_temporary is_temp);
     } // detail
 
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> open(
-      const std::filesystem::path& path, IterationType = IterationType{},
-      access elem_access = access::read_write,
-      int band_index = 1)
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
+    gdal_raster_view<T, IterationType, AccessType> open(const std::filesystem::path& path,int band_index = 1)
     {
-      auto dataset = detail::open_dataset(path, elem_access);
+      auto dataset = detail::open_dataset(path, AccessType);
       auto band = detail::open_band(dataset, band_index);
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, AccessType>(band);
     }
 
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> create(
-      const std::filesystem::path& path, int rows, int cols, IterationType = IterationType{}
+    template<class T, iteration_type IterationType = iteration_type::multi_pass>
+    gdal_raster_view<T, IterationType, access::read_write> create(const std::filesystem::path& path, int rows, int cols
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown)
@@ -173,14 +169,13 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band = detail::create_band
         (path, rows, cols, data_type, is_temporary::no);
 
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, access::read_write>(band);
     }
 
     
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> create_temp(
-      int rows, int cols, IterationType it = IterationType{},
-      GDALDataType data_type = detail::native_gdal_data_type<T>::value)
+    template<class T, iteration_type IterationType = iteration_type::multi_pass>
+    gdal_raster_view<T, IterationType, access::read_write> create_temp(
+      int rows, int cols, GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown) {
         throw(creating_a_raster_failed{});
@@ -191,13 +186,13 @@ namespace pronto
       std::shared_ptr<GDALRasterBand> band = detail::create_band
         (path, rows, cols, data_type, is_temporary::yes);
 
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, access::read_write>(band);
     }
 
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> create_from_model
+    template<class T, iteration_type IterationType = iteration_type::multi_pass>
+    gdal_raster_view<T, IterationType, access::read_write > create_from_model
       ( const std::filesystem::path& path
-      , const gdal_raster_view_base& model, IterationType it = IterationType{}
+      , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown) {
@@ -207,13 +202,13 @@ namespace pronto
       auto band = detail::create_band_from_model(path, model, data_type
         , is_temporary::no);
 
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, access::read_write>(band);
     }
 
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> create_compressed_from_model
+    template<class T, iteration_type IterationType = iteration_type::multi_pass>
+    gdal_raster_view<T, IterationType, access::read_write> create_compressed_from_model
     (const std::filesystem::path& path
-      , const gdal_raster_view_base& model, IterationType = IterationType{}
+      , const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       if (data_type == GDT_Unknown) {
@@ -223,11 +218,11 @@ namespace pronto
       auto band = detail::create_compressed_band_from_model(path, model
         , data_type, is_temporary::no);
 
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, access::read_write>(band);
     }
 
-    template<class T, class IterationType = multi_pass>
-    gdal_raster_view<T, IterationType> create_temp_from_model(
+    template<class T, iteration_type IterationType = iteration_type::multi_pass>
+    gdal_raster_view<T, IterationType, access::read_write> create_temp_from_model(
       const gdal_raster_view_base& model
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
@@ -240,10 +235,10 @@ namespace pronto
       auto band = detail::create_band_from_model(path, model, data_type
         , is_temporary::yes);
 
-      return gdal_raster_view<T, IterationType>(band);
+      return gdal_raster_view<T, IterationType, access::read_write>(band);
     }
 
-    template<class T>
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
     gdal_raster_view<T> make_gdalrasterdata_view(
       std::shared_ptr<GDALRasterBand> band
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
@@ -252,16 +247,16 @@ namespace pronto
         throw(creating_a_raster_failed{});
       }
 
-      return gdal_raster_view<T>(band);
+      return gdal_raster_view<T,IterationType, AccessType>(band);
     }
 
-    template<class T>
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
     gdal_raster_view<T> make_gdalrasterdata_view(
       GDALRasterBand* band
       , GDALDataType data_type = detail::native_gdal_data_type<T>::value)
     {
       auto sh_band(band, [](GDALRasterBand*) {});
-      return make_gdalrasterdata_view<T>(sh_band, data_type);
+      return make_gdalrasterdata_view<T, IterationType, AccessType>(sh_band, data_type);
     }
 
     any_blind_raster open_any(const std::filesystem::path& path

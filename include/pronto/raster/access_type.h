@@ -22,11 +22,11 @@ namespace pronto
       read_write
     };
     
-    namespace access_type
+    enum class iteration_type
     {
-      using read_only_t = std::integral_constant<access, access::read_only>;
-      using read_write_t = std::integral_constant<access, access::read_write>;
-    }
+      single_pass, 
+      multi_pass
+    };
 
     static GDALAccess gdal_access(access a)
     {
@@ -36,8 +36,5 @@ namespace pronto
       default:return GA_Update;
       }
     }
-
-    class single_pass {};
-    class multi_pass {};
   }
 }

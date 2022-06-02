@@ -24,20 +24,20 @@ namespace pronto
 {
   namespace raster
   {
-    template<class, class> class gdal_raster_view; // forward declaration
+    template<class, iteration_type, access> class gdal_raster_view; // forward declaration
 
-    template<class T, class AccessType, class IterationType = multi_pass>
-    class gdal_raster_iterator 
-      : public iterator_facade<gdal_raster_iterator<T,AccessType, IterationType>>
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
+    class gdal_raster_iterator
+      : public iterator_facade<gdal_raster_iterator<T,IterationType, AccessType>>
     {
       using block_type = block<AccessType>;
       using block_iterator_type = typename block_type::iterator;
-      using view_type = gdal_raster_view<T, IterationType>;
+      using view_type = gdal_raster_view<T, IterationType, AccessType>;
 
    
     public:
-      static const bool is_single_pass = std::is_same<single_pass, IterationType>::value;
-      static const bool is_mutable = AccessType::value == access::read_write;
+      static const bool is_single_pass = IterationType==iteration_type::single_pass;
+      static const bool is_mutable = AccessType != access::read_only;
       using value_type = T;
 
       gdal_raster_iterator()
@@ -110,13 +110,13 @@ namespace pronto
 
       void put(const T& value) const
       {
-        static_assert(AccessType::value == access::read_write
+        static_assert(AccessType != access::read_only
           , "only allow writing in mutable iterators");
          m_view->put(value, static_cast<void*>(m_pos));
       }
 
     private:
-      friend class gdal_raster_view<T, IterationType>;
+      friend class gdal_raster_view<T, IterationType, AccessType>;
 
       void find_begin(const view_type* view)
       {

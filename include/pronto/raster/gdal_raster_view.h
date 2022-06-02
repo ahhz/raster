@@ -41,7 +41,7 @@ namespace pronto
       };
 
 
-    template<class T, class IterationType = multi_pass>
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType= access::read_write>
     class gdal_raster_view : public std::ranges::view_interface<gdal_raster_view<T, IterationType> >, public gdal_raster_view_base
     {
     private:
@@ -87,11 +87,8 @@ namespace pronto
         std::shared_ptr<GDALRasterBand>{}, band})
       {};
 
-      using iterator = gdal_raster_iterator<value_type
-        , access_type::read_write_t, IterationType>;
-      using const_iterator = gdal_raster_iterator<value_type
-        , access_type::read_only_t, IterationType>;
-
+      using iterator = gdal_raster_iterator<value_type, IterationType, AccessType>;
+     
       std::shared_ptr<GDALRasterBand> get_band() const
       {
         return m_band;
@@ -154,35 +151,21 @@ namespace pronto
         return out;
       }
 
-      iterator begin()
+      iterator begin() const
       {
         iterator i;
         i.find_begin(this);
         return i;
       }
 
-      iterator end()
+      iterator end() const
       {
         iterator i;
         i.find_end(this);
         return i;
       }
-
-      const_iterator begin() const
-      {
-        const_iterator i;
-        i.find_begin(this);
-        return i;
-      }
-
-      const_iterator end() const
-      {
-        const_iterator i;
-        i.find_end(this);
-        return i;
-      }
-
-      std::optional<T> get_nodata_value()
+      
+      std::optional<T> get_nodata_value() const
       {
         int* check = nullptr;
         double value = m_band->GetNoDataValue(check);
@@ -190,7 +173,7 @@ namespace pronto
         return std::optional<T>{};
       }
 
-      void set_nodata_value(bool has_nodata, const T& value)
+      void set_nodata_value(bool has_nodata, const T& value) const
       {
         if (has_nodata) m_band->SetNoDataValue(value);
         else m_band->DeleteNoDataValue();
@@ -199,11 +182,8 @@ namespace pronto
     private:
       //friend class iterator;
       //friend class const_iterator;
-      friend class gdal_raster_iterator<value_type
-        , access_type::read_write_t, IterationType>;
-      friend class gdal_raster_iterator<value_type
-        , access_type::read_only_t, IterationType>;
-
+      friend class gdal_raster_iterator<value_type, IterationType, AccessType>;
+   
       template<typename U>
       static void put_special(const value_type& value, void* const target)
       {

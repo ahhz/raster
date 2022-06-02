@@ -17,7 +17,7 @@ namespace pronto
 {
   namespace raster
   {
-    template<class> // template argument for AccessType is now ignored
+    template<access AccessType> // template argument for AccessType is now ignored
     struct block
     {
       using iterator = char*;

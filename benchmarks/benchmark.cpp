@@ -122,10 +122,10 @@ static void BM_create_data_for_benchmark(benchmark::State& state) {
 int benchmark_3_rasters_pronto()
 {
   {
-    auto raster_a = pr::open<unsigned char>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open<unsigned char>("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open<unsigned char>("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open<unsigned char>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_only>("random_a.tif");
+    auto raster_b = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_only>("random_b.tif");
+    auto raster_c = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_only>("random_c.tif");
+    auto raster_out = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_write>("output.tif");
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -147,10 +147,10 @@ static void BM_3_rasters_pronto(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass()
 {
   {
-    auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
+    auto raster_a = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_a.tif");
+    auto raster_b = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_b.tif");
+    auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
+    auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -194,13 +194,12 @@ static void BM_3_rasters_pronto_blind(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass_in_blocks()
 {
   {
-    auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
-    auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
+    auto raster_a = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_a.tif");
+    auto raster_b = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_b.tif");
+    auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
+    auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
-
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
+        auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
       + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
 
     pr::assign_blocked(raster_out, raster_sum);
@@ -218,10 +217,10 @@ static void BM_3_rasters_pronto_single_pass_in_blocks(benchmark::State& state) {
 int benchmark_3_rasters_pronto_single_pass_in_blocks_transform()
 {
 	{
-		auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_out = pr::open<unsigned char>("output.tif", pr::single_pass{}, pr::access::read_write);
+		auto raster_a = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_a.tif");
+		auto raster_b = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_b.tif");
+		auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
+		auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
 		auto func = [](const unsigned char& a, const unsigned char& b, const unsigned char& c)
 		{
@@ -243,10 +242,10 @@ static void BM_3_rasters_pronto_single_pass_in_blocks_transform(benchmark::State
 int benchmark_3_rasters_pronto_single_pass_no_blocks_iterate()
 {
 	{
-		auto raster_a = pr::open<unsigned char>("random_a.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_b = pr::open<unsigned char>("random_b.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_c = pr::open<unsigned char>("random_c.tif", pr::single_pass{}, pr::access::read_only);
-		auto raster_out = pr::open<unsigned char>("output.tif, pr::single_pass{}", pr::access::read_write);
+		auto raster_a = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only >("random_a.tif");
+		auto raster_b = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_b.tif");
+		auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
+		auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
 		auto ia = std::as_const(raster_a).begin();
 		auto ib = std::as_const(raster_b).begin();
@@ -527,9 +526,9 @@ static void BM_3_rasters_reference_getlockedblockref(benchmark::State& state) {
 int benchmark_2_rasters()
 {
   {
-    auto raster_a = pr::open<int>("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open<int>("random_b.tif", pr::access::read_only);
-    auto raster_out = pr::open<int>("output.tif", pr::access::read_write);
+    auto raster_a = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_only>("random_a.tif");
+    auto raster_b = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_only>("random_b.tif");
+    auto raster_out = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_write>("output.tif");
 
 
     auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
@@ -796,8 +795,8 @@ BENCHMARK_MAIN();
 
 int benchmark_assign()
 {
-  auto raster_a = pr::open<int>("random_a.tif", pr::access::read_only);
-  auto raster_out = pr::open<int>("output.tif", pr::access::read_write);
+  auto raster_a = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_only>("random_a.tif");
+  auto raster_out = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_write>("output.tif");
   pr::assign(raster_out, raster_a);
   return 0;
 }

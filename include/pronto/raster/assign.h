@@ -133,8 +133,8 @@ namespace pronto {
     }
 
     // Exploiting that we can get the block size of gdal_raster_views.
-    template<class T, class U, class RasterViewIn>
-    void assign_blocked(gdal_raster_view<T, U>& out, const RasterViewIn& in)
+    template<class T, iteration_type IType, access AType, class RasterViewIn>
+    void assign_blocked(gdal_raster_view<T, IType, AType>& out, const RasterViewIn& in)
     {
       int block_row_size, block_col_size;
       out.get_band()->GetBlockSize(&block_col_size, &block_row_size);
