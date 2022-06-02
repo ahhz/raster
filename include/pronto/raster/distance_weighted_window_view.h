@@ -75,7 +75,7 @@ namespace pronto {
       using kernel_type = decltype(std::declval<RasterAllocator>().allocate<double>(int{}, int{}));
       kernel_type m_kernel;
     };
-
+    /*
     template<class Raster, class IndicatorGenerator, class RasterAllocator, class WeightType>
     struct distance_weighted_indicator_view_helper
     {
@@ -95,11 +95,11 @@ namespace pronto {
     using distance_weighted_indicator_view = typename distance_weighted_indicator_view_helper
       <Raster, IndicatorGenerator, RasterAllocator, WeightType>::type;
 
+      */
 
     template<class Raster, class IndicatorGenerator,
       class RasterAllocator = default_raster_allocator, class WeightType = double>
-      distance_weighted_indicator_view<Raster, IndicatorGenerator, RasterAllocator, WeightType>
-      make_distance_weighted_indicator_view(Raster raster, weighted_window<RasterAllocator,
+    auto make_distance_weighted_indicator_view(Raster raster, weighted_window<RasterAllocator,
         WeightType> window, IndicatorGenerator gen)
     {
       auto subraster_raster = make_square_subraster_window_view(optionalize(raster)
