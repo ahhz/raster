@@ -53,23 +53,6 @@ namespace pronto {
 
 
     private:
-      template<std::size_t ...S>
-      void increment(std::index_sequence<S...>)
-      {
-        auto dummy = { (++std::get<S>(m_iters), 0)... };
-      }
-
-      template<std::size_t ...S>
-      void decrement(std::index_sequence<S...>)
-      {
-        auto dummy = { (--std::get<S>(m_iters), 0)... };
-      }
-
-      template<std::size_t ...S>
-      void advance(difference_type step, std::index_sequence<S...>)
-      {
-        auto dummy = { (std::get<S>(m_iters) += step, 0)... };
-      }
       
       template<std::size_t ...S>
       reference dereference(std::index_sequence<S...>) const
@@ -81,25 +64,33 @@ namespace pronto {
           (*std::get<S>(m_iters))...);
       }
 
+      
     public:
       friend iterator_facade<transform_raster_iterator<View, I...> >;
      
       reference dereference() const
       {
+
+       // auto get_value = [](const auto& iter) {
+       //   return static_cast<std::iterator_traits<std::decay_t<decltype(iter)>>::value_type>(*iter);
+        //};
+        //auto& fun = *(m_view->m_function);
+        //return std::apply([&](auto& ...iter) {return fun((..., get_value(iter))); }, m_iters);
         return dereference(tuple_indices{});
       }
       void increment() 
       {
-        increment(tuple_indices{});
+        std::apply([](auto& ...iter) { (..., ++iter); }, m_iters);
       }
+ 
       void decrement() 
       {
-        decrement(tuple_indices{});
+        std::apply([](auto& ...iter) { (..., --iter); }, m_iters);
       }
 
       void advance(difference_type n)
       {
-        advance(n, tuple_indices{});
+        std::apply([n](auto& ...iter) { (..., (iter += n) ); }, m_iters);
       }
 
       bool equal_to(const transform_raster_iterator& b) const
@@ -109,7 +100,7 @@ namespace pronto {
 
       difference_type distance_to(const transform_raster_iterator& b) const
       {
-       return N > 0 ? std::get<0>(b.m_iters) - std::get<0>(b) : 0;
+       return N > 0 ? std::get<0>(b.m_iters) - std::get<0>(m_iters) : 0;
       }
 
       const View* m_view;
@@ -122,7 +113,7 @@ namespace pronto {
     private:
       static_assert(std::is_copy_constructible<F>::value, "because this models RasterView, use std::ref in transform function");
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
-
+      static const bool is_mutable = false;
       using function_type = F;
 
       static const std::size_t N = sizeof...(R);
@@ -235,8 +226,7 @@ namespace pronto {
   // };
 
     template<class F, class... R> // requires these to be RasterViews
-    transform_raster_view<typename std::decay<F>::type, R...>
-      transform(F&& f, R... r)
+    auto transform(F&& f, R... r)
     {
       return transform_raster_view<typename std::decay<F>::type, R...>
         (std::forward<F>(f), r...);
