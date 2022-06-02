@@ -56,7 +56,7 @@ namespace pronto {
 
         // Detect if the iterator declares itself to be a single-pass iterator.
         template <typename T>
-        concept decls_single_pass = bool(T::single_pass_iterator);
+        concept decls_single_pass = bool(T::single_pass_iterator) && T::single_pass_iterator;
 
 
         // value_type for true reference
@@ -68,12 +68,10 @@ namespace pronto {
 
         //value type for proxy reference, must have value_type
         template <typename T>
-            requires requires { T::value_type; }
+          requires requires { typename T::value_type; }
         struct infer_value_type<T> {
-            using type = typename T::value_type;
+          using type = typename T::value_type;
         };
-
-
         // resolve value type
         template <typename T>
         using infer_value_type_t = infer_value_type<T>::type;
