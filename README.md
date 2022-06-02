@@ -6,7 +6,7 @@
   </tr>
 </table> 
 
-The library requires one of the following:
+The library requires the following:
 - C++20 (especially for the Range and Iterator libraries)
 - GDAL (for accessing GIS raster data)
 
