@@ -180,8 +180,7 @@ bool test_type_erased_plus_nodata()
 
 	std::vector<int> vec;
 	for (auto&& i : cc) {
-		std::optional<int> ii = i;
-		vec.push_back(*ii);
+		vec.push_back(i);
 	}
 
 	return vec == std::vector<int>{101, -999, 303, 404, -999, 606};
