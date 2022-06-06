@@ -264,7 +264,7 @@ namespace pronto {
     struct optional_filtered_binary_operator_helper
     {
       static const bool is_optional =
-        is_optional<T1>::value || is_optional<T2>::value;
+        is_optional_v<T1> || is_optional_v<T2>;
       using type = std::conditional_t< is_optional
         , filtered_binary_operator<F, T1, T2>
         , unfiltered_binary_operator<F, T1, T2> >;

@@ -305,9 +305,9 @@ template<class U> const self_type& operator op(const U& v) const \
     }
 
 
-    template<class T1, class T2, iteration_type IterationType1, iteration_type IterationType2, access AccessType1, access AccessType2>
-    auto operator+(type_erased_raster<T1, IterationType1, AccessType1> a, type_erased_raster<T2, IterationType2, AccessType2> b) {
-      return erase_raster_type(transform(std::plus{}, a, b));
+    template<class T1, class T2, iteration_type I1, iteration_type I2, access A1, access A2>
+    auto operator+(type_erased_raster<T1, I1, A1> a, type_erased_raster<T2, I2, A2> b) {
+      return erase_raster_type(transform(optionalize_function(std::plus{}), a, b));
     }
 
    // template<class T, class IterationType = multi_pass, access AccessType = access::read_write>
