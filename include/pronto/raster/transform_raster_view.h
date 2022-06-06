@@ -112,7 +112,6 @@ namespace pronto {
     {
     private:
       static_assert(std::is_copy_constructible<F>::value, "because this models RasterView, use std::ref in transform function");
-      using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       static const bool is_mutable = false;
       using function_type = F;
 
@@ -120,6 +119,7 @@ namespace pronto {
       using tuple_indices = std::make_index_sequence<N>;
 
     public:
+      using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       transform_raster_view() = default;
       transform_raster_view(const transform_raster_view&) = default;
       transform_raster_view(transform_raster_view&&) = default;

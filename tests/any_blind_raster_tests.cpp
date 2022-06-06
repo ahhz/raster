@@ -14,6 +14,7 @@
 #include <pronto/raster/any_blind_raster.h>
 #include <pronto/raster/blind_function.h>
 #include <pronto/raster/io.h>
+#include <pronto/raster/nodata_transform.h>
 
 #include <ranges>
 
@@ -142,6 +143,51 @@ bool test_type_erased_plus()
 
 }
 
+bool test_type_erased_plus_nodata()
+{
+	int rows = 2;
+	int cols = 3;
+	auto a = pr::create_temp<int>(rows, cols);
+	auto b = pr::create_temp<int>(rows, cols);
+
+	auto aa = pr::erase_raster_type(a);
+	auto bb = pr::erase_raster_type(b);
+
+	static_assert(std::ranges::random_access_range<decltype(a)>);
+	static_assert(std::ranges::random_access_range<decltype(b)>);
+	static_assert(std::ranges::random_access_range<decltype(aa)>);
+	static_assert(std::ranges::random_access_range<decltype(bb)>);
+
+
+	int v = 0;
+	for (auto&& i : aa) {
+		v += 1;
+		i = v;
+	}
+
+	v = 0;
+	for (auto&& i : bb) {
+		v += 100;
+		i = v;
+	}
+	
+	auto cc = pr::optional_to_nodata(
+		pr::erase_raster_type(pr::nodata_to_optional(aa,2)) + 
+		pr::erase_raster_type(pr::nodata_to_optional(bb,500)), -999);
+
+
+	static_assert(std::ranges::random_access_range<decltype(cc)>);
+
+	std::vector<int> vec;
+	for (auto&& i : cc) {
+		std::optional<int> ii = i;
+		vec.push_back(*ii);
+	}
+
+	return vec == std::vector<int>{101, -999, 303, 404, -999, 606};
+
+}
+
 bool test_get_any_blind_raster()
 {
 	int rows = 3;
@@ -164,6 +210,7 @@ TEST(RasterTest, AnyBlindRaster) {
 	EXPECT_TRUE(test_type_erased_reference());
 	EXPECT_TRUE(test_type_erased_raster());
 	EXPECT_TRUE(test_type_erased_plus());
+	EXPECT_TRUE(test_type_erased_plus_nodata());
 	EXPECT_TRUE(test_get_any_blind_raster());
 }
 
