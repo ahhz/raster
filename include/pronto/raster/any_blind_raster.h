@@ -17,6 +17,7 @@
 namespace pronto {
   namespace raster {
 
+    
     class any_blind_raster
     {
     public:

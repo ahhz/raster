@@ -186,6 +186,37 @@ bool test_type_erased_plus_nodata()
 	return vec == std::vector<int>{101, -999, 303, 404, -999, 606};
 
 }
+bool test_hidden_type_plus()
+{
+	int rows = 2;
+	int cols = 3;
+	auto a = pr::create_temp<int>(rows, cols);
+	auto b = pr::create_temp<int>(rows, cols);
+	int v = 0;
+	for (auto&& i : a) {
+		v += 1;
+		i = v;
+	}
+
+	v = 0;
+	for (auto&& i : b) {
+		v += 100;
+		i = v;
+	}
+	auto aa = pr::erase_and_hide_raster_type(a);
+	auto bb = pr::erase_and_hide_raster_type(b);
+	auto cc = aa + bb;
+
+	static const int index = 4;
+	auto c = std::get<4>(cc.m_raster);
+	std::vector<int> vec;
+	for (auto&& i : c) {
+		vec.push_back(i);
+	}
+
+	return vec == std::vector<int>{101, 202, 303, 404, 505, 606};
+	
+}
 
 bool test_get_any_blind_raster()
 {
@@ -210,6 +241,7 @@ TEST(RasterTest, AnyBlindRaster) {
 	EXPECT_TRUE(test_type_erased_raster());
 	EXPECT_TRUE(test_type_erased_plus());
 	EXPECT_TRUE(test_type_erased_plus_nodata());
+	EXPECT_TRUE(test_hidden_type_plus());
 	EXPECT_TRUE(test_get_any_blind_raster());
 }
 

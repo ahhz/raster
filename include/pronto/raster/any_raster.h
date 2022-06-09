@@ -20,6 +20,7 @@
 #include <cassert>
 #include <functional>
 #include <type_traits>
+#include <variant>
 
 namespace pronto {
   namespace raster {
@@ -309,6 +310,50 @@ template<class U> const self_type& operator op(const U& v) const \
     auto operator+(type_erased_raster<T1, I1, A1> a, type_erased_raster<T2, I2, A2> b) {
       return erase_raster_type(transform(optionalize_function(std::plus{}), a, b));
     }
+
+    template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
+    class hidden_type_erased_raster
+    {
+    public:
+      template<class T>
+      hidden_type_erased_raster(type_erased_raster < T, IterationType, AccessType> raster)
+      {
+        m_raster = raster;
+      }
+
+      std::variant<
+        type_erased_raster< bool      , IterationType, AccessType >,
+        type_erased_raster< uint8_t   , IterationType, AccessType > ,
+        type_erased_raster< int16_t   , IterationType, AccessType > ,
+        type_erased_raster< uint16_t  , IterationType, AccessType > ,
+        type_erased_raster< int32_t   , IterationType, AccessType > ,
+        type_erased_raster< uint32_t  , IterationType, AccessType > ,
+        type_erased_raster< float     , IterationType, AccessType > ,
+        type_erased_raster< double    , IterationType, AccessType > ,
+        type_erased_raster< std::optional<bool>      , IterationType, AccessType > ,
+        type_erased_raster< std::optional<uint8_t >  , IterationType, AccessType > ,
+        type_erased_raster< std::optional<int16_t >  , IterationType, AccessType > ,
+        type_erased_raster< std::optional<uint16_t > , IterationType, AccessType > ,
+        type_erased_raster< std::optional<int32_t >  , IterationType, AccessType > ,
+        type_erased_raster< std::optional<uint32_t>  , IterationType, AccessType > ,
+        type_erased_raster< std::optional<float>     , IterationType, AccessType > ,
+        type_erased_raster< std::optional<double>    , IterationType, AccessType > > m_raster;
+    };
+
+    template<class R>
+    auto erase_and_hide_raster_type(R r)
+    {
+      return hidden_type_erased_raster{ erase_raster_type(r) };
+    }
+    
+    template<iteration_type I1, iteration_type I2, access A1, access A2>
+    auto operator+(hidden_type_erased_raster<I1, A1> a, hidden_type_erased_raster<I2, A2> b) {
+      return std::visit([](auto&& x, auto&& y) {
+        return erase_and_hide_raster_type(transform(optionalize_function(std::plus{}), x, y)); }, a.m_raster, b.m_raster);
+    }
+
+
+    
 
    // template<class T, class IterationType = multi_pass, access AccessType = access::read_write>
    // using any_raster = type_erased_raster<T, IterationType, AccessType>;
