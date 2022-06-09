@@ -14,14 +14,12 @@
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
 
-#include <functional>
 #include <iterator>
 #include <utility>
 #include <cassert>
 
 namespace pronto {
   namespace raster {
-
 
     // Now casting all inputs to the function to their value_type
     // this means that the proxy references will be cast, and therefore
@@ -32,7 +30,6 @@ namespace pronto {
     {
     private:
       static const std::size_t N = sizeof...(I);
-      using tuple_indices = std::make_index_sequence<N>;
     public:
       using value_type = typename View::value_type;
       using reference = value_type;
@@ -50,33 +47,18 @@ namespace pronto {
       transform_raster_iterator(transform_raster_iterator&&) = default;
       transform_raster_iterator& operator=(const transform_raster_iterator&) = default; //delete because lambdas cannot be assigned
       transform_raster_iterator& operator=(transform_raster_iterator&&) = default;
-
-
-    private:
-      
-      template<std::size_t ...S>
-      reference dereference(std::index_sequence<S...>) const
-      {
-         auto& f = *(m_view->m_function);
-        return f(
-          static_cast<typename
-          std::iterator_traits<typename std::tuple_element<S, std::tuple<I...>>::type>::value_type>
-          (*std::get<S>(m_iters))...);
-      }
-
-      
+            
     public:
       friend iterator_facade<transform_raster_iterator<View, I...> >;
      
       reference dereference() const
       {
 
-       // auto get_value = [](const auto& iter) {
-       //   return static_cast<std::iterator_traits<std::decay_t<decltype(iter)>>::value_type>(*iter);
-        //};
-        //auto& fun = *(m_view->m_function);
-        //return std::apply([&](auto& ...iter) {return fun((..., get_value(iter))); }, m_iters);
-        return dereference(tuple_indices{});
+        auto get_value = [](const auto& iter) {
+          return static_cast<std::iterator_traits<std::decay_t<decltype(iter)>>::value_type>(*iter);
+       };
+        auto& fun = *(m_view->m_function);
+        return std::apply([&](auto& ...iter) {return fun(get_value(iter)...); }, m_iters);
       }
       void increment() 
       {
@@ -116,8 +98,7 @@ namespace pronto {
       using function_type = F;
 
       static const std::size_t N = sizeof...(R);
-      using tuple_indices = std::make_index_sequence<N>;
-
+      
     public:
       using value_type = decltype(std::declval<F>()(std::declval<typename traits<R>::value_type>()...));
       transform_raster_view() = default;
@@ -130,20 +111,17 @@ namespace pronto {
       transform_raster_view(FF&& f, R ...r) : m_rasters(r...), m_function(std::forward<FF>(f))
       { }
 
-      using const_iterator = transform_raster_iterator<transform_raster_view,
-        typename traits<R>::const_iterator...>;
-
       using sub_raster_type = transform_raster_view<function_type, typename traits<R>::sub_raster...>;
 
 
-      const_iterator begin() const
+      auto begin() const
       {
-        return begin(tuple_indices{});
+        return std::apply([&](auto&&... rasters) { return transform_raster_iterator{ *this, rasters.begin()... }; },m_rasters);
       }
 
-      const_iterator end() const
+      auto end() const
       {
-        return end(tuple_indices{});
+        return std::apply([&](auto&&... rasters) { return transform_raster_iterator{ *this, rasters.end()... }; }, m_rasters);
       }
 
       int rows() const
@@ -164,37 +142,12 @@ namespace pronto {
         return std::get<0>(m_rasters).size();
       }
 
-      sub_raster_type
-          sub_raster(int start_row, int start_col, int rows, int cols) const
-        {
-          return sub_raster(tuple_indices{}, start_row, start_col, rows, cols);
-        }
-
-    public:
-
-      // Not allowing the function to change values in the rasters
-      template<std::size_t ...S>
-      const_iterator begin(std::index_sequence<S...>) const
+      auto
+        sub_raster(int start_row, int start_col, int rows, int cols) const
       {
-        return const_iterator(*this, std::get<S>(m_rasters).begin()...);
+        return std::apply([&](auto&&... rasters) {return transform_raster_view(*m_function, rasters.sub_raster(start_row, start_col, rows, cols)...); }, m_rasters);
       }
-
-      template<std::size_t ...S>
-      const_iterator end(std::index_sequence<S...>) const
-      {
-        return const_iterator(*this, std::get<S>(m_rasters).end()...);
-      }
-
-      template<std::size_t ...S>
-      sub_raster_type sub_raster(std::index_sequence<S...>
-        , int start_row, int start_col, int rows, int cols) const
-      {
-        assert(start_row >= 0 && start_col >= 0 && rows + start_row <= this->rows() && cols + start_col <= this->cols());
-        return sub_raster_type
-        (*m_function, std::get<S>(m_rasters).sub_raster
-        (start_row, start_col, rows, cols)...);
-      }
-
+ 
       std::tuple<R...> m_rasters;
     private:
       //friend class const_iterator;

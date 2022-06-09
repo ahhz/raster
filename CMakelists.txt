@@ -141,6 +141,7 @@ if(CREATE_PRONTO_RASTER_TEST)
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/main.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/raster_algebra_tests.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/tests/transform_tests.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/tuple_raster_tests.cpp
 	)
 
 	add_executable(pronto_test ${test_files} )
