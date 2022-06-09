@@ -49,6 +49,7 @@ namespace pronto {
       transform_raster_iterator& operator=(transform_raster_iterator&&) = default;
             
     public:
+      //class iterator_facade<transform_raster_iterator<View, I...> >;
       friend iterator_facade<transform_raster_iterator<View, I...> >;
      
       reference dereference() const
@@ -160,38 +161,11 @@ namespace pronto {
     template<class T>
     using decay_t = typename std::decay<T>::type;
 
-   // template<class F>
-   // class reference_function
-   // {
-   // public:
-   //   reference_function(F& f) : m_f(f)
-   //   {}
-//
-   //   reference_function(const reference_function& f) = default;
-//
-   //   template<class...Args>
-   //   auto operator()(Args&&... args)->decltype(std::declval<F>()(std::forward<Args>(args)...))
-  //    {
-  //      return m_f(std::forward<Args>(args)...);
-   //   }
-   // private:
-   //   F& m_f;
-  // };
-
     template<class F, class... R> // requires these to be RasterViews
     auto transform(F&& f, R... r)
     {
       return transform_raster_view<typename std::decay<F>::type, R...>
         (std::forward<F>(f), r...);
     }
-
-    // if the function is to be treated as a reference, wrap it.
-    //template<class F, class... R> // requires these to be RasterViews
-    //transform_raster_view<reference_function<F>, R...>
-    //  transform(std::reference_wrapper<F> f, R... r)
-    //{
-   //   return transform_raster_view<reference_function<F>, R...>
-    //    (reference_function<F>(f), r...);
-   // }
   }
 }

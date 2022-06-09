@@ -31,7 +31,7 @@ bool transform_with_overloaded_function_object()
 	for (auto&& i : c) {
 		check.push_back(i);
 	}
-
+  static_assert(std::ranges::random_access_range<decltype(c)>);
 	return check == std::vector<int>{101, 202, 303, 404, 505, 606, 707, 808, 909, 1010, 1111, 1212, 1313, 1414, 1515};
 }
 
