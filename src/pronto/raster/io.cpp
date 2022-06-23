@@ -281,7 +281,7 @@ namespace pronto
           : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
       }
     } // detail
-
+    /*
     any_blind_raster open_any(
       const std::filesystem::path& path,
       access elem_access,
@@ -330,5 +330,6 @@ namespace pronto
     {
       blind_function(export_any_helper{path}, raster);
     }
+    */
   }
 }

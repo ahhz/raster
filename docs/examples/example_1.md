@@ -11,8 +11,8 @@ namespace pr = pronto::raster;
 
 int main()
 {
-  std::default_random_engine rng;
-  std::uniform_int_distribution<int> dice(1, 6);
+  auto rng = std::default_random_engine{};
+  auto dice = std::uniform_int_distribution<int>{ 1, 6 };
 
   auto raster = pr::create<int>("demo.tif", 10, 5);
   for (auto&& v : raster) {

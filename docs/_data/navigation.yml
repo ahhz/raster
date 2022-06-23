@@ -39,8 +39,6 @@ docs:
     children:
       - title: Raster
         url: concepts/raster
-      - title: Raster View
-        url: concepts/raster_view
       - title: Raster Iterator
         url: concepts/raster_iterator
       - title: Indicator
@@ -55,8 +53,6 @@ docs:
     children:
       - title: assign
         url: functions/assign
-      - title: blind_function
-        url: functions/blind_function
       - title: create
         url: functions/create
       - title: create_from_model
@@ -67,10 +63,6 @@ docs:
         url: functions/create_temp
       - title: h_edge
         url: functions/h_edge
-      - title: make_any_blind_raster
-        url: functions/make_any_blind_raster
-      - title: make_any_raster
-        url: functions/make_any_raster
       - title: make_gdalrasterband_view
         url: functions/make_gdalrasterband_view
       - title: moving_window_indicator
@@ -81,8 +73,6 @@ docs:
         url: functions/offset
       - title: open
         url: functions/open
-      - title: open_any
-        url: functions/open_any
       - title: optional_to_nodata
         url: functions/optional_to_nodata
       - title: optionalize
@@ -98,10 +88,6 @@ docs:
       - title: random_distribution_raster
         url: functions/random_distribution_raster  
         url: functions/pad       
-      - title: raster_algebra_transform
-        url: functions/raster_algebra_transform     
-      - title: raster_algebra_wrap
-        url: functions/raster_algebra_wrap  
       - title: transform
         url: functions/transform  
       - title: uniform
@@ -112,10 +98,6 @@ docs:
     children:
       - title: access
         url: types/access
-      - title: any_blind_raster
-        url: types/any_blind_raster
-      - title: any_raster
-        url: types/any_raster
       - title: gdal_data_type
         url: types/gdal_data_type
       - title: gdal_raster_view

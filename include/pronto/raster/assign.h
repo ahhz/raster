@@ -10,101 +10,95 @@
 
 #pragma once
 
-#include <pronto/raster/any_blind_raster.h>
-#include <pronto/raster/blind_function.h>
+
 #include <pronto/raster/gdal_raster_view.h>
+#include <pronto/raster/raster.h>
 
-#include <pronto/raster/pair_raster_view.h>
+#include <ranges>
+#include <variant>
 
-#include <algorithm>
 
 namespace pronto {
   namespace raster {
-#pragma warning( push )  
-#pragma warning( disable : 4244 )  // Suppressing warning related to casting,
-#pragma warning( disable : 4267 )  // these are inherent to any_blind_raster
-
-    template<class RasterTo, class RasterFrom> // only needs to be a range
+   
+    template<class RasterTo, class RasterFrom> // for non-conform raster : temp solution
     void assign(RasterTo& to, const RasterFrom& from)
     {
+      using in_value_type = std::ranges::range_value_t<RasterFrom>;
+      using out_value_type = std::ranges::range_value_t<RasterTo>;
       auto i = from.begin();
       auto i_end = from.end();
       auto j = to.begin();
+      for (; i != i_end; ++i, ++j) 
+      {
+        *j = recursive_get_value(static_cast<in_value_type>(*i));
+      }
+    }
+
+    template<RasterConcept RasterTo, RasterConcept RasterFrom> // only really needs to be a range
+    void assign(RasterTo& to, const RasterFrom& from)
+    {
+      using in_value_type = std::ranges::range_value_t<RasterFrom>;
+      using out_value_type = std::ranges::range_value_t<RasterTo>;
+      using inner_out_value_type = recursive_optional_value_type<out_value_type>;
+      
+      auto i = from.begin();
+      auto i_end = from.end();
+      auto j = to.begin();
+
+      // Lots of static-casting to avoid warnings when unequal rasters are assigned.
       for (; i != i_end; ++i, ++j)
       {
-        *j = *i;
+        if constexpr (is_optional_v<in_value_type> && is_optional_v<out_value_type>)
+        {
+          if (recursive_is_initialized(static_cast<in_value_type>(*i))) {
+            *j = static_cast<inner_out_value_type>(recursive_get_value(static_cast<in_value_type>(*i)));
+          }
+          else {
+            *j = out_value_type{};
+          }
+        }
+        else if constexpr (is_optional_v<in_value_type> && !is_optional_v<out_value_type>)
+        {
+          if (recursive_is_initialized(static_cast<in_value_type>(*i))) {
+            *j = static_cast<out_value_type>(recursive_get_value(static_cast<in_value_type>(*i)));
+          }
+          else {
+            assert(false); // assigning an optional to a non-optional
+            *j = out_value_type{};
+          }
+        }
+        else if constexpr (!is_optional_v<in_value_type> && is_optional_v<out_value_type>)
+        {
+          *j = static_cast<inner_out_value_type>(static_cast<in_value_type>(*i));
+        }
+        else//constexpr (!is_optional_v<in_value_type> && !is_optional_v<out_value_type>)
+        {
+          *j = static_cast<out_value_type>(static_cast<in_value_type>(*i));
+        }
+
+
       }
        //std::copy(from.begin(), from.end(), to.begin());
     }
 
-
-    template<class FromRaster>
-    struct blind_assign_to
+    template<RasterConcept RasterTo, RasterVariantConcept RasterFrom> // only needs to be a range
+    void assign(RasterTo& to, const RasterFrom& from)
     {
-      blind_assign_to(FromRaster from) : m_from(from)
-      {}
-      
-      template<class T>
-      void operator()(any_raster<T> to) const
-      {
-        assign(to, m_from);
-      }
-    
-    private: 
-      FromRaster m_from;
-    };
-
-    template<class ToRaster>
-    struct blind_assign_from
-    {
-      blind_assign_from(ToRaster to) : m_to(to)
-      {}
-
-      template<class T>
-      void operator()(any_raster<T> from) const
-      {
-        assign(from, m_to);
-      }
-    private:
-      ToRaster m_to;
-    };
-
-    template< class RasterFrom>
-    void assign(any_blind_raster& to, const RasterFrom& from)
-    {
-      blind_function(blind_assign_to<RasterFrom>(from), to);
+      std::visit([](auto raster) {assign(to, raster); }, from);
     }
 
-    template< class RasterTo>
-    void assign(RasterTo& to, const any_blind_raster& from)
+    template<RasterVariantConcept RasterTo, RasterConcept RasterFrom> // only needs to be a range
+    void assign(RasterTo& to, const RasterFrom& from)
     {
-      blind_function(blind_assign_from<RasterTo>(to), from);
+      std::visit([](auto raster) { assign(raster, from); }, to.m_raster);
     }
 
-    
-    struct blind_assign_from_to
+    template<RasterVariantConcept RasterTo, RasterVariantConcept RasterFrom> // only needs to be a range
+    void assign(RasterTo& to, const RasterFrom& from)
     {
-      blind_assign_from_to(any_blind_raster to) : m_to(to)
-      {
-
-      }
-      template<class T>
-      void operator()(any_raster<T> from) const
-      {
-        assign(from, m_to);
-      }
-
-      any_blind_raster m_to;
-    };
-
-    inline // because it is not a template function, need to inline or put in cpp
-	void assign(any_blind_raster& to, const any_blind_raster& from)
-    {
-      blind_function(blind_assign_from_to{to}, from);
+      std::visit([](auto a, auto b) { assign(a, b); }, to.m_raster, from.m_raster);
     }
-    
-#pragma warning( pop ) 
-
     template<class RasterViewOut, class RasterViewIn>
     void assign_blocked(RasterViewOut& out, const RasterViewIn& in, int block_row_size, int block_col_size)
     {

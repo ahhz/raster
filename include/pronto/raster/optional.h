@@ -20,6 +20,12 @@ namespace pronto {
     template<class T>
     static const bool is_optional_v<std::optional<T> > = true;
 
+    template<class T>
+    static const bool is_optional_v<std::optional<T>& > = true;
+
+    template<class T>
+    static const bool is_optional_v<const std::optional<T>& > = true;
+
 
     template<class T>
     auto recursive_get_value(const T& v)
@@ -38,7 +44,7 @@ namespace pronto {
     bool recursive_is_initialized(const T& v)
     {
       if constexpr (is_optional_v<T>) {
-        return v && recursive_is_initialized(*v);
+        return v.has_value() && recursive_is_initialized(*v);
       }
       else {
         return true;
@@ -62,9 +68,9 @@ namespace pronto {
       template<class... Args>
       auto operator()(Args&&... args) 
       {
-        using value_type = decltype(std::declval<F>()(recursive_get_value(std::forward<Args>(args))...));
-
+     
         if constexpr ((... || is_optional_v<Args>)) {
+          using value_type = decltype(m_f(recursive_get_value(args)...));
           if ((... && recursive_is_initialized(args)))
           {
             return std::optional<value_type>(m_f(recursive_get_value(std::forward<Args>(args))...));

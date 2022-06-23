@@ -11,7 +11,9 @@
 #define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING
 #include <gtest/gtest.h>
 
-#include <pronto/raster/any_blind_raster.h>
+#include <pronto/raster/raster_variant.h>
+#include <pronto/raster/type_erased_raster.h>
+#include <pronto/raster/raster_algebra_operators.h>
 #include <pronto/raster/blind_function.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/nodata_transform.h>
@@ -186,7 +188,28 @@ bool test_type_erased_plus_nodata()
 	return vec == std::vector<int>{101, -999, 303, 404, -999, 606};
 
 }
-bool test_hidden_type_plus()
+
+bool test_plus_constant()
+{
+	int rows = 2;
+	int cols = 3;
+	auto a = pr::create_temp<int>(rows, cols);
+	int v = 0;
+	for (auto&& i : a) {
+		v += 1;
+		i = v;
+	}
+	auto b = a + 10;
+
+	std::vector<int> vec;
+	for (auto&& i : b) {
+		vec.push_back(i);
+	}
+
+	return vec == std::vector<int>{11, 12, 13, 14, 15, 16};
+
+}
+bool test_variant_type_plus()
 {
 	int rows = 2;
 	int cols = 3;
@@ -205,6 +228,7 @@ bool test_hidden_type_plus()
 	}
 	auto aa = pr::erase_and_hide_raster_type(a);
 	auto bb = pr::erase_and_hide_raster_type(b);
+	static_assert(pr::RasterVariantConcept<decltype(aa)>);
 	auto cc = aa + bb;
 
 	static const int index = 4;
@@ -228,10 +252,9 @@ bool test_get_any_blind_raster()
 		ones += 1;
 		i = ones;
 	}
-	pr::any_raster<int> any_a(a);
-	pr::any_blind_raster blind_a(any_a);
-	
-	auto index = pr::detail::index_in_packed_list(blind_a, pr::blind_data_types{});
+	auto aa = pr::erase_and_hide_raster_type(a);
+
+	auto index = aa.m_raster.index();
 	return index == 4;
 }
 
@@ -240,8 +263,9 @@ TEST(RasterTest, AnyBlindRaster) {
 	EXPECT_TRUE(test_type_erased_reference());
 	EXPECT_TRUE(test_type_erased_raster());
 	EXPECT_TRUE(test_type_erased_plus());
+	EXPECT_TRUE(test_plus_constant());
 	EXPECT_TRUE(test_type_erased_plus_nodata());
-	EXPECT_TRUE(test_hidden_type_plus());
+	EXPECT_TRUE(test_variant_type_plus());
 	EXPECT_TRUE(test_get_any_blind_raster());
 }
 

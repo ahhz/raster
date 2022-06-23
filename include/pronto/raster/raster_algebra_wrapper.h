@@ -7,7 +7,9 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
+/* Remove all contents of this file: superceded by type_erased_raster and raster_variant*/
 
+/*
 #pragma once
 
 #include <pronto/raster/any_blind_raster.h>
@@ -73,7 +75,7 @@ namespace pronto {
     private:
       Raster m_raster;
     };
-
+    
     template<>
     class raster_algebra_wrapper<any_blind_raster>
     {
@@ -120,3 +122,4 @@ namespace pronto {
     }
   }
 }
+*/

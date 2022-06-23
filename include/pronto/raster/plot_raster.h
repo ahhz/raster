@@ -12,37 +12,19 @@
 
 #pragma once
 
-#include <pronto/raster/any_blind_raster.h>
-#include <pronto/raster/blind_function.h>
-#include <pronto/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/access_type.h>
+#include <pronto/raster/raster.h>
+#include <pronto/raster/raster_variant.h>
+
 
 #include <iostream>
+#include <optional>
 
 namespace pronto {
   namespace raster {
 
     // a function object that can apply on any_raster with any value_type
-    struct value_type_getter
-    {
-      template<class T>
-      std::string  operator()(const any_raster<T>& raster) const
-      {
-        return std::string(typeid(T).name());
-      }
-    };
-
-    template<class Raster>
-    std::string get_value_type(const Raster& raster)
-    {
-      using value_type = typename traits<Raster>::value_type;
-      return std::string(typeid(value_type).name());
-
-    }
-    std::string get_value_type(const any_blind_raster& raster)
-    {
-      return blind_function(value_type_getter{}, raster);
-    }
-
+ 
     struct raster_plotter
     {
        void cout_value(const unsigned char& v)
@@ -83,7 +65,7 @@ namespace pronto {
         std::cout 
           << "Rows: " << rows 
           << ", Cols: " << cols 
-          << ", Value type: " << get_value_type(raster) 
+          << ", Value type: " << std::string(typeid(raster_value_type).name())
           << std::endl;
 
         if (rows * cols > 1000) {
@@ -114,14 +96,10 @@ namespace pronto {
       raster_plotter{}(raster);
     }
 
-    void plot_raster(any_blind_raster raster)
+    template<RasterVariantConcept Ras>
+    void plot_raster(const Ras& raster)
     {
-      blind_function(raster_plotter{}, raster);
-    }
-
-    void plot_raster(raster_algebra_wrapper<any_blind_raster> raster)
-    {
-      blind_function(raster_plotter{}, raster.unwrap());
+      std::visit(raster_plotter{}, raster.m_raster);
     }
   }
 }

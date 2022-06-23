@@ -7,7 +7,9 @@
 // Distributed under the MIT Licence (http://opensource.org/licenses/MIT)
 //=======================================================================
 //
+/* Remove all contents of this file: superceded by type_erased_raster and raster_variant*/
 
+/*
 #pragma once
 #include <pronto/raster/any_raster.h>
 
@@ -76,3 +78,4 @@ namespace pronto {
     }
   }
 }
+*/

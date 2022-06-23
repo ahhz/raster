@@ -4,11 +4,10 @@ Examples [9](./example_9.md) and [10](./example_10.md) already included the use 
 Thus, in the example below, the + operation is only applied on six cells.
  
 ```cpp
-// example_11.cpp
+/// example_11.cpp
 
 #include <pronto/raster/io.h>
 #include <pronto/raster/plot_raster.h>
-#include <pronto/raster/raster_algebra.h>
 #include <pronto/raster/raster_algebra_operators.h>
 
 namespace pr = pronto::raster;
@@ -17,8 +16,12 @@ void create_rasters_for_demo()
 {
   auto a = pr::create<int>("a.tif", 4, 5);
   auto b = pr::create<int>("b.tif", 4, 5);
-  int i = 0; for (auto&& v : a) { v = ++i; }
-  int j = 0; for (auto&& w : b) { j += 100;  w = j; }
+  for (int i = 0;  auto && v : a) { 
+    v = ++i; 
+  }
+  for (int i = 0; auto && v : b) { 
+    v = ++i * 100; 
+  }
 }
 
 int main()
@@ -27,9 +30,8 @@ int main()
 
   auto a = pr::open<int>("a.tif"); // assuming raster exists
   auto b = pr::open<int>("b.tif"); // assuming raster exists and same dimensions as "a.tif"
-  auto c = pr::raster_algebra_wrap(a) + pr::raster_algebra_wrap(b);
+  auto c = a + b;
 
-  
   plot_raster(a);
   plot_raster(b);
 

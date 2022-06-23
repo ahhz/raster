@@ -42,10 +42,7 @@ endif ()
 
 set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/access_type.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_blind_raster.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/any_raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/assign.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/blind_function.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_edge_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/complex_numbers.h
@@ -75,8 +72,8 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_operators.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_transform.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_algebra_wrapper.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_allocator.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/raster_variant.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_edge_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/rectangle_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/reference_proxy.h
@@ -86,6 +83,7 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/type_erased_raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h

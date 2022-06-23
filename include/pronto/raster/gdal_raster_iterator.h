@@ -45,6 +45,7 @@ namespace pronto
         , m_end_of_stretch(m_block.get_null_iterator()) // not so elegant
         , m_pos(m_block.get_null_iterator())            // not so elegant
         , m_stride(0)
+        , m_view(nullptr)
       {}
 
       gdal_raster_iterator(const gdal_raster_iterator& )            = default;
@@ -59,9 +60,9 @@ namespace pronto
         {
           if constexpr (is_single_pass)
           {
-            return reference_proxy<const gdal_raster_iterator&>(*this);
+            return put_get_proxy_reference<const gdal_raster_iterator&>(*this);
           } else {
-            return reference_proxy<gdal_raster_iterator>(*this);
+            return put_get_proxy_reference<gdal_raster_iterator>(*this);
           }
           }
           else {
@@ -100,8 +101,8 @@ namespace pronto
           return other.get_index() - get_index();
       }
     private:
-      friend class reference_proxy<const gdal_raster_iterator&>;
-      friend class reference_proxy<gdal_raster_iterator>;
+      friend class put_get_proxy_reference<const gdal_raster_iterator&>;
+      friend class put_get_proxy_reference<gdal_raster_iterator>;
 
       T get() const
       {

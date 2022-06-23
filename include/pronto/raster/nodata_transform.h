@@ -90,6 +90,9 @@ namespace pronto
       return transform(nodata_to_optional_functor<value_type>(nodata_value), r);
     }
 
+    template<class R>
+    using nodata_transformed_view = transform_raster_view< nodata_to_optional_functor<typename traits<R>::value_type>, R>;
+
     template<class Raster>
     auto optional_to_nodata(
       Raster r, const recursive_optional_value_type<

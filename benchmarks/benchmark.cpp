@@ -11,10 +11,11 @@
 #include <pronto/raster/any_blind_raster.h>
 #include <pronto/raster/assign.h>
 #include <pronto/raster/io.h>
+#include <pronto/raster/optional.h>
 #include <pronto/raster/random_raster_view.h>
 #include <pronto/raster/raster_algebra_operators.h>
-#include <pronto/raster/raster_algebra_wrapper.h>
-
+//#include <pronto/raster/raster_algebra_wrapper.h>
+#include <pronto/raster/uniform_raster_view.h>
 
 #include <benchmark/benchmark.h>
 
@@ -126,10 +127,9 @@ int benchmark_3_rasters_pronto()
     auto raster_b = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_only>("random_b.tif");
     auto raster_c = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_only>("random_c.tif");
     auto raster_out = pr::open<unsigned char, pr::iteration_type::multi_pass, pr::access::read_write>("output.tif");
-
-
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+    auto raster_sum = 3 * raster_a + raster_b * raster_c;
+   
+    static_assert(pr::RasterConcept<decltype(raster_sum) >);
 
     pr::assign(raster_out, raster_sum);
   }
@@ -153,8 +153,7 @@ int benchmark_3_rasters_pronto_single_pass()
     auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
 
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+    auto raster_sum = 3 * raster_a + raster_b * raster_c;
 
     pr::assign(raster_out, raster_sum);
   }
@@ -171,15 +170,14 @@ static void BM_3_rasters_pronto_single_pass(benchmark::State& state) {
 int benchmark_3_rasters_pronto_blind()
 {
   {
-    auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_any("random_b.tif", pr::access::read_only);
-    auto raster_c = pr::open_any("random_c.tif", pr::access::read_only);
-    auto raster_out = pr::open_any("output.tif", pr::access::read_write);
+    auto raster_a = pr::open_variant("random_a.tif");
+    auto raster_b = pr::open_variant("random_b.tif");
+    auto raster_c = pr::open_variant("random_c.tif");
+    auto raster_out = pr::open_variant("output.tif");
 
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+    auto raster_sum = 3 * raster_a + raster_b * raster_c;
 
-    pr::assign(raster_out, raster_sum.unwrap());
+      pr::assign(raster_out, raster_sum);
   }
   std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
@@ -199,8 +197,7 @@ int benchmark_3_rasters_pronto_single_pass_in_blocks()
     auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
     auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
 
-        auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b) * pr::raster_algebra_wrap(raster_c);
+    auto raster_sum = 3 * raster_a + raster_b * raster_c;
 
     pr::assign_blocked(raster_out, raster_sum);
   }
@@ -531,8 +528,7 @@ int benchmark_2_rasters()
     auto raster_out = pr::open<int, pr::iteration_type::multi_pass, pr::access::read_write>("output.tif");
 
 
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b);
+    auto raster_sum = 3 * raster_a  + raster_b;
 
     //pr::assign_blocked(raster_out, raster_sum,256, 256);
     pr::assign(raster_out, raster_sum);
@@ -545,14 +541,13 @@ int benchmark_2_rasters()
 int benchmark_2_rasters_blind()
 {
   {
-    auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
-    auto raster_b = pr::open_any("random_b.tif", pr::access::read_only);
-    auto raster_out = pr::open_any("output.tif", pr::access::read_write);
+    auto raster_a = pr::open_variant("random_a.tif");
+    auto raster_b = pr::open_variant("random_b.tif");
+    auto raster_out = pr::open_variant("output.tif");
 
-    auto raster_sum = 3 * pr::raster_algebra_wrap(raster_a)
-      + pr::raster_algebra_wrap(raster_b);
+    auto raster_sum = 3 * raster_a + raster_b;
 
-    pr::assign(raster_out, raster_sum.unwrap());
+    pr::assign(raster_out, raster_sum);
   }
   std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
@@ -803,8 +798,8 @@ int benchmark_assign()
 
 int benchmark_assign_blind()
 {
-  auto raster_a = pr::open_any("random_a.tif", pr::access::read_only);
-  auto raster_out = pr::open_any("output.tif", pr::access::read_write);
+  auto raster_a = pr::open_variant("random_a.tif");
+  auto raster_out = pr::open_variant("output.tif");
   pr::assign(raster_out, raster_a);
   return 0;
 }

@@ -163,7 +163,7 @@ namespace pronto {
     template<class Raster>
     class subraster_window_view
     {
-      using value_type = typename traits<Raster>::value_type;
+    using value_type = typename std::ranges::range_value_t<Raster>;
     public:
       subraster_window_view(const Raster& raster, int window_rows_before, int window_rows_after
         , int window_cols_before, int window_cols_after, value_type pad_value)

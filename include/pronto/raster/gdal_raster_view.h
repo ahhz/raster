@@ -14,7 +14,6 @@
 #pragma once
 
 #include <pronto/raster/access_type.h>
-#include <pronto/raster/complex_numbers.h>
 #include <pronto/raster/exceptions.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_iterator.h>

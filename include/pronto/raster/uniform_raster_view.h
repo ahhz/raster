@@ -9,121 +9,59 @@
 //
 
 #pragma once
-
+#include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/traits.h>
+#include <ranges>
 
-#include <iterator>
 
 namespace pronto {
   namespace raster {
 
     template<class T> //required to be a Raster and a View
-    class uniform_raster_view
+    class uniform_raster_view : public std::ranges::view_interface < uniform_raster_view<T>>
     {
     public:
-      class iterator
+      class iterator: public iterator_facade<iterator>
       {
       public:
-        using reference = const T&;
-        using value_type = T;
-        using pointer = void;
-        using difference_type = std::ptrdiff_t;
-        using iterator_category = std::input_iterator_tag;
+        static const bool is_mutable = false;
+        static const bool is_single_pass = false;
 
         iterator()
         {}
         
-        iterator& operator++()
+        void increment()
         { 
           ++m_index;
-          return *this;
         }
 
-        iterator operator++(int) 
-        {
-          iterator copy = (*this);
-          ++(*this);
-          return copy;
-        }
-
-        iterator& operator+=(const difference_type& n)
+        void advance(const std::ptrdiff_t & n)
         {
           m_index += n;
-          return *this;
         }
 
-        iterator operator+(const difference_type& n) const
-        {
-          iterator temp(*this);
-          temp += n;
-          return temp;
-        }
-
-        iterator& operator--() 
+        void decrement() 
         {
           --m_index;
-          return *this;
         }
 
-        iterator operator--(int)
-        {
-          iterator copy = (*this);
-          --(*this);
-          return copy;
-        }
 
-        iterator& operator-=(const difference_type& n)
-        {
-          m_index -= n;
-          return *this;
-        }
-
-        iterator operator-(const difference_type& n) const
-        {
-          iterator temp(*this);
-          temp -= n;
-          return temp;
-        }
-
-        bool operator==(const iterator& that) const
+        bool equal_to(const iterator& that) const
         {
           return that.m_index == m_index;
         }
 
-        bool operator!=(const iterator& that) const
+        std::ptrdiff_t distance_to(const iterator& that) const
         {
-          return that.m_index != m_index;
+          return that.m_index - m_index;
         }
 
-        const T& operator*() const
+
+        const T& dereference() const
         {
           return m_view->m_value;
         }
 
-        const T& operator[](std::ptrdiff_t) const
-        {
-          return m_view->m_value;
-        }
-
-        bool operator<(const iterator& that) const
-        {
-          return that.m_index < m_index;
-        }
-
-        bool operator<=(const iterator& that) const
-        {
-          return that.m_index <= m_index;
-        }
-
-        bool operator>(const iterator& that) const
-        {
-          return that.m_index > m_index;
-        }
-
-        bool operator>=(const iterator& that) const
-        {
-          return that.m_index >= m_index;
-        }
 
       private:
         friend class uniform_raster_view;
@@ -180,7 +118,7 @@ namespace pronto {
     template<class T>
     uniform_raster_view<T> uniform(int rows, int cols, T value)
     {
-      return uniform_raster_view<T>(rows, cols, value);
+      return uniform_raster_view(rows, cols, value);
     }
   }
 }

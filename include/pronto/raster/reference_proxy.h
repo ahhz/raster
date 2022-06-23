@@ -13,18 +13,92 @@
 
 namespace pronto {
   namespace raster {
+
+    //Derived must have operator T() and operator=(const T&) member functions
+    template<typename Derived, typename T>
+    class proxy_reference
+    {
+      using self_type = Derived;
+    public:
+      using value_type = T;
+      proxy_reference() = default;
+      proxy_reference(const proxy_reference&) = default;
+      proxy_reference(proxy_reference&&) = default;
+      ~proxy_reference() = default;
+
+      void put(const value_type& v) const {
+        _self() = v;
+      }
+
+      value_type get() const {
+        return static_cast<value_type>(_self());
+      }
+
+      const self_type& operator++() const
+      {
+        auto temp = get();
+        put(++temp);
+        return _self();
+      }
+      const self_type& operator--() const
+      {
+        auto temp = get();
+        put(--temp);
+        return _self();
+      }
+
+      value_type operator++(int) const
+      {
+        value_type temp = get();
+        put(++get());
+        return temp;
+      }
+      value_type operator--(int) const
+      {
+        value_type temp = get();
+        put(--get());
+        return temp;
+      }
+
+    private:
+      self_type& _self() {
+        return static_cast<self_type&>(*this);
+      }
+
+      const self_type& _self() const {
+        return static_cast<const self_type&>(*this);
+      }
+    public:
+
+      // MACRO to implement assigning operator
+#define PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(op)      \
+template<class U> const self_type& operator op(const U& v) const \
+{ auto temp = _self().operator value_type(); temp op v;_self().operator=(temp); return _self(); }
+
+      // All assigning operators.
+      PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(+= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(-= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(/= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(*= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(%= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(&= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(|= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(^= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(<<= )
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(>>= )
+    };
 	
     //the accessor must have put(v) and get() member functions
     template<typename Accessor>
-    class reference_proxy
+    class put_get_proxy_reference : public proxy_reference<put_get_proxy_reference<Accessor> , typename std::decay<Accessor>::type::value_type >
     {
     public:
       using value_type = typename std::decay<Accessor>::type::value_type;
-      reference_proxy() = delete;
-      reference_proxy(const Accessor& accessor) :m_accessor(accessor)
+      put_get_proxy_reference() = delete;
+      put_get_proxy_reference(const Accessor& accessor) :m_accessor(accessor)
       {}
-      reference_proxy(const reference_proxy&) = default;
-      reference_proxy(reference_proxy&&) = default;
+      put_get_proxy_reference(const put_get_proxy_reference&) = default;
+      put_get_proxy_reference(put_get_proxy_reference&&) = default;
 
       // conversion to make the iterator readable
       operator value_type() const
@@ -33,102 +107,29 @@ namespace pronto {
       }
 
       // assignment to make the iterator writable
-      const reference_proxy& operator=(const value_type& v) const
+      const put_get_proxy_reference& operator=(const value_type& v) const
       {
         m_accessor.put(v);
         return *this;
-      }
-      const reference_proxy& operator=(const reference_proxy& that) const
-      {
-        return operator=(static_cast<value_type>(that));
       }
       
-      const reference_proxy& operator=(reference_proxy&& that) const
-      {
-        return operator=(static_cast<value_type>(that));
-      }
-
-      // assignment to make the iterator writable
-      reference_proxy& operator=(const value_type& v) 
-      {
-        m_accessor.put(v);
-        return *this;
-      }
-      reference_proxy& operator=(const reference_proxy& that) 
-      {
-        return operator=(static_cast<value_type>(that));
-      }
-
-      reference_proxy& operator=(reference_proxy&& that) 
-      {
-        return operator=(static_cast<value_type>(that));
-      }
-
-      const reference_proxy& operator++() 
-      {
-        m_accessor.put(++m_accessor.get());
-        return *this;
-      }
-      const reference_proxy& operator--() 
-      {
-        m_accessor.put(--m_accessor.get());
-        return *this;
-      }
-
-      value_type operator++(int)
-      {
-        value_type temp = m_accessor.get();
-        m_accessor.put(++m_accessor.get());
-        return temp;
-      }
-      value_type operator--(int)
-      {
-        value_type temp = m_accessor.get();
-        m_accessor.put(--m_accessor.get());
-        return temp;
-      }
-    
     private:
       Accessor m_accessor;
-    
-    public:
-
-// MACRO to implement assigning operator
-#define PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(op)      \
-template<class T> const reference_proxy& operator op(const T& v) \
-{ auto temp = m_accessor.get(); temp op v;m_accessor.put(temp); return *this; }
-      
-      // All assigning operators.
-      // For the sake of some compilers deeclared after m_accessors
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(+=)
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(-= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(/= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(*= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(%= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(&= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(|= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(^= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(<<= )
-      PRONTO_RASTER_REFERENCE_PROXY_ASSIGNING_OPERATOR(>>= )
     };
 
-    template<class CharType, class CharTrait, class Accessor>
-    std::basic_ostream<CharType, CharTrait>&
-      operator<<(std::basic_ostream<CharType, CharTrait>& out
-        , reference_proxy<Accessor> const& p)
+    template<class CharType, class CharTrait, class Derived, class T>
+    auto& operator<<(std::basic_ostream<CharType, CharTrait>& out
+        , proxy_reference<Derived, T> const& p)
     {
-      using value_type = typename reference_proxy<Accessor>::value_type;
-      out << static_cast<value_type>(p);
+      out << static_cast<T>(p);
       return out;
     }
 
-    template<class CharType, class CharTrait, class Accessor>
-    std::basic_istream<CharType, CharTrait>&
-      operator >> (std::basic_istream<CharType, CharTrait>& in
-        , reference_proxy<Accessor>& p)
+    template<class CharType, class CharTrait, class Derived, class T>
+    auto& operator >> (std::basic_istream<CharType, CharTrait>& in
+        , proxy_reference<Derived, T>& p)
     {
-      using value_type = typename reference_proxy<Accessor>::value_type;
-      value_type v;
+      T v;
       in >> v;
       p = v;
       return in;

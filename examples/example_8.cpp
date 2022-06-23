@@ -10,8 +10,7 @@ int main()
 {
   // Create some data
   auto in = pr::create_temp<int>(4,5);
-  int i = 0;
-  for (auto&& v : in) {
+  for (int i = 0;  auto && v : in) {
     v = i;
     i = (i + 3) % 7;
   }

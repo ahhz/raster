@@ -8,6 +8,9 @@
 //=======================================================================
 //
 
+/* Remove all contents of this file: superceded by type_erased_raster and raster_variant*/
+
+/*
 #pragma once
 
 #include <pronto/raster/any_blind_raster.h>
@@ -182,3 +185,4 @@ namespace pronto {
   }
 }
 #pragma warning( pop )
+*/

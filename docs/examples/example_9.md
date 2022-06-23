@@ -43,32 +43,32 @@ Rows: 10, Cols: 5, Value type: int
 1       1       6       1       6
 1       4       5       2       3
 
-Rows: 3, Cols: 3, Value type: int
--99     -99     -99
--99     3       1
--99     2       6
+Rows: 3, Cols: 3, Value type: class std::optional<int>
+-       -       -
+-       3       1
+-       2       6
 
-Rows: 3, Cols: 3, Value type: int
--99     -99     -99
+Rows: 3, Cols: 3, Value type: class std::optional<int>
+-       -       -
 3       1       3
 2       6       6
 
-Rows: 3, Cols: 3, Value type: int
--99     -99     -99
+Rows: 3, Cols: 3, Value type: class std::optional<int>
+-       -       -
 1       3       6
 6       6       1
 
-Rows: 3, Cols: 3, Value type: int
--99     3       1
--99     2       6
--99     2       6
+Rows: 3, Cols: 3, Value type: class std::optional<int>
+-       3       1
+-       2       6
+-       2       6
 
-Rows: 3, Cols: 3, Value type: int
+Rows: 3, Cols: 3, Value type: class std::optional<int>
 3       1       3
 2       6       6
 2       6       1
 
-Rows: 3, Cols: 3, Value type: int
+Rows: 3, Cols: 3, Value type: class std::optional<int>
 1       3       6
 6       6       1
 6       1       1

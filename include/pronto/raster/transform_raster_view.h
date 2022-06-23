@@ -14,7 +14,6 @@
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
 
-#include <iterator>
 #include <utility>
 #include <cassert>
 
@@ -91,11 +90,12 @@ namespace pronto {
     };
 
     template<class F, class... R>
-    class transform_raster_view
+    class transform_raster_view : public std::ranges::view_interface<transform_raster_view<F, R...> >
     {
     private:
       static_assert(std::is_copy_constructible<F>::value, "because this models RasterView, use std::ref in transform function");
       static const bool is_mutable = false;
+      static const bool is_single_pass = false;
       using function_type = F;
 
       static const std::size_t N = sizeof...(R);
@@ -158,13 +158,10 @@ namespace pronto {
     };
 
 
-    template<class T>
-    using decay_t = typename std::decay<T>::type;
-
     template<class F, class... R> // requires these to be RasterViews
     auto transform(F&& f, R... r)
     {
-      return transform_raster_view<typename std::decay<F>::type, R...>
+      return transform_raster_view<typename std::decay_t<F>, R...>
         (std::forward<F>(f), r...);
     }
   }

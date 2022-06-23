@@ -11,8 +11,7 @@ namespace pr = pronto::raster;
 int main()
 {
   auto in = pr::create_temp<int>(5, 6);
-  int i = 0;
-  for (auto&& v : in) {
+  for (int i = 0;  auto && v : in) {
     i = (i + 3) % 7;
     v = i;
   }

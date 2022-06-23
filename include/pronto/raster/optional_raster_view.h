@@ -1,6 +1,6 @@
 //
 //=======================================================================
-// Copyright 2016-2017
+// Copyright 2016-2022
 // Author: Alex Hagen-Zanker
 // University of Surrey
 //
@@ -11,28 +11,20 @@
 #pragma once
 
 #include <pronto/raster/transform_raster_view.h>
+
 #include <optional>
+
 namespace pronto {
   namespace raster {
 
-    struct make_optional_value
-    {
-      template<class T>
-      std::optional<T> operator()(const T& v) const  
-      {
-        return std::optional<T>(v);
-      }
-    };
-
-   // template <class Raster>
-  //  using optional_raster_view = transform_raster_view<
-   //   make_optional_value, Raster>;
-	
     template<class Raster>
     auto optionalize(Raster r)
     {
-      return transform(make_optional_value{}, r);
+      return transform([](auto v) { return std::optional(v); }, r);
     }
+
+    template<class R>
+    using optional_raster_view = decltype(optionalize(std::declval<R>()));
   }
 }
 

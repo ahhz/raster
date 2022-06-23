@@ -11,6 +11,8 @@
 #pragma once
 
 #include <pronto/raster/access_type.h>
+#include <pronto/raster/iterator_facade.h>
+
 #include <pronto/raster/reference_proxy.h>
 #include <pronto/raster/traits.h>
 
@@ -25,15 +27,12 @@ namespace pronto {
      template<class Raster> class padded_raster_view;
 
     template<class Raster, class Iterator>
-    class padded_raster_iterator
+    class padded_raster_iterator : public iterator_facade<padded_raster_iterator<Raster, Iterator> >
      {
     public:
-      using value_type = typename std::iterator_traits<Iterator>::value_type;
-      using reference = reference_proxy<padded_raster_iterator>;
-      using difference_type = void;
-      using pointer = void;
-      using iterator_category = std::input_iterator_tag;
-      
+      using value_type = std::ranges::range_value_t<Raster>;
+      using reference = put_get_proxy_reference<padded_raster_iterator>;
+       
       padded_raster_iterator() = default;
 
       padded_raster_iterator(const padded_raster_view<Raster>* view,
@@ -42,33 +41,54 @@ namespace pronto {
         find_begin(view, iter);
       }
 
-      padded_raster_iterator& operator++()
+
+
+      static const bool is_mutable = false;
+      static const bool is_single_pass = false;
+
+   
+      void increment()
       {
         ++m_index_in_stretch;
         if (!m_is_padding) ++m_iter;
-        
+
         while (m_index_in_stretch == m_stretch_size) {
           ++m_stretch;
           if (m_stretch == m_view->num_stretches()) {
             m_index_in_stretch = 0;
-            return *this;
+            return;
           }
-                
+
           m_index_in_stretch = 0;
           m_stretch_size = m_view->length_of_stretch(m_stretch);
           m_is_padding = m_view->is_padding(m_stretch);
         }
-        return *this;
+        return ;
       }
 
-      padded_raster_iterator operator++(int)
+      //void advance(const std::ptrdiff_t& n)
+      //{
+      //  m_index += n;
+      //}
+
+      //void decrement()
+      //{
+      //  --m_index;
+      //}
+
+
+      bool equal_to(const padded_raster_iterator& that) const
       {
-        padded_raster_iterator temp(*this);
-        ++(*this);
-        return temp;
+        return m_stretch == that.m_stretch && m_index_in_stretch == that.m_index_in_stretch;
       }
 
-      reference operator*() const
+      //std::ptrdiff_t distance_to(const iterator& that) const
+      //{
+      // return that.m_index - m_index;
+      //}
+
+
+      reference dereference() const
       {
         return reference(*this);
       }
@@ -90,19 +110,6 @@ namespace pronto {
           throw("trying to write into the padding of a padded_raster_view");
         }
         *m_iter = value;
-      }
-
-    public:
-      friend bool operator==(const padded_raster_iterator& a,
-        const padded_raster_iterator& b)
-      {
-        return a.m_stretch == b.m_stretch && a.m_index_in_stretch == b.m_index_in_stretch;
-      }
-
-      friend bool operator!=(const padded_raster_iterator& a,
-        const padded_raster_iterator& b)
-      {
-        return a.m_stretch != b.m_stretch || a.m_index_in_stretch != b.m_index_in_stretch;
       }
 
     private:
@@ -150,7 +157,7 @@ namespace pronto {
     };
    
     template<typename Raster> // requires Raster and View concepts 
-    class padded_raster_view
+    class padded_raster_view : public std::ranges::view_interface<padded_raster_view<Raster> >
     {
     private:
       using value_type = typename traits<Raster>::value_type;
