@@ -47,8 +47,6 @@ docs:
         url: concepts/indicator_generator
       - title: Proxy Reference
         url: concepts/proxy_reference
-      - title: Random Accessibile Raster Iterator
-        url: random_accessible_raster_iterator
   - title: Functions
     children:
       - title: assign
@@ -108,10 +106,6 @@ docs:
         url: types/padded_raster_view
       - title: pair_raster_view
         url: types/pair_raster_view
-      - title: path
-        url: types/path
-      - title: raster_algebra_wrapper
-        url: types/raster_algebra_wrapper
       - title: traits
         url: types/traits
       - title: transform_raster_view
