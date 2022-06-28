@@ -37,7 +37,6 @@ namespace pronto {
         behind
       };
 
-
       using value_type = std::ranges::range_value_t<Raster>;
       using reference = put_get_proxy_reference<padded_raster_iterator>;
        
@@ -48,13 +47,10 @@ namespace pronto {
       {
         find_begin(view, iter);
       }
-
-
-
+      
       static const bool is_mutable = false;
       static const bool is_single_pass = false;
-
-   
+         
       void increment()
       {
         ++m_index_in_stretch;
@@ -85,9 +81,7 @@ namespace pronto {
               ++m_iter;
             }
             m_core_iter_position = iter_pos::on_target;
-
           }
-          
         }
       }
 
@@ -202,8 +196,6 @@ namespace pronto {
         m_stretch_size = m_view->length_of_stretch(m_stretch);
         m_iter = --iter;
         m_index_in_stretch = m_stretch_size;
-
-
       }
 
       long long get_index() const
@@ -221,7 +213,6 @@ namespace pronto {
         if (core_col < 0) {
           core_col = 0;
           m_core_iter_position = iter_pos::ahead;
-
         }
 
         if (core_col >= m_view->m_core_cols) {
@@ -244,9 +235,7 @@ namespace pronto {
         m_iter = m_view->begin() + core_index;
       }
    
-
-
-    private:
+ private:
       int m_stretch;
       int m_stretch_size;
       int m_index_in_stretch;
