@@ -19,7 +19,7 @@ namespace pronto {
     {
       auto r1 = raster.sub_raster(0, 0, raster.rows() - 1, raster.cols());
       auto r2 = raster.sub_raster(1, 0, raster.rows() - 1, raster.cols());
-      return pair_raster_view<R>(r1, r2);
+      return pair_raster_view(r1, r2);
     }
 
     template<class R>
@@ -27,7 +27,7 @@ namespace pronto {
     {
       auto r1 = raster.sub_raster(0, 0, raster.rows(), raster.cols() - 1);
       auto r2 = raster.sub_raster(0, 1, raster.rows(), raster.cols() - 1);
-      return pair_raster_view<R>(r1, r2);
+      return pair_raster_view(r1, r2);
     }
 
     template<class R>
