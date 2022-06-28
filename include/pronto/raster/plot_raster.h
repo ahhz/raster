@@ -99,7 +99,7 @@ namespace pronto {
     template<RasterVariantConcept Ras>
     void plot_raster(const Ras& raster)
     {
-      std::visit(raster_plotter{}, raster.m_raster);
+      std::visit(raster_plotter{}, raster);
     }
   }
 }

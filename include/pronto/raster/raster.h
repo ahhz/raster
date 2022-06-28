@@ -9,7 +9,7 @@
 #pragma once
 
 #include <ranges>
-
+#include <variant>
 namespace pronto {
   namespace raster {
 
@@ -28,10 +28,24 @@ namespace pronto {
     } && R::is_type_erased;
 
 
+    template<class R>
+    constexpr auto is_raster_variant_v = false;
+
+    template<RasterConcept... R>
+    constexpr auto is_raster_variant_v<std::variant<R...> > = true;
+
     template <class R>
-    concept RasterVariantConcept = R::is_raster_variant;
+    concept RasterVariantConcept = is_raster_variant_v<R>;
 
     template <class R> 
     concept NoRasterConcept = (!RasterConcept<R>) && (!RasterVariantConcept<R>);
+
+
+    template<class F, class... Args >
+    auto visit_with_variant_output(F f, std::variant<Args...>&& var)
+    {
+      using output_type = std::variant<decltype(std::declval<F>()(std::declval<Args>()))...>;
+      return std::visit([](auto&& v) {return output_type{ f(v) }; }, std::forward< std::variant<Args...> >(var));
+    }
   }
 }

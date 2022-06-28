@@ -22,7 +22,45 @@
 
 namespace pronto {
   namespace raster {
+    namespace detail {
+      template<class Iter> void increment(std::any& iter)
+      {
+        ++std::any_cast<Iter&>(iter);
+      }
 
+      template<class Iter> void decrement(std::any& iter)
+      {
+        --std::any_cast<Iter&>(iter);
+      }
+
+      template<class Iter> void advance(std::any& iter, std::ptrdiff_t diff)
+      {
+        std::any_cast<Iter&>(iter) += diff;
+      }
+
+      template<class Iter> bool equal_to(const std::any& iter_a, const std::any& iter_b)
+      {
+        return std::any_cast<const Iter&>(iter_b) == std::any_cast<const Iter&>(iter_a);
+      }
+
+      template<class Iter> std::ptrdiff_t distance_to(const std::any& iter_a, const std::any& iter_b)
+      {
+        return std::any_cast<const Iter&>(iter_b) - std::any_cast<const Iter&>(iter_a);
+      }
+
+      template<class Iter> auto get(const std::any& iter)
+      {
+        using value_type = typename std::iterator_traits<Iter>::value_type;
+        return static_cast<value_type>(*std::any_cast<const Iter&>(iter));
+      }
+
+      template<class Iter> void put(const std::any& iter, const typename std::iterator_traits<Iter>::value_type& v)
+      {
+        using value_type = typename std::iterator_traits<Iter>::value_type;
+        auto ref = *std::any_cast<const Iter&>(iter);
+        ref = v;
+      }
+    }
     template<class T, access AccessType = access::read_write>
     class type_erased_reference : public proxy_reference<type_erased_reference<T, AccessType>, T>
     {
@@ -86,40 +124,85 @@ namespace pronto {
       {
         using iter_type = Iter;// std::remove_cv_t<Iter>;
         m_any_iter = std::make_any<iter_type>(iter);
-        m_increment = [](std::any& it) {
-          iter_type& i = std::any_cast<iter_type&>(it);
-          ++i;
-        };
-        m_decrement = [](std::any& it) {--std::any_cast<iter_type&>(it); };
-        m_advance = [](std::any& it, std::ptrdiff_t offset) {std::any_cast<iter_type&>(it) += offset; };
-        m_equal_to = [](const std::any& it, const type_erased_raster_iterator& other)
-        {
-          return std::any_cast<const iter_type&>(it) == std::any_cast<const iter_type&>(other.m_any_iter);
-        };
+        m_increment = detail::increment<Iter>;
+        m_decrement = detail::decrement<Iter>;
+        m_advance = detail::advance<Iter>;
+        m_equal_to = detail::equal_to<Iter>;
+        m_distance_to = detail::distance_to<Iter>;
+        m_get = detail::get<Iter>;
+        m_put = detail::put<Iter>;
 
-        m_distance_to = [](const std::any& it, const type_erased_raster_iterator& other)
-        {
-          return std::any_cast<const iter_type&>(other.m_any_iter) - std::any_cast<const iter_type&>(it);
-        };
-
-        m_dereference = [](const std::any& it) {return erase_reference_type<T, AccessType>(*(std::any_cast<const iter_type&>(it))); };
+      //  m_dereference = [](const std::any& it) {return erase_reference_type<T, AccessType>(*(std::any_cast<const iter_type&>(it))); };
 
       }
 
-      type_erased_reference<T, AccessType> dereference() const { return m_dereference(m_any_iter); };
-      void increment() { m_increment(m_any_iter); }
-      void decrement() { m_decrement(m_any_iter); }
-      void advance(std::ptrdiff_t offset) { m_advance(m_any_iter, offset); }
-      bool equal_to(const type_erased_raster_iterator& other) const { return m_equal_to(m_any_iter, other); };
-      std::ptrdiff_t distance_to(const type_erased_raster_iterator& other) const { return m_distance_to(m_any_iter, other); };
+      //type_erased_reference<T, AccessType> dereference() const { return m_dereference(m_any_iter); };
 
+      void increment() 
+      { 
+        m_increment(m_any_iter); 
+      }
+      
+      void decrement() 
+      { 
+        m_decrement(m_any_iter); 
+      }
+      
+      void advance(std::ptrdiff_t offset) 
+      { 
+        m_advance(m_any_iter, offset); 
+      }
+
+      bool equal_to(const type_erased_raster_iterator& other) const 
+      { 
+        return m_equal_to(m_any_iter, other.m_any_iter); 
+      }
+      
+      std::ptrdiff_t distance_to(const type_erased_raster_iterator& other) const
+      {
+        return m_distance_to(m_any_iter, other.m_any_iter);
+      }
+
+      T get() const
+      {
+        return m_get(m_any_iter);
+      }
+
+      void put(const T& v) const
+      {
+        return m_put(m_any_iter, v);
+      }
+
+      auto dereference() const {
+        if constexpr (is_mutable)
+        {
+          if constexpr (is_single_pass)
+          {
+            return put_get_proxy_reference<const type_erased_raster_iterator&>(*this);
+          }
+          else {
+            return put_get_proxy_reference<type_erased_raster_iterator>(*this);
+          }
+        }
+        else {
+          return get();
+        }
+      }
     private:
-      std::function<type_erased_reference<T, AccessType>(const std::any&)> m_dereference;
-      std::function<void(std::any&)> m_increment;
-      std::function<void(std::any&)> m_decrement;
-      std::function<void(std::any&, std::ptrdiff_t)> m_advance;
-      std::function<bool(const std::any&, const type_erased_raster_iterator&)> m_equal_to;
-      std::function<std::ptrdiff_t(const std::any&, const type_erased_raster_iterator&)> m_distance_to;
+     // std::function<type_erased_reference<T, AccessType>(const std::any&)> m_dereference;
+      
+      void(*m_increment)(std::any&);
+      void(*m_decrement)(std::any&);
+      void(*m_advance)(std::any&, std::ptrdiff_t);
+      bool(*m_equal_to)(const std::any&, const std::any&);
+      std::ptrdiff_t(*m_distance_to)(const std::any&, const std::any&);
+      T(*m_get)(const std::any&);
+      void(*m_put)(const std::any&, const T&);
+
+      const std::any& get_iter() const
+      {
+        return m_any_iter;
+      }
 
       std::any m_any_iter;
     };
@@ -180,14 +263,13 @@ namespace pronto {
     template<class R>
     auto erase_raster_type(R r)
     {
-      const static access access_type = std::ranges::output_range<R, std::ranges::range_value_t<R>>
-        && !std::is_same_v<std::ranges::range_reference_t<R>, std::ranges::range_value_t<R> >
-        ? access::read_write
-        : access::read_only;
+      constexpr auto iter_type = std::ranges::forward_range<R> ? iteration_type::multi_pass : iteration_type::single_pass;
+      constexpr auto writeable = std::ranges::output_range < R, std::ranges::range_value_t<R> >;
+      constexpr auto ref_equals_value = std::is_same_v< std::ranges::range_reference_t<R>, std::ranges::range_value_t<R>>;
+      constexpr auto acc_type = writeable && !ref_equals_value ? access::read_write : access::read_only;
 
-      const static iteration_type i_type = std::ranges::forward_range<R> ? iteration_type::multi_pass : iteration_type::single_pass;
 
-      return type_erased_raster<std::ranges::range_value_t<R>, i_type, access_type>(r);
+      return type_erased_raster<std::ranges::range_value_t<R>, iter_type, acc_type>(r);
     }
   }
 }

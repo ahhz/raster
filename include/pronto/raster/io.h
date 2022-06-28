@@ -13,9 +13,7 @@
 // dataset.
 
 #pragma once
-#include <pronto/raster/any_blind_raster.h>
 #include <pronto/raster/assign.h>
-#include <pronto/raster/blind_function.h>
 #include <pronto/raster/exceptions.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_view.h>
@@ -291,6 +289,15 @@ namespace pronto
       }
     }
 
+
+    template<class T, iteration_type I = iteration_type::multi_pass, access A = access::read_write>
+    auto open_variant_typed(const std::filesystem::path& path,
+      int band_index = 1)
+    {
+      auto dataset = detail::open_dataset(path, A);
+      auto band = detail::open_band(dataset, band_index);
+      return uncasted_gdal_raster_view <T, I, A>(band);
+    }
 
     template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
     gdal_raster_variant<IterationType, AccessType> open_variant(const std::filesystem::path& path,

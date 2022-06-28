@@ -88,29 +88,29 @@ namespace pronto {
       template<class F, RasterVariantConcept RA, RasterVariantConcept RB>
       auto  binary_operator_apply(F f, RA variant_a, RB variant_b) {
         return std::visit([=](auto&& a, auto&& b) {
-          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_a.m_raster, variant_b.m_raster);
+          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_a, variant_b);
       }
 
       template<class F, RasterConcept RA, RasterVariantConcept RB>
       auto binary_operator_apply(F f, RA a, RB variant_b) {
         return std::visit([=](auto&& b) {
-          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_b.m_raster);
+          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_b);
       }
 
       template<class F, RasterVariantConcept RA, RasterConcept RB>
       auto binary_operator_apply(F f, RA variant_a, RB b) {
         return std::visit([=](auto&& a, auto&& b) {
-          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_a.m_raster);
+          return erase_and_hide_raster_type(transform(optionalize_function(f), a, b)); }, variant_a);
       }
 
       template<class F, NoRasterConcept T, RasterVariantConcept RB>
       auto  binary_operator_apply(F f, T va, RB variant_b) {
-        return std::visit([=](auto&& b) {return erase_and_hide_raster_type(transform(optionalize_function(left_tie{ va, f }), b)); }, variant_b.m_raster);
+        return std::visit([=](auto&& b) {return erase_and_hide_raster_type(transform(optionalize_function(left_tie{ va, f }), b)); }, variant_b);
       }
       
       template<class F, RasterVariantConcept RA, NoRasterConcept T >
       auto  binary_operator_apply(F f, RA variant_a, T vb) {
-         return std::visit([=](auto&& a) {return erase_and_hide_raster_type(transform(optionalize_function(right_tie{ vb, f }), a)); }, variant_a.m_raster);
+         return std::visit([=](auto&& a) {return erase_and_hide_raster_type(transform(optionalize_function(right_tie{ vb, f }), a)); }, variant_a);
       }
 
       template<class F, RasterConcept R>
@@ -125,7 +125,7 @@ namespace pronto {
       template<class F, RasterVariantConcept RA>
       auto unary_operator_apply(F f, RA variant_a) {
         return std::visit([=](auto&& a) {
-          return erase_and_hide_raster_type(transform(optionalize_function(f), a)); }, variant_a.m_raster);
+          return erase_and_hide_raster_type(transform(optionalize_function(f), a)); }, variant_a);
       }
     }
   }

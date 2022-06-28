@@ -20,16 +20,7 @@ namespace pronto {
   namespace raster {
 
     template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
-    class raster_variant
-    {
-    public:
-      static const bool is_raster_variant = true; // to facilitate concept check
-      template<class T>
-      raster_variant(type_erased_raster < T, IterationType, AccessType> raster)
-      {
-        m_raster = raster;
-      }
-
+    using raster_variant = 
       std::variant<
         type_erased_raster< bool, IterationType, AccessType >,
         type_erased_raster< uint8_t, IterationType, AccessType >,
@@ -46,13 +37,17 @@ namespace pronto {
         type_erased_raster< std::optional<int32_t >, IterationType, AccessType >,
         type_erased_raster< std::optional<uint32_t>, IterationType, AccessType >,
         type_erased_raster< std::optional<float>, IterationType, AccessType >,
-        type_erased_raster< std::optional<double>, IterationType, AccessType > > m_raster;
-    };
-
+        type_erased_raster< std::optional<double>, IterationType, AccessType > > ;
+ 
     template<class R>
     auto erase_and_hide_raster_type(R r)
     {
-      return raster_variant{ erase_raster_type(r) };
+      constexpr auto iter_type = std::ranges::forward_range<R> ? iteration_type::multi_pass : iteration_type::single_pass;
+      constexpr auto writeable = std::ranges::output_range < R, std::ranges::range_value_t<R> >;
+      constexpr auto ref_equals_value = std::is_same_v< std::ranges::range_reference_t<R>, std::ranges::range_value_t<R>>;
+      constexpr auto acc_type = writeable && !ref_equals_value ? access::read_write : access::read_only;
+      
+      return raster_variant<iter_type, acc_type>{ erase_raster_type(r) };
     }
   }
 }

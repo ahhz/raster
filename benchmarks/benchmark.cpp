@@ -167,17 +167,40 @@ static void BM_3_rasters_pronto_single_pass(benchmark::State& state) {
     benchmark_3_rasters_pronto_single_pass();
 }
 
-int benchmark_3_rasters_pronto_blind()
+int benchmark_3_rasters_pronto_typed()
 {
   {
-    auto raster_a = pr::open_variant("random_a.tif");
-    auto raster_b = pr::open_variant("random_b.tif");
-    auto raster_c = pr::open_variant("random_c.tif");
-    auto raster_out = pr::open_variant("output.tif");
+    auto raster_a = pr::open_variant_typed<unsigned char, pr::iteration_type::single_pass, pr::access::read_only >("random_a.tif");
+    auto raster_b = pr::open_variant_typed<unsigned char, pr::iteration_type::single_pass, pr::access::read_only >("random_b.tif");
+    auto raster_c = pr::open_variant_typed<unsigned char, pr::iteration_type::single_pass, pr::access::read_only >("random_c.tif");
+    auto raster_out = pr::open_variant_typed<unsigned char, pr::iteration_type::single_pass, pr::access::read_write >("output.tif");
 
     auto raster_sum = 3 * raster_a + raster_b * raster_c;
 
-      pr::assign(raster_out, raster_sum);
+    pr::assign(raster_out, raster_sum);
+  }
+  std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
+
+
+  return 0;
+}
+
+static void BM_3_rasters_pronto_typed(benchmark::State& state) {
+  for (auto _ : state)
+    benchmark_3_rasters_pronto_typed();
+}
+
+int benchmark_3_rasters_pronto_blind()
+{
+  {
+    auto raster_a = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_only >("random_a.tif");
+    auto raster_b = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_only >("random_b.tif");
+    auto raster_c = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_only >("random_c.tif");
+    auto raster_out = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_write >("output.tif");
+
+    auto raster_sum = 3 * raster_a + raster_b * raster_c;
+
+    pr::assign(raster_out, raster_sum);
   }
   std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
@@ -196,9 +219,7 @@ int benchmark_3_rasters_pronto_single_pass_in_blocks()
     auto raster_b = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_b.tif");
     auto raster_c = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_only>("random_c.tif");
     auto raster_out = pr::open<unsigned char, pr::iteration_type::single_pass, pr::access::read_write>("output.tif");
-
     auto raster_sum = 3 * raster_a + raster_b * raster_c;
-
     pr::assign_blocked(raster_out, raster_sum);
   }
    std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
@@ -541,9 +562,9 @@ int benchmark_2_rasters()
 int benchmark_2_rasters_blind()
 {
   {
-    auto raster_a = pr::open_variant("random_a.tif");
-    auto raster_b = pr::open_variant("random_b.tif");
-    auto raster_out = pr::open_variant("output.tif");
+    auto raster_a = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_only >("random_a.tif");
+    auto raster_b = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_only >("random_b.tif");
+    auto raster_out = pr::open_variant<pr::iteration_type::single_pass, pr::access::read_write >("output.tif");
 
     auto raster_sum = 3 * raster_a + raster_b;
 
@@ -774,6 +795,8 @@ static void BM_3_rasters_coldstart(benchmark::State& state) {
 }
 BENCHMARK(BM_create_data_for_benchmark)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_coldstart)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_blind)->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_3_rasters_pronto_typed)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_blind)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto)->Unit(benchmark::kMillisecond);
 BENCHMARK(BM_3_rasters_pronto_single_pass)->Unit(benchmark::kMillisecond);

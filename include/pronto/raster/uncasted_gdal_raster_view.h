@@ -441,26 +441,8 @@ namespace pronto
 
 
     template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
-    class gdal_raster_variant
+    struct gdal_raster_variant_helper
     {
-    public:
-      static const bool is_raster_variant = true;
-
-      gdal_raster_variant() = default;
-      ~gdal_raster_variant() = default;
-
-      template<class T>
-      gdal_raster_variant(uncasted_gdal_raster_view <T, IterationType, AccessType> raster)
-      {
-        m_raster = raster;
-      }
-
-      template<class T>
-      gdal_raster_variant(nodata_transformed_view<uncasted_gdal_raster_view <T, IterationType, AccessType>> raster)
-      {
-        m_raster = raster;
-      }
-
       template<class T>
       using plain_type = uncasted_gdal_raster_view<T, IterationType, AccessType>;
 
@@ -468,7 +450,7 @@ namespace pronto
       using nodata_type = nodata_transformed_view<plain_type<T> >;
 
 
-      std::variant<
+      using type = std::variant<
         plain_type<uint8_t>,
         plain_type<int16_t>,
         plain_type<uint16_t>,
@@ -482,8 +464,11 @@ namespace pronto
         nodata_type< int32_t>,
         nodata_type< uint32_t>,
         nodata_type< float>,
-        nodata_type< double> > m_raster;
+        nodata_type< double> >;
     };
+
+    template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
+    using gdal_raster_variant = typename gdal_raster_variant_helper<IterationType, AccessType>::type;
     
     /* 
     template<class Orig, class T, access A, iteration_type I>

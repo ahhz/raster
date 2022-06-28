@@ -116,7 +116,7 @@ bool test_raster_times_constant()
 	auto aa = pr::erase_and_hide_raster_type(a);
 
 	auto cc = aa * constant;
-	auto c = std::get<4>(cc.m_raster);
+	auto c = std::get<4>(cc);
 	int check = 0;
 	for (auto&& i : c) {
 		check += 1;
@@ -181,7 +181,7 @@ bool test_constant_plus_any_blind_raster()
 
 	auto check = 100;
 
-	auto c = std::get<4>(c_blind.m_raster); // int
+	auto c = std::get<4>(c_blind); // int
 	for (auto&& i : c) {
 		check += 1;
 		if (i != check) return false;
@@ -213,7 +213,7 @@ bool test_any_blind_raster_plus_any_blind_raster()
 	auto b_blind = pr::erase_and_hide_raster_type(b);
 
 	auto c_blind = a_blind + b_blind;
-	auto c = std::get<4>(c_blind.m_raster); // int
+	auto c = std::get<4>(c_blind); // int
 	int check = 0;
 	for (auto&& i : c) {
 		check += 101;

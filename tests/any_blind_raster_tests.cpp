@@ -232,7 +232,7 @@ bool test_variant_type_plus()
 	auto cc = aa + bb;
 
 	static const int index = 4;
-	auto c = std::get<4>(cc.m_raster);
+	auto c = std::get<4>(cc);
 	std::vector<int> vec;
 	for (auto&& i : c) {
 		vec.push_back(i);
@@ -254,7 +254,7 @@ bool test_get_any_blind_raster()
 	}
 	auto aa = pr::erase_and_hide_raster_type(a);
 
-	auto index = aa.m_raster.index();
+	auto index = aa.index();
 	return index == 4;
 }
 

@@ -91,13 +91,13 @@ namespace pronto {
     template<RasterVariantConcept RasterTo, RasterConcept RasterFrom> // only needs to be a range
     void assign(RasterTo& to, const RasterFrom& from)
     {
-      std::visit([](auto raster) { assign(raster, from); }, to.m_raster);
+      std::visit([](auto raster) { assign(raster, from); }, to);
     }
 
     template<RasterVariantConcept RasterTo, RasterVariantConcept RasterFrom> // only needs to be a range
     void assign(RasterTo& to, const RasterFrom& from)
     {
-      std::visit([](auto a, auto b) { assign(a, b); }, to.m_raster, from.m_raster);
+      std::visit([](auto a, auto b) { assign(a, b); }, to, from);
     }
     template<class RasterViewOut, class RasterViewIn>
     void assign_blocked(RasterViewOut& out, const RasterViewIn& in, int block_row_size, int block_col_size)

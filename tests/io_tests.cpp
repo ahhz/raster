@@ -114,8 +114,6 @@ bool test_open_variant()
   bool check_contents;
   {
     auto r = pronto::raster::open_variant("temp.tif");
-    //auto f = [](auto r1, auto r2) {return pr::erase_and_hide_raster_type(pr::transform(std::plus<int>{}, pr::optional_to_nodata(r1,0), pr::optional_to_nodata(r2, 0))); };
-    //auto two_r = std::visit(f, r.m_raster,r.m_raster);
     auto two_r = r + r;
     std::vector<int> check_vector;
     auto copy = [&](auto ras) {
@@ -127,7 +125,7 @@ bool test_open_variant()
         check_vector.push_back(static_cast<int>(v));
       };
     };
-    std::visit(copy, two_r.m_raster);
+    std::visit(copy, two_r);
 
     check_contents = check_vector == std::vector<int>
     {0, 2,4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28};
