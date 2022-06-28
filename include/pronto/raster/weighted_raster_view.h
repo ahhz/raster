@@ -12,15 +12,15 @@
 
 #include <pronto/raster/pair_raster_view.h>
 #include <pronto/raster/traits.h>
-
-#include <iterator>
+#include <pronto/raster/iterator_facade.h>
+#include <pronto/raster/reference_proxy.h>
 #include <utility>
 
 namespace pronto {
   namespace raster {
    
     template<class Value, class Weight>
-    struct weighted_value
+    struct weighted_value 
     {
       weighted_value() : m_value(), m_weight()
       {}
@@ -43,56 +43,69 @@ namespace pronto {
     }
 
     template<class I1, class I2> 
-    class weighted_input_iterator
-      : public std::iterator
-      < std::input_iterator_tag
-      , weighted_value< typename std::iterator_traits<I1>::value_type
-        , typename std::iterator_traits<I2>::value_type>
-      , void // no distance type
-      , void // no pointer type
-      , weighted_value< typename std::iterator_traits<I1>::reference
-        , typename std::iterator_traits<I1>::reference> >
-   {
+    class weighted_input_iterator : public iterator_face<weighted_input_iterator<I1, I2> > {
     public:
+
+      using value_type = weighted_value<std::iter_value_t<I1>, std::iter_value_t<I2> >;
+
       weighted_input_iterator(const I1& a, const I1& b) : m_iters(a, b)
       {
       }
+      static const bool is_single_pass = true;
+      static const bool is_mutable = false;
 
-      using reference = weighted_value
-        < typename std::iterator_traits<I1>::reference
-        , typename std::iterator_traits<I2>::reference>;
+      auto get() const
+      {
+        return value_type(*m_iters.first, *m_iters.second);
+
+      }
+      void put(const value_type& v)
+      {
+        *m_iters.first = v.m_value;
+        *m_iters.second = v.m_weight;
+      }
       
-      using value_type = weighted_value
-        < typename std::iterator_traits<I1>::value_type
-        , typename std::iterator_traits<I2>::value_type>;
-
-      weighted_input_iterator& operator++()
+      void increment()
       {
         ++m_iters.first;
         ++m_iters.second;
-         return *this;
+      }
+
+      void decrement()
+      {
+        --m_iters.first;
+        --m_iters.second;
+      }
+      void advance(std::ptrdiff_t n)
+      {
+        m_iters.first += n;
+        m_iters.second += n;
+      }
+
+      auto dereference() const {
+        if constexpr (is_mutable)
+        {
+          if constexpr (is_single_pass)
+          {
+            return put_get_proxy_reference<const weighted_input_iterator&>(*this);
+          }
+          else {
+            return put_get_proxy_reference<weighted_input_iterator>(*this);
+          }
+        }
+        else {
+          return get();
+        }
       }
       
-      weighted_input_iterator operator++(int)
-      {
-        pair_raster_iterator temp(*this);
-        ++(*this);
-        return temp;
-      }
-
-      reference operator*() const
-      {
-        return reference(*m_iters.first, *m_iters.second);
-      }
-
-      bool operator==(const weighted_input_iterator& b) const
+      bool equal_to(const weighted_input_iterator& b) const
       {
         return m_iters.first == b.m_iters.first;
       }
 
-      bool operator!=(const weighted_input_iterator& b) const
+      bool distance_to(const weighted_input_iterator& b) const
       {
-        return m_iters.first != b.m_iters.first;
+        return  b.m_iters.first - m_iters.first;
       }
 
     private:
@@ -100,44 +113,23 @@ namespace pronto {
     };
 
     template<class R1, class R2> // requires R1 and R2 are RasterView concepts 
-    class weighted_input_view
+    class weighted_input_view : public std::ranges::view_interface< weighted_input_view<R1, R2> >
     {
     public:
       weighted_input_view(const R1& r1, const R2& r2)
         : m_rasters(r1, r2)
       { }
-      using iterator = weighted_input_iterator<
-        typename traits<R1>::iterator, 
-        typename traits<R2>::iterator>;
+     
+      auto begin() const
+      {
+        return weighted_input_iterator(m_rasters.first.begin(), m_rasters.second.begin() );
+      }
+
+      auto end() const
+      {
+        return weighted_input_iterator(m_rasters.first.end(), m_rasters.second.end());
+      }
       
-      using const_iterator = weighted_input_iterator<
-        typename traits<R1>::const_iterator,
-        typename traits<R2>::const_iterator>;
-
-      iterator begin() 
-      {
-        return iterator(m_rasters.first.begin(), m_rasters.second.begin() );
-      }
-
-      iterator end() 
-      {
-        return iterator(m_rasters.first.end(), m_rasters.second.end());
-      }
-
-      const_iterator begin() const
-      {
-        return const_iterator
-          ( m_rasters.first.begin()
-          , m_rasters.second.begin());
-      }
-
-      const_iterator end() const
-      {
-        return const_iterator
-        ( m_rasters.first.end(), 
-          m_rasters.second.end());
-      }
-
       int rows() const
       {
         return m_rasters.first.rows();
@@ -153,9 +145,7 @@ namespace pronto {
         return m_rasters.first.size();
       }
 
-      weighted_input_view<
-        typename traits<R1>::sub_raster, typename traits<R2>::sub_raster >
-        sub_raster(int start_row, int start_col, int rows, int cols) const
+      auto sub_raster(int start_row, int start_col, int rows, int cols) const
       {
         return weighted_input_view
           < typename traits<R1>::sub_raster
@@ -169,9 +159,9 @@ namespace pronto {
     };
 
     template<class R1, class R2> // requires these to be RasterViews
-    weighted_input_view<R1, R2> weighted_raster(const R1& r1, const R2& r2)
+    auto weighted_raster(const R1& r1, const R2& r2)
     {
-      return weighted_input_view<R1, R2>(r1, r2);
+      return weighted_input_view(r1, r2);
     }
   }
 }
