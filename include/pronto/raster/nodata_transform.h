@@ -98,10 +98,7 @@ namespace pronto
       Raster r, const recursive_optional_value_type<
         typename traits<Raster>::value_type >& nodata_value)
     {
-      using value_type = recursive_optional_value_type<
-        typename traits<Raster>::value_type >;
-      using functor = optional_to_nodata_functor<value_type>;
-      return transform(functor(nodata_value), r);
+      return transform(optional_to_nodata_functor(nodata_value), r);
     }
   }
 }
