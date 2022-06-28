@@ -30,6 +30,14 @@ namespace pronto {
     class padded_raster_iterator : public iterator_facade<padded_raster_iterator<Raster, Iterator> >
      {
     public:
+      enum class iter_pos
+      {
+        ahead,
+        on_target,
+        behind
+      };
+
+
       using value_type = std::ranges::range_value_t<Raster>;
       using reference = put_get_proxy_reference<padded_raster_iterator>;
        
@@ -50,43 +58,89 @@ namespace pronto {
       void increment()
       {
         ++m_index_in_stretch;
-        if (!m_is_padding) ++m_iter;
-
+        if (m_core_iter_position == iter_pos::on_target) {
+          if (m_index_in_stretch != m_stretch_size)
+          {
+            ++m_iter;
+          }
+          else {
+            m_core_iter_position = iter_pos::behind;
+          }
+        }
+ 
         while (m_index_in_stretch == m_stretch_size) {
-          ++m_stretch;
-          if (m_stretch == m_view->num_stretches()) {
-            m_index_in_stretch = 0;
+          if (m_stretch == m_view->num_stretches() - 1) {
+            // reach the end: last stretch, one past last index
+            // iterator at last core element
             return;
           }
-
+          ++m_stretch;
+          m_stretch_size = m_view->length_of_stretch(m_stretch); 
           m_index_in_stretch = 0;
-          m_stretch_size = m_view->length_of_stretch(m_stretch);
-          m_is_padding = m_view->is_padding(m_stretch);
+
+          if (!m_view->is_padding(m_stretch))
+          {
+            if (m_core_iter_position == iter_pos::behind)
+            {
+              ++m_iter;
+            }
+            m_core_iter_position = iter_pos::on_target;
+
+          }
+          
         }
-        return ;
       }
 
-      //void advance(const std::ptrdiff_t& n)
-      //{
-      //  m_index += n;
-      //}
+      void decrement()
+      {
+        --m_index_in_stretch;
+        if (m_core_iter_position == iter_pos::on_target) {
+          if (m_index_in_stretch != -1)
+          {
+            --m_iter;
+          }
+          else {
+            m_core_iter_position == iter_pos::ahead;
+          }
+        }
 
-      //void decrement()
-      //{
-      //  --m_index;
-      //}
+        while (m_index_in_stretch == -1) {
+          if (m_stretch == 0) {
+            // reach the reverse end: first stretch, one before first index
+            // iterator at first core element
+            return;
+          }
+          --m_stretch;
+          m_stretch_size = m_view->length_of_stretch(m_stretch); 
+          m_index_in_stretch = m_stretch_size - 1;
 
+          if (!m_view->is_padding(m_stretch))
+          {
+            if (m_core_iter_position == iter_pos::ahead)
+            {
+              --m_iter;
+            }
+            m_core_iter_position == iter_pos::on_target;
+
+          }
+        }
+      }
+
+      void advance(const std::ptrdiff_t& n)
+      {
+        long long new_index = get_index() + n;
+        find_index(new_index);
+      }
 
       bool equal_to(const padded_raster_iterator& that) const
       {
         return m_stretch == that.m_stretch && m_index_in_stretch == that.m_index_in_stretch;
       }
 
-      //std::ptrdiff_t distance_to(const iterator& that) const
-      //{
-      // return that.m_index - m_index;
-      //}
-
+      std::ptrdiff_t distance_to(const padded_raster_iterator& that) const
+      {
+        return that.get_index() - get_index();
+      }
 
       reference dereference() const
       {
@@ -95,7 +149,7 @@ namespace pronto {
 
       value_type get() const
       {
-        if (m_is_padding) {
+        if (m_view->is_padding(m_stretch)) {
           return m_view->m_pad_value;
         }
         else {
@@ -105,7 +159,7 @@ namespace pronto {
 
       void put(const value_type& value) const
       {
-        if (m_is_padding)
+        if (m_view->is_padding(m_stretch))
         {
           throw("trying to write into the padding of a padded_raster_view");
         }
@@ -120,10 +174,10 @@ namespace pronto {
       void find_begin(const padded_raster_view<Raster>* view, Iterator iter)
       {
         m_view = view;
-        m_is_padding = true;
+        m_core_iter_position = iter_pos::ahead;
         m_stretch = 0;
-        m_index_in_stretch = 0;
         m_stretch_size = m_view->length_of_stretch(0);
+        m_index_in_stretch = 0;
         m_iter = iter;
 
         while (m_stretch_size == 0 ) {
@@ -132,24 +186,72 @@ namespace pronto {
             return;
           }
           m_stretch_size = m_view->length_of_stretch(m_stretch);
-          m_is_padding = m_view->is_padding(m_stretch);
         }
+        if (!m_view->is_padding(m_stretch))
+        {
+          m_core_iter_position = iter_pos::on_target;
+        };
+
       }
 
       void find_end(const padded_raster_view<Raster>* view, Iterator iter)
       {
         m_view = view;
-        m_iter = iter;
-        m_stretch = m_view->num_stretches();
-        m_index_in_stretch = 0;
-        m_is_padding = false;
+        m_core_iter_position = iter_pos::behind;   
+        m_stretch = m_view->num_stretches()-1;
+        m_stretch_size = m_view->length_of_stretch(m_stretch);
+        m_iter = --iter;
+        m_index_in_stretch = m_stretch_size;
+
+
       }
-   private:
+
+      long long get_index() const
+      {
+        return m_view->get_index(m_stretch, m_index_in_stretch);
+      }
+
+      void find_index(long long index)
+      {
+        auto row = index / m_view->m_cols;
+        auto col = index % m_view->m_cols;
+        auto core_row = row - m_view->m_leading_rows;
+        auto core_col = col - m_view->m_leading_cols;
+        m_core_iter_position = iter_pos::on_target;
+        if (core_col < 0) {
+          core_col = 0;
+          m_core_iter_position = iter_pos::ahead;
+
+        }
+
+        if (core_col >= m_view->m_core_cols) {
+          core_col = 0;
+          core_row = core_row + 1;
+          m_core_iter_position = iter_pos::ahead;
+        }
+
+        if (core_row < 0) {
+          core_row = 0;
+          core_col = 0;
+          m_core_iter_position = iter_pos::ahead;
+        }
+        if (core_row >= m_view->m_core_rows) {
+          core_row = m_view->m_core_rows;
+          core_col = 0;
+          m_core_iter_position = iter_pos::ahead;
+        }
+        auto core_index = core_row * m_view->m_core_cols + core_col;
+        m_iter = m_view->begin() + core_index;
+      }
+   
+
+
+    private:
       int m_stretch;
       int m_stretch_size;
       int m_index_in_stretch;
 
-      bool m_is_padding;
+      iter_pos m_core_iter_position;
 
       Iterator m_iter;
 
