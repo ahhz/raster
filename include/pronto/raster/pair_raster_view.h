@@ -24,7 +24,7 @@ namespace pronto {
     {
     public:
       static const bool is_mutable = false;
-      static const bool is_multipass = true;
+      static const bool is_single_pass = false;
 
       pair_raster_iterator() = default;
 
