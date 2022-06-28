@@ -8,13 +8,11 @@
 //=======================================================================
 //
 
-#include <pronto/raster/any_blind_raster.h>
 #include <pronto/raster/assign.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/random_raster_view.h>
 #include <pronto/raster/raster_algebra_operators.h>
-//#include <pronto/raster/raster_algebra_wrapper.h>
 #include <pronto/raster/uniform_raster_view.h>
 
 #include <benchmark/benchmark.h>

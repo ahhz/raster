@@ -46,7 +46,6 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_edge_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/circular_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/complex_numbers.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/default_construction_functor.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_transform.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/distance_weighted_window_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/edge_raster.h
@@ -81,11 +80,14 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/type_erased_raster.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/type_erased_raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
+	${CMAKE_CURRENT_SOURCE_DIR}/src/pronto/raster/io.cpp
+)
+set(pronto_raster_indicator_files 
+  ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/count.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/edge_density.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/interspersion.h
@@ -93,11 +95,11 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/mean.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/most_common_class.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/patch_weighted_shape_index.h
-	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/shannon_diversity.h
-	${CMAKE_CURRENT_SOURCE_DIR}/src/pronto/raster/io.cpp
-)
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/shannon_diversity.h)
 
-add_library(pronto_raster ${pronto_raster_files})
+add_library(pronto_raster ${pronto_raster_files}  ${pronto_raster_indicator_files})
+source_group(indicator FILES ${pronto_raster_indicator_files})
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include/ )
 set_target_properties(pronto_raster PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 
