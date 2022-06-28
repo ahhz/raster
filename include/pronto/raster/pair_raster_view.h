@@ -10,7 +10,6 @@
 
 #pragma once
 
-#include <pronto/raster/traits.h>
 #include <pronto/raster/iterator_facade.h>
 
 #include <ranges>
@@ -27,7 +26,7 @@ namespace pronto {
       static const bool is_mutable = false;
       static const bool is_multipass = true;
 
-     pair_raster_iterator() = default;
+      pair_raster_iterator() = default;
 
       pair_raster_iterator(const I1& a, const I2& b) : m_iters(a, b)
       {
@@ -117,20 +116,14 @@ namespace pronto {
       auto
         sub_raster(int start_row, int start_col, int rows, int cols) const
       {
-        return pair_raster_view
-          ( m_rasters.first.sub_raster(start_row, start_col, rows, cols)
-          , m_rasters.second.sub_raster(start_row, start_col, rows, cols));
+        return pair_raster_view( 
+          m_rasters.first.sub_raster(start_row, start_col, rows, cols), 
+          m_rasters.second.sub_raster(start_row, start_col, rows, cols));
       }
 
     private:
       std::pair<R1, R2> m_rasters;
     };
-
-    template<class R1, class R2> // requires these to be RasterViews
-    auto raster_pair(const R1& r1, const R2& r2)
-    {
-      return pair_raster_view(r1, r2);
-    }
   }
 }
 
