@@ -13,6 +13,7 @@
 #pragma once
 
 #include <pronto/raster/access_type.h>
+#include <pronto/raster/complex_numbers.h>
 #include <pronto/raster/exceptions.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_iterator.h>
@@ -33,58 +34,52 @@ namespace pronto
   namespace raster
   {
     template<class T, access AccessType> // template argument for AccessType is now ignored
-    struct uncasted_block
+    struct buffered_block
     {
       using value_type = T;
       using iterator = value_type*;
 
-      uncasted_block() = default;
+      buffered_block() = default;
 
-      void reset(GDALRasterBand* band, int major_row, int major_col)
+      template<RasterConcept Raster>
+      buffered_block(Raster r, int block_size_rows, int block_size_cols)
+        : m_block_rows(block_size_rows)
+        , m_block_cols(block_size_cols)
+        , m_major_row(0)
+        , m_major_col(0)
       {
-        // Avoid rereading same block
-        if (m_block && m_block->GetBand() == band
-          && major_row == this->major_row() && major_col == this->major_col())
-          return;
+        auto f = [&](int new_major, int new_minor)
+        {
 
-        GDALRasterBlock* block = band->GetLockedBlockRef(major_col, major_row);
-        if (block == nullptr) {
-          assert(false);
-          throw("trying to open inaccessible GDALRasterBlock");
         }
-        auto deleter = [](GDALRasterBlock* b) {b->DropLock(); };
-        m_block.reset(block, deleter);
       }
 
       void reset(int major_row, int major_col)
       {
-        GDALRasterBand* band = m_block->GetBand();
-        reset(band, major_row, major_col);
+        m_reset_fun(major_row, major_col);
       }
 
       void reset()
       {
         m_block.reset();
       }
-
       int block_rows() const
       {
-        return m_block->GetYSize();
+        return m_block_rows;
       }
 
       int block_cols() const
       {
-        return m_block->GetXSize();
+        return m_block_cols;
       }
-
       int major_row() const
       {
-        return m_block->GetYOff();
+        return m_major_row;
       }
 
       int major_col() const
       {
-        return m_block->GetXOff();
+        return m_major_col;
       }
 
       iterator get_iterator(int minor_row, int minor_col) const
@@ -104,7 +99,12 @@ namespace pronto
       }
 
     private:
-      mutable std::shared_ptr<GDALRasterBlock> m_block;
+      std::function(void(int, int)) m_reset_func;
+      int m_block_rows;
+      int m_block_cols;
+      int m_block_start_row
+      int m_block_start_col;
+      mutable std::shared_ptr< std::vector<T> > m_block;
     };
 
     template<class, iteration_type, access> class uncasted_gdal_raster_view; // forward declaration
@@ -440,8 +440,26 @@ namespace pronto
 
 
     template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
-    struct gdal_raster_variant_helper
+    class gdal_raster_variant
     {
+    public:
+      static const bool is_raster_variant = true;
+
+      gdal_raster_variant() = default;
+      ~gdal_raster_variant() = default;
+
+      template<class T>
+      gdal_raster_variant(uncasted_gdal_raster_view <T, IterationType, AccessType> raster)
+      {
+        m_raster = raster;
+      }
+
+      template<class T>
+      gdal_raster_variant(nodata_transformed_view<uncasted_gdal_raster_view <T, IterationType, AccessType>> raster)
+      {
+        m_raster = raster;
+      }
+
       template<class T>
       using plain_type = uncasted_gdal_raster_view<T, IterationType, AccessType>;
 
@@ -449,7 +467,7 @@ namespace pronto
       using nodata_type = nodata_transformed_view<plain_type<T> >;
 
 
-      using type = std::variant<
+      std::variant<
         plain_type<uint8_t>,
         plain_type<int16_t>,
         plain_type<uint16_t>,
@@ -463,11 +481,8 @@ namespace pronto
         nodata_type< int32_t>,
         nodata_type< uint32_t>,
         nodata_type< float>,
-        nodata_type< double> >;
+        nodata_type< double> > m_raster;
     };
-
-    template<iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
-    using gdal_raster_variant = typename gdal_raster_variant_helper<IterationType, AccessType>::type;
     
     /* 
     template<class Orig, class T, access A, iteration_type I>

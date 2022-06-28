@@ -19,11 +19,7 @@ namespace pronto {
   namespace raster {
 	  
     template<typename Raster> 
-    using offset_raster_view = padded_raster_view<typename traits<Raster>::sub_raster>;
-
-    template<typename Raster> 
-    offset_raster_view<Raster>
-      offset(Raster raster, int row_offset, int col_offset, 
+    auto offset(Raster raster, int row_offset, int col_offset, 
         const typename traits<Raster>::value_type& pad_value)
     {
       auto sub = raster.sub_raster
@@ -39,6 +35,9 @@ namespace pronto {
         , std::max(0, col_offset)
         , pad_value);
     }
+
+    template<typename Raster>
+    using offset_raster_view = decltype(offset(std::declval<Raster>(), int{}, int{}));
   }
 }
 
