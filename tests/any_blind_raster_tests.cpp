@@ -14,7 +14,6 @@
 #include <pronto/raster/raster_variant.h>
 #include <pronto/raster/type_erased_raster.h>
 #include <pronto/raster/raster_algebra_operators.h>
-#include <pronto/raster/blind_function.h>
 #include <pronto/raster/io.h>
 #include <pronto/raster/nodata_transform.h>
 
