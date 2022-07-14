@@ -14,6 +14,7 @@
 #pragma once
 
 #include <pronto/raster/indicator_functions.h>
+#include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
 
@@ -26,9 +27,13 @@ namespace pronto {
     template<class, class > class rectangle_window_view; // forward declaration
 
     template<typename Raster, typename IndicatorGenerator>
-    class rectangle_window_iterator
+    class rectangle_window_iterator : public iterator_facade< rectangle_window_iterator<Raster, IndicatorGenerator> >
     {
+      
     public:
+      static const bool is_mutable = false;
+      static const bool is_single_pass = true;
+      
       using indicator = typename IndicatorGenerator::indicator;
     private:
 
@@ -49,11 +54,33 @@ namespace pronto {
     public:
       using value_type = indicator;
       using reference = const value_type&;
-      using difference_type = void;
-      using pointer = void;
-      using iterator_category = std::input_iterator_tag;
-      
+   
+       
       rectangle_window_iterator() = default;
+
+      void increment()
+      {
+        if (++m_coordinates.m_col != m_view->cols()) {
+          move_col();
+        }
+        else {
+          m_coordinates.m_col = 0; // end of row, first new row
+          if (++m_coordinates.m_row != m_view->rows()) {
+            move_row();
+          }
+          // else: end of raster
+        }
+      }
+      bool equal_to(const rectangle_window_iterator& other) const
+      {
+        return m_coordinates.m_row == other.m_coordinates.m_row
+          && m_coordinates.m_col == other.m_coordinates.m_col;
+      }
+
+      reference dereference() const
+      {
+        return m_indicator;
+      }
 
       void find_end(const rectangle_window_view& view)
       {
@@ -139,46 +166,7 @@ namespace pronto {
         m_add_col_index = m_view->m_cols_after + 1 + leading_cols;
         m_subtract_col_index = 0;
       }
-
-      rectangle_window_iterator& operator++()
-      {
-        if (++m_coordinates.m_col != m_view->cols()) {
-          move_col();
-        }
-        else {
-          m_coordinates.m_col = 0; // end of row, first new row
-          if (++m_coordinates.m_row != m_view->rows()) {
-            move_row();
-          }
-          // else: end of raster
-        }
-        return *this;
-      }
-
-      rectangle_window_iterator operator++(int)
-      {
-        rectangle_window_iterator copy = *this;
-        ++(*this);
-        return copy;
-      }
-
-      bool operator==(const rectangle_window_iterator& other) const
-      {
-        return m_coordinates.m_row == other.m_coordinates.m_row 
-          &&   m_coordinates.m_col == other.m_coordinates.m_col;
-      }
-      
-      bool operator!=(const rectangle_window_iterator& other) const
-      {
-        return m_coordinates.m_row != other.m_coordinates.m_row 
-          ||   m_coordinates.m_col != other.m_coordinates.m_col;
-      }
-
-      reference operator*() const
-      {
-        return m_indicator;
-      }
-
+     
     private:
       void move_col()
       {
@@ -263,7 +251,7 @@ namespace pronto {
     };
 
     template<class Raster, class IndicatorGenerator>
-    class rectangle_window_view
+    class rectangle_window_view : public std::ranges::view_interface< rectangle_window_view<Raster, IndicatorGenerator>>
     {
      public:
       using iterator = rectangle_window_iterator<Raster, IndicatorGenerator>;
@@ -374,14 +362,12 @@ namespace pronto {
     };
 
     template<class Raster, class IndicatorGenerator>
-    rectangle_window_view<Raster, IndicatorGenerator>
-      make_rectangle_window_view(
+    auto make_rectangle_window_view(
         Raster raster, 
         int rows_before, int rows_after, int cols_before, int cols_after, 
         const IndicatorGenerator& initializer)
     {
-      using return_type = rectangle_window_view<Raster, IndicatorGenerator>;
-      return return_type(raster, rows_before, rows_after, cols_before, cols_after, initializer);
+      return rectangle_window_view(raster, rows_before, rows_after, cols_before, cols_after, initializer);
     }
   }  
 }

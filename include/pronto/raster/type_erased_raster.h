@@ -61,49 +61,7 @@ namespace pronto {
         ref = v;
       }
     }
-    template<class T, access AccessType = access::read_write>
-    class type_erased_reference : public proxy_reference<type_erased_reference<T, AccessType>, T>
-    {
-      static const bool is_mutable = AccessType != access::read_only;
-
-    public:
-      type_erased_reference() = default;
-      type_erased_reference(const type_erased_reference&) = default;
-      type_erased_reference(type_erased_reference&&) = default;
-      ~type_erased_reference() = default;
-
-      operator T() const
-      {
-        return m_get();
-      }
-
-      const type_erased_reference& operator=(const T& value) const
-        //     requires is_mutable
-      {
-        m_put(value);
-        return *this;
-      }
-
-      std::function<T()> m_get;
-      std::function<void(T)> m_put;
-    };
-
-    template<class T, access AccessType, class Proxy>
-    auto erase_reference_type(Proxy p)
-    {
-      type_erased_reference<T, AccessType> ref;
-      ref.m_get = [p]() {return static_cast<T>(p); };
-      if constexpr (AccessType != access::read_only && !std::is_same_v<Proxy, T>) {
-        ref.m_put = [p](const T& v) {
-          p = v;
-        };
-      }
-      else {
-        ref.m_put = [](const T&) {assert(false); };
-      }
-      return ref;
-    }
-
+   
     template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
     class type_erased_raster_iterator : public iterator_facade<type_erased_raster_iterator<T, IterationType, AccessType> >
     {
@@ -122,8 +80,7 @@ namespace pronto {
       template<class Iter>
       type_erased_raster_iterator(const Iter& iter)
       {
-        using iter_type = Iter;// std::remove_cv_t<Iter>;
-        m_any_iter = std::make_any<iter_type>(iter);
+        m_any_iter = std::make_any<Iter>(iter);
         m_increment = detail::increment<Iter>;
         m_decrement = detail::decrement<Iter>;
         m_advance = detail::advance<Iter>;
@@ -213,8 +170,7 @@ namespace pronto {
     public:
       static const bool is_mutable = AccessType != access::read_only;
       static const bool is_single_pass = IterationType == iteration_type::single_pass;
-      static const bool is_type_erased = true;
-
+     
       using iterator = typename type_erased_raster_iterator<T, IterationType, AccessType>;
 
       type_erased_raster() = default;

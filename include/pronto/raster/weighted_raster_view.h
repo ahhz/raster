@@ -43,7 +43,7 @@ namespace pronto {
     }
 
     template<class I1, class I2> 
-    class weighted_input_iterator : public iterator_face<weighted_input_iterator<I1, I2> > {
+    class weighted_input_iterator : public iterator_facade<weighted_input_iterator<I1, I2> > {
     public:
 
       using value_type = weighted_value<std::iter_value_t<I1>, std::iter_value_t<I2> >;

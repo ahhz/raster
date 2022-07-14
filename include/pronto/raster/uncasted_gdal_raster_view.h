@@ -20,7 +20,6 @@
 #include <pronto/raster/nodata_transform.h>
 #include <pronto/raster/optional.h>
 
-
 #include <cassert>
 #include <cstdint>
 #include <memory>
@@ -118,6 +117,24 @@ namespace pronto
       using view_type = uncasted_gdal_raster_view<T, IterationType, AccessType>;
 
 
+      struct writable_value
+      {
+        using value_type = T;
+        writable_value(T& v, block_type b) : m_value(v), m_block(b)
+        {}
+
+        void put(T v)const
+        {
+          m_value = v;
+        }
+        const T& get()const
+        {
+          return m_value;
+        }
+        T& m_value;
+        block_type m_block;
+      };
+      
     public:
       static const bool is_single_pass = IterationType == iteration_type::single_pass;
       static const bool is_mutable = AccessType != access::read_only;
@@ -145,7 +162,8 @@ namespace pronto
             return put_get_proxy_reference<const uncasted_gdal_raster_iterator&>(*this);
           }
           else {
-            return put_get_proxy_reference<uncasted_gdal_raster_iterator>(*this);
+            auto v = writable_value{ *m_pos, m_block };
+            return put_get_proxy_reference<writable_value>(v);
           }
         }
         else {
@@ -195,8 +213,10 @@ namespace pronto
       void put(const T& value) const
         requires (AccessType != access::read_only)
       {
-        *static_cast<T*>(m_pos) = value;
+        *m_pos = value;
       }
+
+
 
     private:
       friend class uncasted_gdal_raster_view<T, IterationType, AccessType>;
@@ -305,7 +325,7 @@ namespace pronto
       const view_type* m_view;
       block_type m_block;
       block_iterator_type m_end_of_stretch;
-      block_iterator_type m_pos;
+      mutable block_iterator_type m_pos;
     };
 
 

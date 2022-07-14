@@ -20,9 +20,15 @@ namespace pronto {
   namespace raster {
 
     template<class Raster, class IndicatorGenerator>
-    struct rectangle_edge_window_view
+    struct rectangle_edge_window_view : public std::ranges::view_interface< rectangle_edge_window_view<Raster, IndicatorGenerator>>
     {
-
+      rectangle_edge_window_view() = default;
+      rectangle_edge_window_view(const rectangle_edge_window_view&) = default;
+      rectangle_edge_window_view(rectangle_edge_window_view&&) = default;
+      ~rectangle_edge_window_view() = default;
+      rectangle_edge_window_view& operator=(const rectangle_edge_window_view& that) = default;
+      rectangle_edge_window_view& operator=(rectangle_edge_window_view&& that) = default;
+      
     private:
       using edge_raster_type_helper_1 = edge_raster_view<Raster>;
       using edge_raster_type_helper_2 
@@ -55,6 +61,11 @@ namespace pronto {
       int cols() const
       {
         return m_combined.cols();
+      }
+
+      long long size() const
+      {
+        return static_cast<long long>(rows()) * static_cast<long long>(cols());
       }
 
       auto sub_raster(int first_row, int first_col, int rows, int cols) const 
@@ -102,22 +113,18 @@ namespace pronto {
     };
 
     template<class Raster, class IndicatorGenerator>
-    rectangle_edge_window_view<Raster, IndicatorGenerator>
-      make_rectangle_edge_window_view(Raster raster
+    auto make_rectangle_edge_window_view(Raster raster
         , int rows_before, int rows_after, int cols_before, int cols_after
         , IndicatorGenerator m_indicator_generator)
     {
-      using return_type = rectangle_window_view<Raster, IndicatorGenerator>;
-      return return_type(raster, rows_before, rows_after, cols_before, cols_after, m_indicator_generator);
+       return rectangle_edge_window_view(raster, rows_before, rows_after, cols_before, cols_after, m_indicator_generator);
     }
 
     template<class Raster, class IndicatorGenerator>
-    rectangle_edge_window_view<Raster, IndicatorGenerator>
-      make_square_edge_window_view(Raster raster, int radius
+    auto  make_square_edge_window_view(Raster raster, int radius
         , IndicatorGenerator m_indicator_generator)
     {
-      using return_type = rectangle_edge_window_view<Raster, IndicatorGenerator>;
-      return return_type(raster, radius, radius, radius, radius, m_indicator_generator);
+      return rectangle_edge_window_view(raster, radius, radius, radius, radius, m_indicator_generator);
     }
   }
 }

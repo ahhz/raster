@@ -63,14 +63,10 @@ namespace pronto {
       patch_circle(double radius) : radius(radius) {}
       double radius;
     };
-
-    
-
+     
     template<class Raster, class IndicatorGenerator>
     auto moving_window_indicator(const Raster& raster, const square& window
-      , const IndicatorGenerator& indicator_generator)->
-      decltype(extract(make_square_window_view(raster, window.radius
-        , indicator_generator) ) )
+      , const IndicatorGenerator& indicator_generator)
     {
       return extract(make_square_window_view(raster, window.radius
         , indicator_generator));
@@ -78,9 +74,7 @@ namespace pronto {
 
     template<class Raster, class IndicatorGenerator>
     auto moving_window_indicator(const Raster& raster, const circle& window
-      , const IndicatorGenerator& indicator_generator)->
-      decltype(extract(make_circular_window_view(raster, window.radius
-        , indicator_generator) ) )
+      , const IndicatorGenerator& indicator_generator)
     {
       return extract(make_circular_window_view(raster, window.radius
         , indicator_generator) );
@@ -89,9 +83,7 @@ namespace pronto {
 
     template<class Raster, class IndicatorGenerator>
     auto moving_window_indicator(const Raster& raster, const edge_circle& window
-      , const IndicatorGenerator& indicator_generator)->
-      decltype(extract(make_circular_edge_window_view(raster, window.radius
-        , indicator_generator)))
+      , const IndicatorGenerator& indicator_generator)
     {
       return extract(make_circular_edge_window_view(raster, window.radius
         , indicator_generator));
@@ -99,9 +91,7 @@ namespace pronto {
 
     template<class Raster, class IndicatorGenerator>
     auto moving_window_indicator(const Raster& raster, const edge_square& window
-      , const IndicatorGenerator& indicator_generator)->
-      decltype(extract(make_square_edge_window_view(raster, window.radius
-        , indicator_generator)))
+      , const IndicatorGenerator& indicator_generator)
     {
       return extract(make_square_edge_window_view(raster, window.radius
         , indicator_generator));
@@ -109,9 +99,7 @@ namespace pronto {
 
     template<class Raster, class IndicatorGenerator, class Contiguity>
     auto moving_window_indicator(const Raster& raster, const patch_square& window
-      , const IndicatorGenerator& indicator_generator, Contiguity contiguity)->
-      decltype(extract(make_square_window_view(patch_raster(raster, contiguity)
-        , window.radius, indicator_generator)))
+      , const IndicatorGenerator& indicator_generator, Contiguity contiguity)
     {
       return extract(make_square_window_view(patch_raster(raster, contiguity)
         , window.radius, indicator_generator));
@@ -119,9 +107,7 @@ namespace pronto {
 
     template<class Raster, class IndicatorGenerator, class Contiguity>
     auto moving_window_indicator(const Raster& raster, const patch_circle& window
-      , const IndicatorGenerator& indicator_generator, Contiguity contiguity)->
-      decltype(extract(make_circular_window_view(patch_raster(raster, contiguity)
-        , window.radius, indicator_generator)))
+      , const IndicatorGenerator& indicator_generator, Contiguity contiguity)
     {
       return extract(make_circular_window_view(patch_raster(raster, contiguity)
         , window.radius, indicator_generator));
@@ -130,8 +116,7 @@ namespace pronto {
     template<class Raster, class IndicatorGenerator, class RasterAllocator, class WeightType>
     auto moving_window_indicator(const Raster& raster
       , weighted_window<RasterAllocator, WeightType> window //pass by value
-      , const IndicatorGenerator& indicator_generator)->
-      decltype(make_distance_weighted_indicator_view(raster, window, indicator_generator))
+      , const IndicatorGenerator& indicator_generator)
     {
       return make_distance_weighted_indicator_view(raster, window, indicator_generator);
     }

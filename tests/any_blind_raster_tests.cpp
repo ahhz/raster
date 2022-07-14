@@ -21,41 +21,6 @@
 
 namespace pr = pronto::raster;
 
-class prox : public pr::proxy_reference<prox,int>
-{
-public:
-
-	prox() : m_v(new int{})	{}
-	~prox() = default;
-	prox(const prox& p) = default;
-	prox(prox&& p) = default;
-
-	const prox& operator=(const prox& v) const	{
-		*m_v = *v.m_v;
-		return *this;
-	}
-
-	operator int() const {
-		return *m_v;
-	}
-	
-	const prox& operator=(const int& v) const {
-		*m_v = v;
-		return *this;
-	}
-	std::shared_ptr<int> m_v;
-};
-
-bool test_type_erased_reference()
-{
-	auto p = prox{};
-	p = 1;
-	auto pe = pr::erase_reference_type<int,pr::access::read_write>(p);
-	++pe;
-	pe+=3;
-	return pe == 5 ;
-}
-
 
 bool test_type_erased_raster()
 {
@@ -241,7 +206,7 @@ bool test_variant_type_plus()
 	
 }
 
-bool test_get_any_blind_raster()
+bool test_get_raster_variant()
 {
 	int rows = 3;
 	int cols = 5;
@@ -259,12 +224,11 @@ bool test_get_any_blind_raster()
 
 
 TEST(RasterTest, AnyBlindRaster) {
-	EXPECT_TRUE(test_type_erased_reference());
 	EXPECT_TRUE(test_type_erased_raster());
 	EXPECT_TRUE(test_type_erased_plus());
 	EXPECT_TRUE(test_plus_constant());
 	EXPECT_TRUE(test_type_erased_plus_nodata());
 	EXPECT_TRUE(test_variant_type_plus());
-	EXPECT_TRUE(test_get_any_blind_raster());
+	EXPECT_TRUE(test_get_raster_variant());
 }
 

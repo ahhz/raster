@@ -34,7 +34,7 @@ bool test_padded_raster()
  
   static_assert(pr::RasterConcept<decltype(a)>);
   static_assert(pr::RasterConcept<decltype(pa)>);
-
+  static_assert(std::ranges::random_access_range<decltype(pa)>);
   std::vector<int> vec;
   for (auto && v : pa)
   {

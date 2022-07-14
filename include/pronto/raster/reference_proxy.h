@@ -112,6 +112,12 @@ template<class U> const self_type& operator op(const U& v) const \
         m_accessor.put(v);
         return *this;
       }
+      // assignment to make the iterator writable
+      const put_get_proxy_reference& operator=(value_type&& v) const
+      {
+        m_accessor.put(std::move(v));
+        return *this;
+      }
       
     private:
       Accessor m_accessor;

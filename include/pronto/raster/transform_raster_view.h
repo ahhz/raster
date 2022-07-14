@@ -146,7 +146,7 @@ namespace pronto {
       auto
         sub_raster(int start_row, int start_col, int rows, int cols) const
       {
-        return std::apply([&](auto&&... rasters) {return transform_raster_view(*m_function, rasters.sub_raster(start_row, start_col, rows, cols)...); }, m_rasters);
+        return std::apply([&](auto&&... rasters) {return sub_raster_type(*m_function, rasters.sub_raster(start_row, start_col, rows, cols)...); }, m_rasters);
       }
  
       std::tuple<R...> m_rasters;

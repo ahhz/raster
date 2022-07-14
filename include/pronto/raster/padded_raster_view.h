@@ -232,7 +232,7 @@ namespace pronto {
           m_core_iter_position = iter_pos::ahead;
         }
         auto core_index = core_row * m_view->m_core_cols + core_col;
-        m_iter = m_view->begin() + core_index;
+        m_iter = m_view->m_raster.begin() + core_index;
       }
    
  private:
@@ -256,9 +256,7 @@ namespace pronto {
     public:
       using iterator 
         = padded_raster_iterator<Raster, typename traits<Raster>::iterator>;
-      using const_iterator
-        = padded_raster_iterator<Raster, typename traits<Raster>::const_iterator>;
-      
+    
       padded_raster_view() = default;
 
       padded_raster_view(const Raster& raster,
@@ -272,34 +270,21 @@ namespace pronto {
         , m_cols(raster.cols() + leading_cols + trailing_cols)
       {}
            
-      iterator begin() 
+      iterator begin() const
       {
         iterator i(this, m_raster.begin());
         i.find_begin(this, m_raster.begin());
         return i;
       }
 
-      iterator end() 
+      iterator end() const
       {
         iterator i(this, m_raster.begin());
         i.find_end(this, m_raster.end());
         return i;
       }
 
-      const_iterator begin() const
-      {
-        const_iterator i(this, m_raster.begin());
-        i.find_begin(this, m_raster.begin());
-        return i;
-      }
-
-      const_iterator end() const
-      {
-        const_iterator i(this, m_raster.begin());
-        i.find_end(this, m_raster.end());
-        return i;
-      }
-
+     
       int rows() const
       {
         return m_rows;
@@ -348,8 +333,7 @@ namespace pronto {
 
     public:
       friend class padded_raster_iterator<Raster, iterator> ; 
-      friend class padded_raster_iterator<Raster, const_iterator>; 
-      
+       
       int num_stretches() const 
       {
         return m_core_rows * 3 + 2;

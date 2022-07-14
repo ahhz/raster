@@ -9,13 +9,15 @@
 //
 
 #pragma once
-
+#include <pronto/raster/access_type.h>
 #include <pronto/raster/edge_raster.h>
 #include <pronto/raster/indicator_functions.h>
+#include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/offset_raster_view.h>
 #include <pronto/raster/optional_raster_view.h>
 #include <pronto/raster/padded_raster_view.h>
 
+#include <ranges>
 #include <cmath> // sqrt
 #include <vector>
 
@@ -26,9 +28,12 @@ namespace pronto {
     class circular_edge_window_view; // forward declaration
 
     template<class Raster, class IndicatorGenerator>
-    class circular_edge_window_iterator
+    class circular_edge_window_iterator : public iterator_facade< circular_edge_window_iterator<Raster, IndicatorGenerator>>
     {
     public:
+      static const bool is_mutable = false;
+      static const bool is_single_pass = true;
+
       using indicator = typename IndicatorGenerator::indicator;
 
     private:
@@ -55,33 +60,63 @@ namespace pronto {
       using pointer = void;
       using iterator_category = std::input_iterator_tag;
 
-      reference operator*() const
+      reference dereference() const
       {
         return m_current;
       }
      
-      circular_edge_window_iterator& operator++()
+      void increment()
       {
-        increment();
-        return *this;
-      }
+        if (++m_col != m_view->cols()) {
+          for (auto&& i : m_add_right_v_iterators) {
+            indicator_functions::add(m_current, *i);
+            ++i;
+          }
+          for (auto&& i : m_subtract_left_v_iterators) {
+            indicator_functions::subtract(m_current, *i);
+            ++i;
+          }
+          for (auto&& i : m_add_right_h_iterators) {
+            indicator_functions::add(m_current, *i);
+            ++i;
+          }
+          for (auto&& i : m_subtract_left_h_iterators) {
+            indicator_functions::subtract(m_current, *i);
+            ++i;
+          }
+        }
+        else if (++m_row != m_view->rows()) {
+          m_col = 0;
+          for (auto&& i : m_add_bottom_v_iterators) {
+            indicator_functions::add(m_start_of_row, *i);
+            ++i;
+          }
+          for (auto&& i : m_subtract_top_v_iterators) {
+            indicator_functions::subtract(m_start_of_row, *i);
+            ++i;
+          }
+          for (auto&& i : m_add_bottom_h_iterators) {
+            indicator_functions::add(m_start_of_row, *i);
+            ++i;
+          }
+          for (auto&& i : m_subtract_top_h_iterators) {
+            indicator_functions::subtract(m_start_of_row, *i);
+            ++i;
+          }
 
-      circular_edge_window_iterator operator++(int)
-      {
-        circular_edge_window_iterator copy(*this);
-        increment();
-        return copy;
-      }
+          m_current = m_start_of_row;
+        }
+        else { // end of raster
+          m_col = 0;
+          clear_iterators();
 
-      bool operator==(const circular_edge_window_iterator& that) const
-      {
-        return is_equal(that);
+        }
       }
-
-      bool operator!=(const circular_edge_window_iterator& that) const
+      bool equal_to(const circular_edge_window_iterator& that) const
       {
-        return !is_equal(that);
+        return that.m_row == m_row && that.m_col == m_col;
       }
+      
      
     private:
       friend class view_type;
@@ -163,57 +198,7 @@ namespace pronto {
         m_subtract_top_h_iterators.clear();
       }
 
-      void increment()
-      {
-        if (++m_col != m_view->cols()) {
-          for (auto&& i : m_add_right_v_iterators) {
-            indicator_functions::add(m_current, *i);
-            ++i;
-          }
-          for (auto&& i : m_subtract_left_v_iterators) {
-            indicator_functions::subtract(m_current, *i);
-            ++i;
-          }
-          for (auto&& i : m_add_right_h_iterators) {
-            indicator_functions::add(m_current, *i);
-            ++i;
-          }
-          for (auto&& i : m_subtract_left_h_iterators) {
-            indicator_functions::subtract(m_current, *i);
-            ++i;
-          }
-        }
-        else if (++m_row != m_view->rows()) {
-          m_col = 0;
-          for (auto&& i : m_add_bottom_v_iterators) {
-            indicator_functions::add(m_start_of_row, *i);
-            ++i;
-          }
-          for (auto&& i : m_subtract_top_v_iterators) {
-            indicator_functions::subtract(m_start_of_row, *i);
-            ++i;
-          }
-          for (auto&& i : m_add_bottom_h_iterators) {
-            indicator_functions::add(m_start_of_row, *i);
-            ++i;
-          }
-          for (auto&& i : m_subtract_top_h_iterators) {
-            indicator_functions::subtract(m_start_of_row, *i);
-            ++i;
-          }
-
-          m_current = m_start_of_row;
-        }
-        else { // end of raster
-          m_col = 0;
-          clear_iterators();
-
-        }
-      }
-      bool is_equal(const circular_edge_window_iterator& that) const
-      {
-        return that.m_row == m_row && that.m_col == m_col;
-      }
+      
 
       indicator m_start_of_row;
       indicator m_current;
@@ -234,7 +219,7 @@ namespace pronto {
     };
 
     template<class Raster, class IndicatorGenerator>
-    class circular_edge_window_view
+    class circular_edge_window_view : public std::ranges::view_interface< circular_edge_window_view<Raster,IndicatorGenerator>>
     {
     private:
       using padded_edge_view = 
