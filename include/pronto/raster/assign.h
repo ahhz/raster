@@ -12,6 +12,7 @@
 
 
 #include <pronto/raster/gdal_raster_view.h>
+#include <pronto/raster/optional.h>
 #include <pronto/raster/raster.h>
 
 #include <ranges>

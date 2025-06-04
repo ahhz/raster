@@ -72,11 +72,12 @@ namespace pronto {
 
       // MACRO to implement assigning operator
 #define PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(op)      \
-template<class U> const self_type& operator op(const U& v) const \
-{ auto temp = _self().operator value_type(); temp op v;_self().operator=(temp); return _self(); }
+      template<class U> const self_type& operator op(const U& v) const \
+      { auto temp = get(); temp op v; put(temp); return _self(); }
+//{ auto temp = _self().operator value_type(); temp op v;_self().operator=(temp); return _self(); }
 
-      // All assigning operators.
-      PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(+= )
+        // All assigning operators.
+        PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(+= )
         PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(-= )
         PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(/= )
         PRONTO_RASTER_PROXY_REFERENCE_ASSIGNING_OPERATOR(*= )

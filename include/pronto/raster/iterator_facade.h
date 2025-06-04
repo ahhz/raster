@@ -121,7 +121,7 @@ namespace pronto {
           self_type operator--(int)
             requires impls_decrement<self_type>
           {
-            auto copy = *this;
+            auto copy = _self();
             --*this;
             return copy;
           }

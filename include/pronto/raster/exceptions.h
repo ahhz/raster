@@ -56,6 +56,16 @@ namespace pronto {
       const char *what() const noexcept { return "reading from raster failed"; }
     };
 
+    struct gdal_raster_view_works_on_unitialized_band : public std::exception
+    {
+      const char* what() const noexcept { return "gdal raster view uses an unitialized band"; }
+    };
+
+    struct gdal_raster_view_set_nodata_value_failed : public std::exception
+    {
+      const char* what() const noexcept { return "gdal raster view could not set nodata value"; }
+    };
+
     struct writing_to_raster_failed : public std::exception
     {
       const char *what() const noexcept { return "writing to raster failed"; }

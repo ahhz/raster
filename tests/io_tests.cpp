@@ -22,12 +22,6 @@
 namespace pr = pronto::raster;
 namespace fs = std::filesystem;
 
-bool test_access_settings()
-{
-  auto s1 = pr::access_settings(pr::read_only, pr::single_pass);
-
-  return true;
-}
 bool test_create_temp()
 {
   auto r = pr::create_temp<int>(5, 3);
@@ -168,7 +162,6 @@ bool test_create_open_large()
 }
 
 TEST(RasterTest, IO) {
-  EXPECT_TRUE(test_access_settings());
   EXPECT_TRUE(test_create_temp());
   EXPECT_TRUE(test_create_temp_uncasted());
   EXPECT_TRUE(test_create());

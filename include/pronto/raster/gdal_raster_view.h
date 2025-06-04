@@ -15,15 +15,13 @@
 
 #include <pronto/raster/access_type.h>
 #include <pronto/raster/exceptions.h>
+#include <pronto/raster/gdal_block.h>
 #include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/gdal_raster_iterator.h>
-#include <pronto/raster/optional.h>
 
-#include <cassert>
-#include <cstdint>
-#include <memory>
+#include <memory> //shared_ptr
 #include <ranges>
-#include <type_traits>
+#include <optional>
 
 namespace pronto
 {
@@ -39,46 +37,30 @@ namespace pronto
           virtual std::shared_ptr<GDALRasterBand> get_band() const = 0;
       };
 
-
     template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType= access::read_write>
     class gdal_raster_view : public std::ranges::view_interface<gdal_raster_view<T, IterationType> >, public gdal_raster_view_base
     {
     private:
       using value_type = T;
+      static const bool is_single_pass = IterationType == iteration_type::single_pass;
+      static const bool is_mutable = AccessType != access::read_only;
 
     public:
+      using block_type = block<T, IterationType, AccessType>;
+
       gdal_raster_view(std::shared_ptr<GDALRasterBand> band)
-        : m_band(band), m_rows(band->GetYSize()), m_cols(band->GetXSize()),m_first_row(0), m_first_col(0), put(nullptr), get(nullptr)
       {
-        GDALDataType datatype = m_band->GetRasterDataType();
-        m_stride = GDALGetDataTypeSize(datatype) / 8;
-
-        // Using pointers to member functions as a means of run-time polymorphism
-        static_assert(sizeof(float) == 4, "GDAL assumes size of float is 4 bytes");
-        static_assert(sizeof(double) == 8, "GDAL assumes size of double is 8 bytes");
-        switch (m_band->GetRasterDataType())
-        {
-        case GDT_Byte:     set_accessors<uint8_t >();   break;
-        case GDT_Int16:    set_accessors<int16_t >();   break;
-        case GDT_UInt16:   set_accessors<uint16_t>();   break;
-        case GDT_Int32:    set_accessors<int32_t>();    break;
-        case GDT_UInt32:   set_accessors<uint32_t>();   break;
-        case GDT_Float32:  set_accessors<float>();      break;
-        case GDT_Float64:  set_accessors<double>();     break;
-        // Complex numbers not currently supported
-		    //
-		    //case GDT_CInt16:   set_accessors<cint16_t>();   break;
-        //case GDT_CInt32:   set_accessors<cint32_t>();   break;
-        //case GDT_CFloat32: set_accessors<cfloat32_t>(); break;
-        //case GDT_CFloat64: set_accessors<cfloat64_t>(); break;
-        default: break;
-        }
-        if (m_band->GetAccess() == GA_ReadOnly) {
-          put = gdal_raster_view::put_nothing;
-        }
+        if (!band) throw(gdal_raster_view_works_on_unitialized_band{});
+        m_band = band;
+        m_rows = band->GetYSize();
+        m_cols = band->GetXSize();
+        m_first_row = 0;
+        m_first_col = 0;
       }
-      gdal_raster_view() = default;
-
+       
+      gdal_raster_view() : m_band(nullptr), m_rows(0), m_cols(0), m_first_row(0), m_first_col(0)
+      {
+      }
       // using the aliasing constructor seems overly complicated now. Just remove for a
       // deleter that does nothing?
       gdal_raster_view(GDALRasterBand* band)
@@ -92,10 +74,10 @@ namespace pronto
       {
         return m_band;
       }
-      //  friend create_standard_gdaldataset_from_model
-
+      
       CPLErr get_geo_transform(double* padfTransform) const
       {
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
         CPLErr err = m_band->GetDataset()->GetGeoTransform(padfTransform);
 
         // Set this default affine transformation to be consistent with ARCGIS
@@ -166,57 +148,50 @@ namespace pronto
       
       std::optional<T> get_nodata_value() const
       {
-        int* check = nullptr;
-        double value = m_band->GetNoDataValue(check);
-        if (check) return std::optional<T>{static_cast<T>(value)};
-        return std::optional<T>{};
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
+        int check = 0;
+        double value = m_band->GetNoDataValue(&check);
+        if (check) return static_cast<T>(value);
+        return std::nullopt;
       }
 
       void set_nodata_value(bool has_nodata, const T& value) const
       {
-        if (has_nodata) m_band->SetNoDataValue(value);
-        else m_band->DeleteNoDataValue();
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
+        CPLErr err = has_nodata ? m_band->SetNoDataValue(value) : m_band->DeleteNoDataValue();
+        if (err != CE_None) throw(gdal_raster_view_set_nodata_value_failed{});
+      }
+
+      int get_block_rows() const
+      {
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
+        int rows, cols;
+        m_band->GetBlockSize(&cols, &rows);
+        return rows;
+      }
+      
+      int get_block_cols() const
+      {
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
+        int rows, cols;
+        m_band->GetBlockSize(&cols, &rows);
+        return cols;
+      }
+
+      void reset_block(block_type& block, int block_row, int block_col) const 
+      {
+        if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
+
+        block.reset(m_band.get(), block_row, block_col);
+        if constexpr (is_mutable) {
+          if(m_band->GetAccess() == GA_Update) {
+             block.mark_dirty();
+            }
+          }
       }
 
     private:
-      //friend class iterator;
-      //friend class const_iterator;
       friend class gdal_raster_iterator<value_type, IterationType, AccessType>;
-   
-      template<typename U>
-      static void put_special(const value_type& value, void* const target)
-      {
-        *(static_cast<U*>(target)) = static_cast<U>(value);
-      }
-
-      static void put_nothing(const value_type& value, void* const target)
-      {
-          assert(false);
-          throw(writing_to_raster_failed{});
-      }
-
-      template<typename U>
-      static value_type get_special(const void* const source)
-      {
-        return static_cast<value_type>(*static_cast<const U*>(source));
-      }
-	  
-      template<typename U> void set_accessors()
-      {
-        put = gdal_raster_view::put_special<U>;
-        get = gdal_raster_view::get_special<U>;
-      }
-
-      // function pointers for "runtime polymorphism" based on file datatype.
-      void(*put)(const value_type&, void* const);
-      value_type(*get)(const void* const);
-
-      // Using std::function is just a bit less efficient
-      //std::function<void(const value_type&, void* const)> put;
-      //std::function<value_type(const void* const)> get;
-
-      unsigned char m_stride;
-
       std::shared_ptr<GDALRasterBand> m_band;
       int m_rows;
       int m_cols;

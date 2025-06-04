@@ -35,29 +35,6 @@ namespace pronto
     static const std::integral_constant<iteration_type, iteration_type::multi_pass> multi_pass;
 
 
-    template<access A = access::read_write, iteration_type I = iteration_type::multi_pass>
-    class access_settings
-    {
-    public:
-      access_settings(const std::integral_constant<iteration_type, I>&, const std::integral_constant<access, A>&)
-      {}
-
-      access_settings(const std::integral_constant<access, A>&, const std::integral_constant<iteration_type, I>&)
-      {}
-
-      access_settings(const std::integral_constant<iteration_type, I>&)
-      {}
-
-      access_settings(const std::integral_constant<access, A>&)
-      {}
-
-      access_settings()
-      {}
-    };
-
-
-
-
     static GDALAccess gdal_access(access a)
     {
       switch (a) {

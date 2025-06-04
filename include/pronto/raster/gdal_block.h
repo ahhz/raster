@@ -10,17 +10,147 @@
 #pragma once
 
 #include <pronto/raster/gdal_includes.h>
+#include <pronto/raster/iterator_facade.h>
+#include <pronto/raster/reference_proxy.h>
 
+#include <cstdint>
 #include <memory> //shared_ptr
-#include <cassert>
+
 namespace pronto
 {
   namespace raster
   {
-    template<access AccessType> // template argument for AccessType is now ignored
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
+    class block_iterator
+      : public iterator_facade<block_iterator<T, IterationType, AccessType>>
+    {
+
+    public:
+      static const bool is_single_pass = IterationType == iteration_type::single_pass;
+      static const bool is_mutable = AccessType != access::read_only;
+      using value_type = T;
+
+      block_iterator()
+        : m_pos(nullptr)
+      {}
+
+      block_iterator(GDALDataType data_type, GDALAccess access_type, char* block_start)
+        : m_pos(block_start)
+      {
+        switch (data_type)
+        {
+        case GDT_Byte:     set_accessors<uint8_t >(access_type);   break;
+        case GDT_Int16:    set_accessors<int16_t >(access_type);   break;
+        case GDT_UInt16:   set_accessors<uint16_t>(access_type);   break;
+        case GDT_Int32:    set_accessors<int32_t>(access_type);    break;
+        case GDT_UInt32:   set_accessors<uint32_t>(access_type);   break;
+        case GDT_Float32:  set_accessors<float>(access_type);      break;
+        case GDT_Float64:  set_accessors<double>(access_type);     break;
+          // Complex numbers not currently supported
+          //
+          //case GDT_CInt16:   set_accessors<cint16_t>();   break;
+          //case GDT_CInt32:   set_accessors<cint32_t>();   break;
+          //case GDT_CFloat32: set_accessors<cfloat32_t>(); break;
+          //case GDT_CFloat64: set_accessors<cfloat64_t>(); break;
+        default: break;
+
+        }
+        m_stride = GDALGetDataTypeSize(data_type) / 8;
+      }
+
+      block_iterator(const block_iterator&) = default;
+      block_iterator(block_iterator&&) = default;
+      block_iterator& operator=(const block_iterator&) = default;
+      block_iterator& operator=(block_iterator&&) = default;
+      ~block_iterator() = default;
+
+      auto dereference() const {
+        if constexpr (is_mutable)
+        {
+          if constexpr (is_single_pass)
+          {
+            return put_get_proxy_reference<const block_iterator&>(*this);
+          }
+          else {
+            return put_get_proxy_reference<block_iterator>(*this);
+          }
+        }
+        else {
+          return get();
+        }
+      }
+
+      void increment() {
+        m_pos += m_stride;
+      }
+
+      void decrement() {
+        m_pos -= m_stride;
+      }
+
+      void advance(std::ptrdiff_t offset) {
+        m_pos += offset * m_stride;
+      }
+
+      bool equal_to(const block_iterator& other) const {
+        return m_pos == other.m_pos;
+      }
+
+      std::ptrdiff_t distance_to(const block_iterator& other) const {
+        return (other.m_pos - m_pos) / m_stride;
+      }
+
+      template<typename U>
+      static void put_special(const value_type& value, void* const target)
+      {
+        *(static_cast<U*>(target)) = static_cast<U>(value);
+      }
+
+      static void put_nothing(const value_type& value, void* const target)
+      {
+        throw(writing_to_raster_failed{});
+      }
+
+      template<typename U>
+      static value_type get_special(const void* const source)
+      {
+        return static_cast<value_type>(*static_cast<const U*>(source));
+      }
+
+      template<typename U> 
+      void set_accessors(GDALAccess access_type)
+      {
+        m_get = block_iterator::get_special<U>;
+        if (access_type != GA_ReadOnly) {
+          m_put = block_iterator::put_special<U>;
+        }
+        else {
+          m_put = block_iterator::put_nothing;
+        }
+      }
+      friend class put_get_proxy_reference<const block_iterator&>;
+      friend class put_get_proxy_reference<block_iterator>;
+   
+      void put(const value_type& v) const
+      {
+        m_put(v, static_cast<void*>(m_pos));
+      }
+
+      value_type get() const
+      {
+        return m_get(static_cast<void*>(m_pos));
+      }
+      // function pointers for runtime polymorphism
+      void(*m_put)(const value_type&, void* const);
+      value_type(*m_get)(const void* const);
+      char* m_pos;
+      char m_stride;
+    };
+
+    template<class T, iteration_type IterationType = iteration_type::multi_pass, access AccessType = access::read_write>
     struct block
     {
-      using iterator = char*;
+      using iterator = block_iterator<T, IterationType, AccessType>;
   
       block() = default;
      
@@ -33,8 +163,7 @@ namespace pronto
 
         GDALRasterBlock* block = band->GetLockedBlockRef(major_col, major_row);
         if (block == nullptr) {
-          assert(false);
-          throw("trying to open inaccessible GDALRasterBlock");
+          throw(reading_from_raster_failed{});
         }
         auto deleter = [](GDALRasterBlock* b) {b->DropLock(); };
         m_block.reset(block, deleter);
@@ -71,16 +200,21 @@ namespace pronto
         return m_block->GetXOff();
       }
 
-      iterator get_iterator(int minor_row, int minor_col, unsigned char stride) const 
+      iterator get_iterator(int minor_row, int minor_col) const 
       {
         char* block_start = static_cast<char*>(m_block->GetDataRef());
-        return block_start + stride * (minor_row * block_cols() + minor_col);
+        
+        auto data_type = m_block->GetBand()->GetRasterDataType();
+        auto access_type = m_block->GetBand()->GetAccess();
+
+        auto i = iterator(data_type, access_type, block_start);
+        return i + (minor_row * block_cols() + minor_col);
       }
 
-      iterator get_null_iterator() const
-      {
-        return nullptr;
-      }
+      //iterator get_null_iterator() const
+      //{
+      //  return iterator();
+      //}
   
       void mark_dirty() const //mutable
       {

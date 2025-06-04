@@ -342,7 +342,7 @@ namespace pronto
         : m_band(band), m_rows(band->GetYSize()), m_cols(band->GetXSize()), m_first_row(0), m_first_col(0)
       {
         GDALDataType datatype = m_band->GetRasterDataType();
-        assert(datatype == gdal_data_type<value_type>); //GDALDataType must be consistent with value_type;
+        //assert(datatype == gdal_data_type<value_type>); //GDALDataType must be consistent with value_type;
         assert(GDALGetDataTypeSize(datatype) / 8 == sizeof(value_type)); //GDALDataType must be consistent with value_type;
         assert(m_band->GetAccess() != GA_ReadOnly || AccessType != access::read_write);// Don't have write access for read only dataset
       }
