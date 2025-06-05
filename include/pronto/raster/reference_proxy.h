@@ -25,7 +25,10 @@ namespace pronto {
       proxy_reference(const proxy_reference&) = default;
       proxy_reference(proxy_reference&&) = default;
       ~proxy_reference() = default;
-
+      operator value_type() const
+      {
+        return get();
+      }
       void put(const value_type& v) const {
         _self() = v;
       }

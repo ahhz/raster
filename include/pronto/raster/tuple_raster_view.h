@@ -8,10 +8,7 @@
 //=======================================================================
 //
 
-// This is not being used / tested
-
 #pragma once
-
 
 #include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/traits.h>
@@ -26,19 +23,21 @@ namespace pronto {
     {
     public:
       static const std::size_t N = sizeof...(I);
-
       static const bool is_single_pass = false;
       static const bool is_mutable = true;
-
       using value_type = std::tuple<std::iter_value_t<I>...>;
 
       tuple_raster_iterator(const I& ...iters) : m_iters(iters...)
       {
       }
 
-      auto dereference() const {
-        return std::apply([](auto&&... iters) {return std::make_tuple(*iters...); }, m_iters);
-      }
+      using reference_type = std::tuple<std::iter_reference_t<I>...>;
+
+      reference_type dereference() const {
+        return std::apply([](auto&&... iters) {
+          return reference_type(*iters...); 
+          }, m_iters);
+      } 
 
       void increment() {
         std::apply([](auto&&... iters) {(++iters, ...); }, m_iters);
@@ -52,14 +51,12 @@ namespace pronto {
       }
 
       bool equal_to(const tuple_raster_iterator& other) const {
-        return N > 0 && std::get<0>(m_iters) == std::get<0>(other.m_iters);
+        if constexpr (N == 0) return true;
+        return std::get<0>(m_iters) == std::get<0>(other.m_iters);
       }
 
       std::ptrdiff_t distance_to(const tuple_raster_iterator& other) const {
-        if constexpr (N == 0)
-        {
-          return 0;
-        }
+        if constexpr (N == 0) return 0;
         return std::get<0>(other.m_iters) - std::get<0>(m_iters);
       }
       std::tuple<I...> m_iters;
@@ -91,7 +88,9 @@ namespace pronto {
 
       int rows() const
       {
-        if  constexpr (N == 0) return 0;
+        if  constexpr (N == 0) {
+          return 0;
+        }
         return std::get<0>(m_rasters).rows();
       }
 
@@ -103,14 +102,18 @@ namespace pronto {
 
       int size() const
       {
-        if  constexpr (N == 0) return 0;
+        if constexpr (N == 0) return 0;
         return std::get<0>(m_rasters).size();
       }
 
-      auto sub_raster(int start_row, int start_col, int rows, int cols) const
-      {
-        return sub_raster_type{ std::apply([](auto&... rasters) {(rasters.sub_raster(start_row, start_col, rows, cols), ...); }, m_rasters) };
+      auto sub_raster(int start_row, int start_col, int rows_val, int cols_val) const {
+          return std::apply([&](const auto&... rasters) {
+            return tuple_raster_view<typename traits<R>::sub_raster...>{
+            (rasters.sub_raster(start_row, start_col, rows_val, cols_val))...
+          };
+          }, m_rasters);
       }
+
 
     private:
       std::tuple<R...> m_rasters;
