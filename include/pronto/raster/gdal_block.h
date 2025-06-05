@@ -121,13 +121,11 @@ namespace pronto
       void set_accessors(GDALAccess access_type)
       {
         m_get = block_iterator::get_special<U>;
-        if (access_type != GA_ReadOnly) {
-          m_put = block_iterator::put_special<U>;
-        }
-        else {
-          m_put = block_iterator::put_nothing;
-        }
+        m_put = access_type != GA_ReadOnly 
+          ? block_iterator::put_special<U> 
+          : block_iterator::put_nothing;
       }
+ 
       friend class put_get_proxy_reference<const block_iterator&>;
       friend class put_get_proxy_reference<block_iterator>;
    
@@ -200,22 +198,16 @@ namespace pronto
         return m_block->GetXOff();
       }
 
-      iterator get_iterator(int minor_row, int minor_col) const 
+      iterator begin() const
       {
         char* block_start = static_cast<char*>(m_block->GetDataRef());
-        
+
         auto data_type = m_block->GetBand()->GetRasterDataType();
         auto access_type = m_block->GetBand()->GetAccess();
 
-        auto i = iterator(data_type, access_type, block_start);
-        return i + (minor_row * block_cols() + minor_col);
+        return iterator(data_type, access_type, block_start);
       }
-
-      //iterator get_null_iterator() const
-      //{
-      //  return iterator();
-      //}
-  
+ 
       void mark_dirty() const //mutable
       {
         m_block->MarkDirty();
