@@ -122,16 +122,14 @@ namespace pronto
       std::filesystem::path get_temp_tiff_path();
       void optionally_update_statistics(GDALRasterBand* band);
 
-      struct dataset_deleter
-      {
-          void operator()(GDALRasterBand* band) const;
-      };
-
-      struct dataset_closer
-      {
-        dataset_closer(GDALDataset* dataset);
+      // --- Deleter for GDALRasterBand that manages its parent GDALDataset ---
+      struct gdal_band_and_dataset_deleter {
+        // Constructor to capture the dataset and whether to delete files
+        gdal_band_and_dataset_deleter(GDALDataset* dataset, bool delete_files);
         void operator()(GDALRasterBand* band) const;
-        GDALDataset* m_dataset;
+        GDALDataset* m_dataset = nullptr;
+        bool m_delete_files = false;
+
       };
 
       std::shared_ptr<GDALDataset> open_dataset(

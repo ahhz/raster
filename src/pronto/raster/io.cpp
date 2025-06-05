@@ -129,21 +129,66 @@ namespace pronto
         return get_unique_path(unique_temp_path_model);
       }
 
-      void dataset_deleter::operator()(GDALRasterBand* band) const
-      {
-        GDALDataset* dataset = band ? band->GetDataset() : nullptr;
-        if (dataset) {
-          char** file_list = dataset->GetFileList();
-          GDALDriver* driver = dataset->GetDriver();
-          GDALClose(dataset);
-          driver->Delete(file_list[0]);
-          CSLDestroy(file_list);
-        }
-        else {
-          std::cout << "Could not delete raster" << std::endl;
-          throw(deleting_raster_failed{});
+      gdal_band_and_dataset_deleter::gdal_band_and_dataset_deleter(GDALDataset* dataset, bool delete_files)
+        : m_dataset(dataset), m_delete_files(delete_files) {
+        if (!m_dataset) {
+          // This is a logic error, the dataset should always be valid here.
+          // In production, consider logging or asserting.
+          throw std::runtime_error("GDALBandAndDatasetDeleter initialized with nullptr dataset.");
         }
       }
+
+      void gdal_band_and_dataset_deleter::operator()(GDALRasterBand* band) const {
+        // The band pointer might be null if the shared_ptr was reset, but
+        // the dataset pointer captured during construction is what matters for cleanup.
+        // We do not rely on band->GetDataset() here.
+        if (m_dataset) {
+          // Optionally update statistics before closing, if desired
+          // (Your original code had this in dataset_closer, put it here if needed)
+          // optionally_update_statistics(band);
+
+          // Get file list *before* closing if we intend to delete files
+          char** file_list = nullptr;
+          if (m_delete_files) {
+            file_list = m_dataset->GetFileList();
+          }
+          GDALDriver* driver = m_dataset->GetDriver();
+          GDALClose(m_dataset); // Always close the dataset
+
+          if (m_delete_files && file_list) {
+
+            if (driver) {
+              for (int i = 0; file_list[i] != nullptr; ++i) {
+                // Check if file exists before trying to delete
+                // This prevents errors if a file from the list was already gone
+                if (std::filesystem::exists(file_list[i])) {
+                  CPLErr err = driver->Delete(file_list[i]);
+                  if (err != CE_None) {
+                    // Log error, don't throw
+                    fprintf(stderr, "Failed to delete file %s: %s\n", file_list[i], CPLGetLastErrorMsg());
+                  }
+                }
+              }
+            }
+            else {
+              fprintf(stderr, "Warning: Could not get GDAL driver for deletion.\n");
+            }
+            CSLDestroy(file_list);
+          }
+          else if (m_delete_files && !file_list) {
+            // This might happen for in-memory datasets or if GetFileList fails
+            fprintf(stderr, "Warning: Attempted to delete files but GetFileList returned null or empty list.\n");
+          }
+        }
+        else {
+          // This should ideally not happen if constructed correctly.
+          // Log a critical error.
+          fprintf(stderr, "Error: GDALBandAndDatasetDeleter called with nullptr m_dataset.\n");
+          // Do not throw from a destructor/deleter.
+        }
+      }
+   
+
  
       void optionally_update_statistics(GDALRasterBand* band)
       {
@@ -163,23 +208,6 @@ namespace pronto
           }
         }
       }
-
-      dataset_closer::dataset_closer(GDALDataset* dataset) : m_dataset(dataset)
-      {}
-
-      void dataset_closer::operator()(GDALRasterBand* band) const
-      {
-        GDALDataset* dataset = band ? band->GetDataset() : nullptr;
-        assert(dataset == m_dataset);
-        if (dataset) {
-          optionally_update_statistics(band);
-          GDALClose(dataset);
-        }
-        else {
-          throw(closing_raster_failed{});
-        }
-      }
-
       std::shared_ptr<GDALDataset> open_dataset(
         const std::filesystem::path& path, access access)
       {
@@ -223,26 +251,30 @@ namespace pronto
 
         return std::shared_ptr<GDALRasterBand>(rasterband, closer);
       }
-
+      // -- - Modified create_band function(pass path to deleter) -- -
       std::shared_ptr<GDALRasterBand> create_band(
-        const std::filesystem::path& path, int rows, int cols,
-        GDALDataType datatype, is_temporary is_temp)
-        {
-          int nBands = 1;
-          GDALDataset* dataset = detail::create_standard_gdaldataset(path, rows
-            , cols, datatype, nBands);
-          if (dataset == nullptr)
-          {
-            std::cout << "Could not create raster file: " << path << std::endl;
-            throw(creating_a_raster_failed{});
-          }
-          GDALRasterBand* band = dataset->GetRasterBand(1);
+          const std::filesystem::path & path, int rows, int cols,
+          GDALDataType datatype, is_temporary is_temp)
+      {
+        int nBands = 1;
+        GDALDataset* dataset = create_standard_gdaldataset(path, rows, cols, datatype, nBands);
 
-          return is_temp == is_temporary::yes
-            ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
-            : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+        if (dataset == nullptr) {
+          throw creating_a_raster_failed{};
         }
 
+        GDALRasterBand* band = dataset->GetRasterBand(1);
+        if (band == nullptr) {
+          GDALClose(dataset);
+          throw creating_a_raster_failed{};
+        }
+
+        bool delete_files = (is_temp == is_temporary::yes);
+        // Pass the original path to the deleter
+        return std::shared_ptr<GDALRasterBand>(band, gdal_band_and_dataset_deleter(dataset, delete_files));
+      }
+
+      
       std::shared_ptr<GDALRasterBand> create_band_from_model(
         const std::filesystem::path& path
         , const gdal_raster_view_base& model,
@@ -253,13 +285,18 @@ namespace pronto
         (path, model, datatype, nBands);
 
         if (dataset == nullptr) {
-          std::cout << "Could not create raster file: " << path << std::endl;
-          throw(creating_a_raster_failed{});
+          throw creating_a_raster_failed{};
         }
+
         GDALRasterBand* band = dataset->GetRasterBand(1);
-        return is_temp == is_temporary::yes
-          ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
-          : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+        if (band == nullptr) {
+          GDALClose(dataset);
+          throw creating_a_raster_failed{};
+        }
+
+        bool delete_files = (is_temp == is_temporary::yes);
+        // Pass the original path to the deleter
+        return std::shared_ptr<GDALRasterBand>(band, gdal_band_and_dataset_deleter(dataset, delete_files));
       }
      
       std::shared_ptr<GDALRasterBand> create_compressed_band_from_model(
@@ -272,13 +309,18 @@ namespace pronto
         (path, model, datatype, nBands);
 
         if (dataset == nullptr) {
-          std::cout << "Could not create raster file: " << path << std::endl;
-          throw(creating_a_raster_failed{});
+          throw creating_a_raster_failed{};
         }
+
         GDALRasterBand* band = dataset->GetRasterBand(1);
-        return is_temp == is_temporary::yes
-          ? std::shared_ptr<GDALRasterBand>(band, dataset_deleter{})
-          : std::shared_ptr<GDALRasterBand>(band, dataset_closer(dataset));
+        if (band == nullptr) {
+          GDALClose(dataset);
+          throw creating_a_raster_failed{};
+        }
+
+        bool delete_files = (is_temp == is_temporary::yes);
+        // Pass the original path to the deleter
+        return std::shared_ptr<GDALRasterBand>(band, gdal_band_and_dataset_deleter(dataset, delete_files));
       }
     } // detail
     /*
