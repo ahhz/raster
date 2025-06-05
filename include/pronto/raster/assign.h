@@ -17,7 +17,7 @@
 
 #include <ranges>
 #include <variant>
-
+#include <cassert>
 
 namespace pronto {
   namespace raster {

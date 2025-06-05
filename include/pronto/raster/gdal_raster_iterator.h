@@ -10,15 +10,11 @@
 #pragma once
 
 #include <pronto/raster/access_type.h>
-#include <pronto/raster/gdal_block.h>
-#include <pronto/raster/gdal_includes.h>
 #include <pronto/raster/iterator_facade.h>
 #include <pronto/raster/reference_proxy.h>
 
-#include <algorithm>
-#include <cassert>
-#include <iterator>
-#include <utility>
+#include <algorithm> // std::min
+#include <iterator> // std::ptrdiff_t
 
 namespace pronto
 {
@@ -31,9 +27,8 @@ namespace pronto
       : public iterator_facade<gdal_raster_iterator<T, IterationType, AccessType>>
     {
       using view_type = gdal_raster_view<T, IterationType, AccessType>;
-      using block_type = block<T, IterationType, AccessType>;
+      using block_type = view_type::block_type;
       using block_iterator_type = typename block_type::iterator;
-
    
     public:
       static const bool is_single_pass = IterationType==iteration_type::single_pass;
@@ -52,7 +47,6 @@ namespace pronto
       gdal_raster_iterator& operator=(const gdal_raster_iterator& ) = default;
       gdal_raster_iterator& operator=(gdal_raster_iterator&& )      = default;
       ~gdal_raster_iterator()                                       = default;
-
       
       auto dereference() const {
         return *m_block_iterator;
@@ -66,7 +60,7 @@ namespace pronto
         }
       }
       void decrement() {
-        if (m_end_of_stretch - m_block_iterator < m_block.block_cols()) {
+        if (m_end_of_stretch - m_block_iterator < m_view->get_block_cols()) {
           m_block_iterator--;
         }
         else {
@@ -91,45 +85,39 @@ namespace pronto
     private:
       friend class gdal_raster_view<T, IterationType, AccessType>;
 
-      void find_begin(const view_type* view)
-      {
+      void find_begin(const view_type* view) {
         m_view = view;
         goto_index(0);
       }
 
-      void find_end(const view_type* view)
-      {
+      void find_end(const view_type* view) {
         m_view = view;
         goto_index(static_cast<long long>(m_view->rows()) * static_cast<long long>(m_view->cols()));
       }
 
     private:
    
-      long long get_index() const
-      {
+      long long get_index() const {
         // it might seem more efficient to just add an index member to the
         // iterator, however the hot-path is operator++ and operator*(),
         // keep those as simple as possible
 
-        int block_rows = m_block.block_rows();
-        int block_cols = m_block.block_cols();
+        int block_rows = m_view->get_block_rows();
+        int block_cols = m_view->get_block_cols();
 
-        int major_row = m_block.major_row();
-        int major_col = m_block.major_col();
+        int index_in_block = m_block_iterator - m_block.begin();
 
-        block_iterator_type start = m_block.get_iterator(0, 0);
-        int index_in_block = static_cast<int>(std::distance(start, m_block_iterator));
-       
         int minor_row = index_in_block / block_cols;
         int minor_col = index_in_block % block_cols;
+        
+        int major_row = m_block.major_row();
+        int major_col = m_block.major_col();
 
         int gdaldata_row = major_row * block_rows + minor_row;
         int gdaldata_col = major_col * block_cols + minor_col;
 
-        int row = gdaldata_row - m_view->m_first_row;
-        int col = gdaldata_col - m_view->m_first_col;
-
-        long long index;
+        int row = gdaldata_row - m_view->get_first_row();
+        int col = gdaldata_col - m_view->get_first_col();
 
         // because of the way that the data is organised in blocks it 
         // could be that the "one-past-the-last" iterator points either 
@@ -146,17 +134,19 @@ namespace pronto
               * static_cast<long long> (m_view->cols()) 
               + static_cast<long long>(col);
         }
-        return index;
       }
 
       void goto_index(long long index)
       {
         if (index == static_cast<long long>(m_view->cols()) * static_cast<long long>(m_view->rows())) {
-          if (index == 0) { // empty raster, no place to go
+          if (index == 0) { 
+            // empty raster, no place to go
             m_block_iterator = block_iterator_type();
           }
           else {
             // Go to last block, one past the last element.
+            // This avoid havings to work out the complexity of where the 
+            // end iteratore sits due to the layout in blocks
             goto_index(index - 1);
             m_block_iterator++;
           }
@@ -166,30 +156,30 @@ namespace pronto
           int row = static_cast<int>(index / m_view->cols());
           int col = static_cast<int>(index % m_view->cols());
 
-          int gdaldata_row = row + m_view->m_first_row;
-          int gdaldata_col = col + m_view->m_first_col;
+          int gdaldata_row = row + m_view->get_first_row();
+          int gdaldata_col = col + m_view->get_first_col();
 
           int block_rows = m_view->get_block_rows();
           int block_cols = m_view->get_block_cols();
 
-          int block_row = gdaldata_row / block_rows;
-          int block_col = gdaldata_col / block_cols;
+          int major_row = gdaldata_row / block_rows;
+          int major_col = gdaldata_col / block_cols;
 
           int row_in_block = gdaldata_row % block_rows;
           int col_in_block = gdaldata_col % block_cols;
 
-          m_view->reset_block(m_block, block_row, block_col);
+          int index_in_block = row_in_block * block_cols + col_in_block;
 
-          m_block_iterator = m_block.get_iterator(row_in_block, col_in_block);
+          m_view->reset_block(m_block, major_row, major_col);
 
-          int end_col = std::min<int>((block_col + 1) * block_cols
-            , m_view->m_first_col + m_view->m_cols);
-
-          int minor_end_col = 1 + (end_col - 1) % block_cols;
-
-          m_end_of_stretch = m_block.get_iterator(row_in_block, minor_end_col);
+          m_block_iterator = m_block.begin() + index_in_block;
+          
+          int first_col_of_next_block = (major_col + 1) * block_cols;
+          int end_col_in_dataset = m_view->get_first_col() + m_view->cols();
+          int end_col = std::min<int>(first_col_of_next_block, end_col_in_dataset);
+         
+          m_end_of_stretch = m_block_iterator + (end_col - gdaldata_col);
         }
-
       }
       const view_type* m_view;
       block_type m_block;

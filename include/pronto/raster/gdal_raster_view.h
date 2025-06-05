@@ -178,6 +178,16 @@ namespace pronto
         return cols;
       }
 
+      int get_first_row() const
+      {
+        return m_first_row;
+      }
+
+      int get_first_col() const
+      {
+        return m_first_col;
+      }
+
       void reset_block(block_type& block, int block_row, int block_col) const 
       {
         if (!m_band) throw(gdal_raster_view_works_on_unitialized_band{});
@@ -186,12 +196,11 @@ namespace pronto
         if constexpr (is_mutable) {
           if(m_band->GetAccess() == GA_Update) {
              block.mark_dirty();
-            }
           }
+        }
       }
 
     private:
-      friend class gdal_raster_iterator<value_type, IterationType, AccessType>;
       std::shared_ptr<GDALRasterBand> m_band;
       int m_rows;
       int m_cols;
