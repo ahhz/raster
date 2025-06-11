@@ -175,7 +175,7 @@ int benchmark_3_rasters_pronto_typed()
 
     auto raster_sum = 3 * raster_a + raster_b * raster_c;
 
-    pr::assign(raster_out, raster_sum);
+    pr::assign_blocked(raster_out, raster_sum);
   }
   std::cout << "Files size of output.tif: " << std::filesystem::file_size("output.tif") << std::endl;
 
