@@ -110,8 +110,12 @@ find_package(GDAL REQUIRED)
 target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
 target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
 
-
-
+################################################################
+# Install Python, necessary for benchmark and binding
+#
+if(CREATE_PRONTO_RASTER_BENCHMARK OR CREATE_PRONTO_RASTER_PYTHON)
+	find_package(Python COMPONENTS Interpreter Development REQUIRED)
+endif()
 
 ################################################################
 # Creating a simple executable: Example 1
@@ -164,6 +168,7 @@ if(CREATE_PRONTO_RASTER_BENCHMARK)
 	set_target_properties(pronto_benchmark PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_benchmark PRIVATE pronto_raster)
 	target_link_libraries(pronto_benchmark PRIVATE benchmark::benchmark)
+	target_link_libraries(pronto_benchmark PRIVATE Python::Python)
 endif()
 
 ################################################################
@@ -172,7 +177,7 @@ endif()
 if(CREATE_PRONTO_RASTER_PYTHON)
 		
 	find_package(pybind11 CONFIG REQUIRED)
-  	set(python_binding_files
+  set(python_binding_files
 		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
 	)
 	pybind11_add_module(pronto_python MODULE ${python_binding_files})
