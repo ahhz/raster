@@ -12,6 +12,7 @@
 
 
 #include <pronto/raster/gdal_raster_view.h>
+#include <pronto/raster/uncasted_gdal_raster_view.h>
 #include <pronto/raster/optional.h>
 #include <pronto/raster/raster.h>
 
@@ -130,6 +131,14 @@ namespace pronto {
     // Exploiting that we can get the block size of gdal_raster_views.
     template<class T, iteration_type IType, access AType, class RasterViewIn>
     void assign_blocked(gdal_raster_view<T, IType, AType>& out, const RasterViewIn& in)
+    {
+      int block_row_size, block_col_size;
+      out.get_band()->GetBlockSize(&block_col_size, &block_row_size);
+      assign_blocked(out, in, block_row_size, block_col_size);
+    }
+    // Exploiting that we can get the block size of gdal_raster_views.
+    template<class T, iteration_type IType, access AType, class RasterViewIn>
+    void assign_blocked(uncasted_gdal_raster_view<T, IType, AType>& out, const RasterViewIn& in)
     {
       int block_row_size, block_col_size;
       out.get_band()->GetBlockSize(&block_col_size, &block_row_size);
