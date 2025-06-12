@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-# This CMake file now works "out of the box" in conjunction with vcpkg. 
-# I build gdal, boost, gtest and benchmark with vcpkg and use te vcpkg toolchain as 
-# instructed here: https://vcpkg.readthedocs.io/en/latest/examples/installing-and-using-packages/
+# This CMake file now works "out of the box" in conjunction with vcpkg in manifest mode, along with the vcpkg.json file
 
 project(pronto)
 
@@ -12,7 +10,6 @@ project(pronto)
 option(CREATE_PRONTO_RASTER_EXAMPLE  "Create project for Example 1 of  Pronto Raster" ON)
 option(CREATE_PRONTO_RASTER_TEST  "Create project for testing Pronto Raster" ON)
 option(CREATE_PRONTO_RASTER_BENCHMARK  "Create project for benchmarking Pronto Raster" ON)
-option(CREATE_PRONTO_RASTER_HEADERS "Create dummy project containing all Pronto Raster headers" ON)
 option(CREATE_PRONTO_RASTER_PYTHON "Create python bindings (tentative)" ON)
 
 ################################################################
@@ -79,14 +76,15 @@ set(pronto_raster_files
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/traits.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/transform_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/tuple_raster_view.h
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/type_erased_raster.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/type_erased_raster.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uniform_raster_view.h
+	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/uncasted_gdal_raster_view.h>
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/vector_of_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/weighted_raster_view.h
 	${CMAKE_CURRENT_SOURCE_DIR}/src/pronto/raster/io.cpp
 )
 set(pronto_raster_indicator_files 
-  ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/area_weighted_patch_size.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/count.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/edge_density.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/pronto/raster/indicator/interspersion.h
@@ -106,9 +104,8 @@ set_target_properties(pronto_raster PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDAR
 target_include_directories(pronto_raster INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include/ )
 
 # take care of GDAL dependency
-find_package(GDAL REQUIRED)
-target_include_directories(pronto_raster INTERFACE ${GDAL_INCLUDE_DIRS})
-target_link_libraries(pronto_raster INTERFACE ${GDAL_LIBRARIES})
+find_package(GDAL CONFIG REQUIRED)
+target_link_libraries(pronto_raster PUBLIC GDAL::GDAL)
 
 ################################################################
 # Install Python, necessary for benchmark and binding
@@ -176,19 +173,12 @@ endif()
 #
 if(CREATE_PRONTO_RASTER_PYTHON)
 		
-	find_package(pybind11 CONFIG REQUIRED)
-  set(python_binding_files
+    find_package(pybind11 CONFIG REQUIRED)
+    set(python_binding_files
 		${CMAKE_CURRENT_SOURCE_DIR}/bindings/python.cpp
 	)
 	pybind11_add_module(pronto_python MODULE ${python_binding_files})
 	set_target_properties(pronto_python PROPERTIES CXX_STANDARD ${PRONTO_CXX_STANDARD})
 	target_link_libraries(pronto_python PRIVATE pronto_raster)
 	target_link_libraries(pronto_python PRIVATE pybind11::module)
-endif()
-
-################################################################
-# Creating the Pronto Raster library
-#
-if(CREATE_PRONTO_RASTER_LIB)
-
 endif()
