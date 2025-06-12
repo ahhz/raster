@@ -11,11 +11,11 @@
 #pragma once
 
 #include <pronto/raster/iterator_facade.h>
-#include <pronto/raster/optional.h>
 #include <pronto/raster/traits.h>
 
+#include <iterator>
 #include <utility>
-#include <cassert>
+#include <optional>
 
 namespace pronto {
   namespace raster {
