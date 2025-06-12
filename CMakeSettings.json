@@ -1,0 +1,21 @@
+﻿{
+  "configurations": [
+    {
+      "name": "x64-Windows",
+      "generator": "Visual Studio 17 2022 Win64",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "cmakeCommandArgs": "", 
+      "buildCommandArgs": "",
+      "ctestCommandArgs": "",
+	  "variables": [
+        {
+          "name": "CMAKE_CONFIGURATION_TYPES", 
+          "value": "Debug;Release;RelWithDebInfo;MinSizeRel", 
+          "type": "STRING"
+        }
+      ]
+    }
+  ]
+}

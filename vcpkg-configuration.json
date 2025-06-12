@@ -1,0 +1,7 @@
+{
+  "vcpkg": {
+    "tools": {
+      "cmake": "C:/Program Files/CMake/CMake 3.31/bin/cmake.exe"
+    }
+  }
+}
